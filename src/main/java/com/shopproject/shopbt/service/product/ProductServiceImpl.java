@@ -2,9 +2,12 @@ package com.shopproject.shopbt.service.product;
 
 import com.shopproject.shopbt.dto.ProductsDTO;
 import com.shopproject.shopbt.entity.Categories;
+import com.shopproject.shopbt.entity.Color;
 import com.shopproject.shopbt.entity.Product;
 import com.shopproject.shopbt.repository.category.CategoryRepository;
+import com.shopproject.shopbt.repository.color.ColorRepository;
 import com.shopproject.shopbt.repository.product.ProductRepository;
+import com.shopproject.shopbt.repository.size.SizeRepository;
 import lombok.AllArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +24,8 @@ import java.util.stream.Collectors;
 public class ProductServiceImpl implements ProductService{
     private ProductRepository productRepository;
     private CategoryRepository categoryRepository;
+    private ColorRepository colorRepository;
+    private SizeRepository sizeRepository;
     private ModelMapper modelMapper;
 
     @Override

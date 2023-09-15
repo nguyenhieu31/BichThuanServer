@@ -4,6 +4,7 @@ import lombok.Data;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.Set;
 
 @Data
 public class ProductsDTO {
@@ -19,4 +20,6 @@ public class ProductsDTO {
     private LocalDateTime updatedAt;
     private String updatedBy;
     private Long categoryId;
+    private Set<Integer> colorId;
+    private Set<Integer> sizeId;
 }

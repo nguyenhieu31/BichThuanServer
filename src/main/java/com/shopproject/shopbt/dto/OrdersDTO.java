@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 public class OrdersDTO {
     private Long oderId;
     private LocalDateTime createAt;
-    private String status;
+    private int status;
     private LocalDateTime updateAt;
     private Long userId;
 }

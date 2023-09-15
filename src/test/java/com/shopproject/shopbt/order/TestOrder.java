@@ -17,7 +17,7 @@ public class TestOrder {
     @Test
     void create(){
         OrdersDTO ordersDTO = new OrdersDTO();
-        ordersDTO.setStatus("Pending");
+        ordersDTO.setStatus(1);
         ordersDTO.setUserId(3L);
         orderService.create_Order(ordersDTO);
     }
@@ -34,7 +34,7 @@ public class TestOrder {
     void update(){
         Long id = 1L;
         OrdersDTO ordersDTO = orderService.findOrderById(id);
-        ordersDTO.setStatus("Shipped");
+        ordersDTO.setStatus(2);
         orderService.update_Order(ordersDTO);
     }
 

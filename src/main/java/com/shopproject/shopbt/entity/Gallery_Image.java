@@ -15,19 +15,20 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "orders")
-public class Order {
+@Table(name = "gallery_images")
+public class Gallery_Image {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-
-    private Long oderId;
+    private Long id;
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
-    @Column(nullable = false)
-    private int status;
+    @JoinColumn(name = "product_id",nullable = false)
+    private Product product;
+    @Column(name = "image")
+    private byte[] image;
     @CreationTimestamp
-    private LocalDateTime createAt;
+    @Column(nullable = false)
+    private LocalDateTime createdAt;
     @UpdateTimestamp
-    private LocalDateTime updateAt;
+    @Column(nullable = false)
+    private LocalDateTime updatedAt;
 }

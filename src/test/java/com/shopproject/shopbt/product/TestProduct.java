@@ -13,6 +13,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -34,6 +35,14 @@ public class TestProduct {
         productsDTO.setQuantity(100);
         Long cateId = 3L;
         productsDTO.setCategoryId(cateId);
+        Set<Integer> colorId = new HashSet<>();
+        colorId.add(1);
+        colorId.add(2);
+        productsDTO.setColorId(colorId);
+        Set<Integer> sizeId = new HashSet<>();
+        colorId.add(1);
+        colorId.add(2);
+        productsDTO.setSizeId(sizeId);
         productsDTO.setUpdatedBy("An");
         productService.create_Product(productsDTO);
     }

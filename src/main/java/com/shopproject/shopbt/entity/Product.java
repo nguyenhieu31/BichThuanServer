@@ -8,6 +8,8 @@ import org.hibernate.annotations.UpdateTimestamp;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -45,4 +47,22 @@ public class Product {
     private String createdBy;
     @Column(nullable = false, length = 25)
     private String updatedBy;
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "product")
+    private Set<Product_Cart> product_carts = new HashSet<Product_Cart>(0);
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(
+            name = "product_size",
+            joinColumns = {@JoinColumn(name = "product_id", referencedColumnName = "productId")},
+            inverseJoinColumns = {@JoinColumn(name = "size_id", referencedColumnName = "sizeId")}
+    )
+    private Set<Size> sizes = new HashSet<Size>(0);
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(
+            name = "product_color",
+            joinColumns = {@JoinColumn(name = "product_id", referencedColumnName = "productId")},
+            inverseJoinColumns = {@JoinColumn(name = "color_id", referencedColumnName = "colorId")}
+    )
+    private Set<Color> colors = new HashSet<Color>(0);
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "product")
+    private Set<Gallery_Image> gallery_images = new HashSet<Gallery_Image>(0);
 }
