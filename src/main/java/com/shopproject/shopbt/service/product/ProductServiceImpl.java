@@ -4,6 +4,7 @@ import com.shopproject.shopbt.dto.ProductsDTO;
 import com.shopproject.shopbt.entity.Categories;
 import com.shopproject.shopbt.entity.Color;
 import com.shopproject.shopbt.entity.Product;
+import com.shopproject.shopbt.entity.Size;
 import com.shopproject.shopbt.repository.category.CategoryRepository;
 import com.shopproject.shopbt.repository.color.ColorRepository;
 import com.shopproject.shopbt.repository.product.ProductRepository;
@@ -15,6 +16,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -30,7 +32,8 @@ public class ProductServiceImpl implements ProductService{
 
     @Override
     public void create_Product(ProductsDTO productsDTO) {
-        Product product = readProductDTO(productsDTO);
+        Product product = new Product();
+        product = readProductDTO(product, productsDTO);
         productRepository.save(product);
     }
 
@@ -38,20 +41,31 @@ public class ProductServiceImpl implements ProductService{
     public ProductsDTO findProductById(Long id) {
         Product product = productRepository.findById(id).get();
         ProductsDTO productsDTO = modelMapper.map(product, ProductsDTO.class);
-        productsDTO.setCategoryId(product.getCategory().getCategoryId());
+        Set<Integer> colorIds = new HashSet<>();
+        Set<Color> colors = product.getColors();
+        colors.forEach(colorId -> {
+            colorIds.add(Math.toIntExact(colorId.getColorId()));
+        });
+        productsDTO.setColorId(colorIds);
+
+        Set<Integer> sizeIds = new HashSet<>();
+        Set<Size> sizes = product.getSizes();
+        sizes.forEach(sizeId -> {
+            sizeIds.add(Math.toIntExact(sizeId.getSizeId()));
+        });
+        productsDTO.setSizeId(sizeIds);
         return productsDTO;
     }
 
     @Override
     public void update_Product(ProductsDTO productsDTO) {
-        Product product = modelMapper.map(productsDTO, Product.class);
-        Categories category = categoryRepository.findCategoriesByCategoryId(productsDTO.getCategoryId());
-        product.setCategory(category);
+        Product product = productRepository.findById(productsDTO.getProductId()).get();
+        product = readProductDTO(product,productsDTO);
+
         productRepository.save(product);
     }
 
-    public Product readProductDTO(ProductsDTO productsDTO){
-        Product product = new Product();
+    public Product readProductDTO(Product product,ProductsDTO productsDTO){
         product.setCreatedBy(productsDTO.getCreatedBy());
         product.setName(productsDTO.getName());
         product.setDescription(productsDTO.getDescription());
@@ -61,6 +75,23 @@ public class ProductServiceImpl implements ProductService{
         product.setQuantity(productsDTO.getQuantity());
         Categories category = categoryRepository.findCategoriesByCategoryId(productsDTO.getCategoryId());
         product.setCategory(category);
+
+        // add set colors
+        Set<Integer> colorIds = productsDTO.getColorId();
+        Set<Color> colors = new HashSet<>();
+        colorIds.forEach(colorId -> {
+            colors.add(colorRepository.findByColorId(colorId));
+        });
+        product.setColors(colors);
+
+
+        // add set sizes
+        Set<Integer> sizeIds = productsDTO.getSizeId();
+        Set<Size> sizes = new HashSet<>();
+        sizeIds.forEach(sizeId -> {
+            sizes.add(sizeRepository.findBySizeId(sizeId));
+        });
+        product.setSizes(sizes);
         product.setUpdatedBy(productsDTO.getUpdatedBy());
         return product;
     }

@@ -14,7 +14,7 @@ public class TestColor {
     @Test
     void create(){
         ColorsDTO colorsDTO = new ColorsDTO();
-        colorsDTO.setName("Yellow");
+        colorsDTO.setName("Green");
 
         colorService.create_Color(colorsDTO);
     }

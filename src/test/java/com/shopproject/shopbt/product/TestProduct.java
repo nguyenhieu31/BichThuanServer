@@ -33,15 +33,15 @@ public class TestProduct {
         productsDTO.setPrice(BigDecimal.valueOf(100000));
         productsDTO.setMaterial("Đũi");
         productsDTO.setQuantity(100);
-        Long cateId = 3L;
+        Long cateId = 1L;
         productsDTO.setCategoryId(cateId);
         Set<Integer> colorId = new HashSet<>();
         colorId.add(1);
         colorId.add(2);
         productsDTO.setColorId(colorId);
         Set<Integer> sizeId = new HashSet<>();
-        colorId.add(1);
-        colorId.add(2);
+        sizeId.add(1);
+        sizeId.add(2);
         productsDTO.setSizeId(sizeId);
         productsDTO.setUpdatedBy("An");
         productService.create_Product(productsDTO);
@@ -49,7 +49,7 @@ public class TestProduct {
 
     @Test
     void findById(){
-        Long id = 2L;
+        Long id = 4L;
         ProductsDTO product = productService.findProductById(id);
         System.out.println(product.getName());
         System.out.println(product.getDescription());
@@ -60,8 +60,10 @@ public class TestProduct {
     void update() throws IOException {
         Long id = 4L;
         ProductsDTO productDto = productService.findProductById(id);
-        MultipartFile file = new MockMultipartFile("2.jpg", new FileInputStream(new File("D:\\dev-spring-boot\\image\\2.jpg")));
-        productDto.setImage(file.getBytes());
+        productDto.setName("Áo Hoodie Thường Ngày");
+        productDto.setDescription("Nobard Trơn Tròng đầu Vải crepe");
+        productDto.setUpdatedBy("Vỹ");
+
         productService.update_Product(productDto);
     }
 

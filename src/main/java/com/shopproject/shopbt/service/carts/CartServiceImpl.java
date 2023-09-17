@@ -19,8 +19,6 @@ public class CartServiceImpl implements CartService{
     @Override
     public void create_Cart(CartsDTO cartsDTO) {
         Cart cart = modelMapper.map(cartsDTO, Cart.class);
-        User user = userRepository.findById(cartsDTO.getUserId()).get();
-        cart.setUser(user);
 
         cartRepository.save(cart);
     }

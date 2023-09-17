@@ -15,7 +15,7 @@ public class TestSize {
     @Test
     void create(){
         SizesDTO sizesDTO = new SizesDTO();
-        sizesDTO.setName("S");
+        sizesDTO.setName("M");
 
         sizeService.create_Size(sizesDTO);
     }

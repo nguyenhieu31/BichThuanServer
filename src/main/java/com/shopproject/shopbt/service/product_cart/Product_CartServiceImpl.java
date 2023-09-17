@@ -20,12 +20,9 @@ public class Product_CartServiceImpl implements Product_CartService{
     private ModelMapper modelMapper;
     @Override
     public void create_Product_Cart(ProductCartsDTO productCartsDTO) {
-        Product_Cart product_cart = modelMapper.map(productCartsDTO, Product_Cart.class);
-        Cart cart = cartRepository.findById(productCartsDTO.getCartId()).get();
-        product_cart.setCart(cart);
-        Product product = productRepository.findById(productCartsDTO.getProductId()).get();
-        product_cart.setProduct(product);
-        
+        Product_Cart product_cart = new Product_Cart();
+        product_cart = modelMapper.map(productCartsDTO, Product_Cart.class);
+
         productCartRepository.save(product_cart);
     }
 
@@ -42,6 +39,7 @@ public class Product_CartServiceImpl implements Product_CartService{
         productCartsDTO.setStatus(product_cart.getStatus());
         productCartsDTO.setCartId(product_cart.getCart().getCartId());
         productCartsDTO.setProductId(product_cart.getProduct().getProductId());
+
         return productCartsDTO;
     }
 
@@ -57,6 +55,7 @@ public class Product_CartServiceImpl implements Product_CartService{
         update_product_cart.setCart(cart);
         Product product = productRepository.findById(productCartsDTO.getProductId()).get();
         update_product_cart.setProduct(product);
+
 
         productCartRepository.save(update_product_cart);
     }

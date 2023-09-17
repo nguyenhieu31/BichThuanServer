@@ -16,9 +16,9 @@ public class TestProduct_Cart {
         ProductCartsDTO productCartsDTO = new ProductCartsDTO();
         Long cartId = 1L;
         productCartsDTO.setCartId(cartId);
-        Long productId = 3L;
+        Long productId = 4L;
         productCartsDTO.setProductId(productId);
-        productCartsDTO.setColor("red");
+        productCartsDTO.setColor("Green");
         productCartsDTO.setQuantity(100);
         productCartsDTO.setSize("XL");
         productCartsDTO.setStatus(1);
@@ -40,10 +40,10 @@ public class TestProduct_Cart {
         ProductCartsDTO productCartsDTO = productCartService.findProduct_CartById(id);
         productCartsDTO.setStatus(3);
         productCartsDTO.setSize("M");
-        Long cartId = 2L;
-        productCartsDTO.setCartId(cartId);
-        Long productId = 4L;
+        productCartsDTO.setQuantity(50);
+        Long productId = 5L;
         productCartsDTO.setProductId(productId);
+
         productCartService.update_Product_Cart(productCartsDTO);
     }
 }
