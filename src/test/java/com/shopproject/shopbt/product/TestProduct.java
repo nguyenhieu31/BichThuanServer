@@ -13,6 +13,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -26,14 +27,14 @@ public class TestProduct {
     void create() throws IOException {
         ProductsDTO productsDTO = new ProductsDTO();
         productsDTO.setCreatedBy("Hieu");
-        productsDTO.setName("Strawberry Midi Dress");
-        productsDTO.setDescription("vest name...");
+        productsDTO.setName("Áo Sơ Mi OLIVER Shirt");
+        productsDTO.setDescription("Chất liệu thoáng mát, thiết kế trẻ trung hiện đại [BST EARLY SUMMER 2023] Áo có chất vải Cotton 100%, kiểu dáng trẻ trung trendy, chất liệu co giãn ...");
         MultipartFile file = new MockMultipartFile("1.jpg", new FileInputStream(new File("D:\\dev-spring-boot\\image\\1.jpg")));
         productsDTO.setImage(file.getBytes());
         productsDTO.setPrice(BigDecimal.valueOf(100000));
-        productsDTO.setMaterial("Đũi");
+        productsDTO.setMaterial("Áo có chất vải Cotton 100%");
         productsDTO.setQuantity(100);
-        Long cateId = 1L;
+        Long cateId = 3L;
         productsDTO.setCategoryId(cateId);
         Set<Integer> colorId = new HashSet<>();
         colorId.add(1);
@@ -43,7 +44,7 @@ public class TestProduct {
         sizeId.add(1);
         sizeId.add(2);
         productsDTO.setSizeId(sizeId);
-        productsDTO.setUpdatedBy("An");
+        productsDTO.setUpdatedBy("Hieu");
         productService.create_Product(productsDTO);
     }
 
@@ -54,15 +55,14 @@ public class TestProduct {
         System.out.println(product.getName());
         System.out.println(product.getDescription());
         System.out.println(product.getCategoryId());
+        System.out.println(product.getColorId().size());
     }
 
     @Test
     void update() throws IOException {
-        Long id = 4L;
+        Long id = 6L;
         ProductsDTO productDto = productService.findProductById(id);
-        productDto.setName("Áo Hoodie Thường Ngày");
-        productDto.setDescription("Nobard Trơn Tròng đầu Vải crepe");
-        productDto.setUpdatedBy("Vỹ");
+        productDto.setPrice(BigDecimal.valueOf(300000));
 
         productService.update_Product(productDto);
     }
@@ -79,6 +79,51 @@ public class TestProduct {
         productsDTOS.forEach(productsDTO -> {
             System.out.println(productsDTO.getProductId());
             System.out.println(productsDTO.getName());
+            System.out.println(productsDTO.getColorId().size());
+        });
+    }
+
+    @Test
+    void findTop10ByCreatedAtBetween(){
+        LocalDateTime now = LocalDateTime.now().toLocalDate().atStartOfDay();
+        LocalDateTime start = now.plusDays(-5);
+        LocalDateTime end = now.plusDays(5);
+        Set<ProductsDTO> productsDTOS = productService.findTop10ByCreatedAtBetween(start,end);
+        productsDTOS.forEach(productsDTO -> {
+            System.out.println(productsDTO.getName());
+        });
+    }
+
+    @Test
+    void findProductsByPriceBetween(){
+        BigDecimal start = BigDecimal.valueOf(200000);
+        BigDecimal end = BigDecimal.valueOf(400000);
+
+        Set<ProductsDTO> productsDTOS = productService.findTop10ByPriceBetween(start,end);
+        productsDTOS.forEach(productsDTO -> {
+            System.out.println(productsDTO.getName());
+            System.out.println(productsDTO.getDescription());
+        });
+    }
+
+    @Test
+    void findTop10(){
+        Set<ProductsDTO> productsDTOS = productService.findTop10();
+        productsDTOS.forEach(productsDTO -> {
+            System.out.println(productsDTO.getName());
+            System.out.println(productsDTO.getDescription());
+            System.out.println(productsDTO.getColorId());
+        });
+    }
+
+    @Test
+    void findAllByNameLike(){
+        String name = "Áo Hoodie";
+        Set<ProductsDTO> productsDTOS = productService.findAllByNameLike(name);
+        productsDTOS.forEach(productsDTO -> {
+            System.out.println(productsDTO.getName());
+            System.out.println(productsDTO.getDescription());
+            System.out.println(productsDTO.getColorId());
         });
     }
 }

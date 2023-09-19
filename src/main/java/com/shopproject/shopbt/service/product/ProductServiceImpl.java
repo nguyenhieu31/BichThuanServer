@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -40,20 +41,8 @@ public class ProductServiceImpl implements ProductService{
     @Override
     public ProductsDTO findProductById(Long id) {
         Product product = productRepository.findById(id).get();
-        ProductsDTO productsDTO = modelMapper.map(product, ProductsDTO.class);
-        Set<Integer> colorIds = new HashSet<>();
-        Set<Color> colors = product.getColors();
-        colors.forEach(colorId -> {
-            colorIds.add(Math.toIntExact(colorId.getColorId()));
-        });
-        productsDTO.setColorId(colorIds);
-
-        Set<Integer> sizeIds = new HashSet<>();
-        Set<Size> sizes = product.getSizes();
-        sizes.forEach(sizeId -> {
-            sizeIds.add(Math.toIntExact(sizeId.getSizeId()));
-        });
-        productsDTO.setSizeId(sizeIds);
+        ProductsDTO productsDTO = new ProductsDTO();
+        productsDTO = readProduct(product, productsDTO);
         return productsDTO;
     }
 
@@ -96,6 +85,35 @@ public class ProductServiceImpl implements ProductService{
         return product;
     }
 
+    public ProductsDTO readProduct(Product product,ProductsDTO productsDTO){
+        productsDTO.setProductId(product.getProductId());
+        productsDTO.setCreatedBy(product.getCreatedBy());
+        productsDTO.setCreatedAt(product.getCreatedAt());
+        productsDTO.setName(product.getName());
+        productsDTO.setCategoryId(product.getCategory().getCategoryId());
+        productsDTO.setImage(product.getImage());
+        productsDTO.setDescription(product.getDescription());
+        productsDTO.setPrice(product.getPrice());
+        productsDTO.setQuantity(product.getQuantity());
+        productsDTO.setMaterial(product.getMaterial());
+
+        Set<Integer> colorIds = new HashSet<>();
+        Set<Color> colors = product.getColors();
+        colors.forEach(colorId -> {
+            colorIds.add(Math.toIntExact(colorId.getColorId()));
+        });
+        productsDTO.setColorId(colorIds);
+
+        Set<Integer> sizeIds = new HashSet<>();
+        Set<Size> sizes = product.getSizes();
+        sizes.forEach(sizeId -> {
+            sizeIds.add(Math.toIntExact(sizeId.getSizeId()));
+        });
+        productsDTO.setSizeId(sizeIds);
+        productsDTO.setUpdatedAt(product.getUpdatedAt());
+        productsDTO.setUpdatedBy(product.getUpdatedBy());
+        return productsDTO;
+    }
     @Override
     public void delete_Product(Long id) {
         productRepository.deleteById(id);
@@ -104,12 +122,61 @@ public class ProductServiceImpl implements ProductService{
     @Override
     public Set<ProductsDTO> findProductsByCategoryId(Long id) {
         Set<Product> products = productRepository.findProductsByCategory_CategoryId(id);
-        return products.stream().map(product -> modelMapper.map(product, ProductsDTO.class)).collect(Collectors.toSet());
+        Set<ProductsDTO> productsDTOS = new HashSet<>();
+        products.forEach(product -> {
+            ProductsDTO productsDTO = new ProductsDTO();
+            productsDTO = readProduct(product, productsDTO);
+            productsDTOS.add(productsDTO);
+        });
+
+        return productsDTOS;
     }
 
     @Override
-    public Set<ProductsDTO> findProductsByPriceBetween(BigDecimal startPrice, BigDecimal endPrice) {
-        Set<Product> products = productRepository.findProductsByPriceBetween(startPrice,endPrice);
-        return products.stream().map(product -> modelMapper.map(product, ProductsDTO.class)).collect(Collectors.toSet());
+    public Set<ProductsDTO> findTop10ByPriceBetween(BigDecimal startPrice, BigDecimal endPrice) {
+        Set<Product> products = productRepository.findTop10ByPriceBetween(startPrice,endPrice);
+        Set<ProductsDTO> productsDTOS = new HashSet<>();
+        products.forEach(product -> {
+            ProductsDTO productsDTO = new ProductsDTO();
+            productsDTO = readProduct(product, productsDTO);
+            productsDTOS.add(productsDTO);
+        });
+        return productsDTOS;
+    }
+
+    @Override
+    public Set<ProductsDTO> findTop10ByCreatedAtBetween(LocalDateTime startDate, LocalDateTime endDate) {
+        Set<Product> products = productRepository.findTop10ByCreatedAtBetween(startDate,endDate);
+        Set<ProductsDTO> productsDTOS = new HashSet<>();
+        products.forEach(product -> {
+            ProductsDTO productsDTO = new ProductsDTO();
+            productsDTO = readProduct(product, productsDTO);
+            productsDTOS.add(productsDTO);
+        });
+        return productsDTOS;
+    }
+
+    @Override
+    public Set<ProductsDTO> findTop10() {
+        Set<Product> products = productRepository.findAll().stream().limit(10).collect(Collectors.toSet());
+        Set<ProductsDTO> productsDTOS = new HashSet<>();
+        products.forEach(product -> {
+            ProductsDTO productsDTO = new ProductsDTO();
+            productsDTO = readProduct(product, productsDTO);
+            productsDTOS.add(productsDTO);
+        });
+        return productsDTOS;
+    }
+
+    @Override
+    public Set<ProductsDTO> findAllByNameLike(String name) {
+        Set<Product> products = productRepository.findByNameLike(name);
+        Set<ProductsDTO> productsDTOS = new HashSet<>();
+        products.forEach(product -> {
+            ProductsDTO productsDTO = new ProductsDTO();
+            productsDTO = readProduct(product, productsDTO);
+            productsDTOS.add(productsDTO);
+        });
+        return productsDTOS;
     }
 }
