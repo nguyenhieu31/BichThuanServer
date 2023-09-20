@@ -18,7 +18,7 @@ public class TestCart {
     @Test
     void create(){
         CartsDTO cartsDTO = new CartsDTO();
-        Long id = 3L;
+        Long id = 1L;
         cartsDTO.setUserId(id);
 
         cartService.create_Cart(cartsDTO);

@@ -9,4 +9,5 @@ import java.util.Set;
 
 public interface UserRepository extends JpaRepository<User, Long> {
     Set<User> findUsersByCreateAtBetween(LocalDateTime startDate, LocalDateTime endDate);
+
 }

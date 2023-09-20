@@ -9,28 +9,35 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.Set;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "Categories")
-public class Categories {
+@Table(name = "comments")
+public class Comment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
 
-    private Long categoryId;
-    @Column(name = "name", nullable = false, unique = true, length = 50)
-    private String name;
+    private Long commentId;
+    @Column(nullable = false, length = 100)
+    private String description;
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
+    @Column(nullable = false)
+    private Integer rating;
+    @Column(nullable = false, length = 10)
+    private String size;
+    @Column(nullable = false, length = 10)
+    private String color;
+    @Column(nullable = false, length = 25)
+    private String productName;
     @CreationTimestamp
     @Column(nullable = false)
     private LocalDateTime createAt;
     @UpdateTimestamp
     @Column(nullable = false)
     private LocalDateTime updateAt;
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "category")
-    private Set<Product> products = new HashSet<Product>(0);
 }

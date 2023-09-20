@@ -3,6 +3,7 @@ package com.shopproject.shopbt.service.product;
 import com.shopproject.shopbt.dto.ProductsDTO;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
 
@@ -17,5 +18,11 @@ public interface ProductService {
 
     Set<ProductsDTO> findProductsByCategoryId(Long id);
 
-    Set<ProductsDTO> findProductsByPriceBetween(BigDecimal startPrice,BigDecimal endPrice);
+    Set<ProductsDTO> findTop10ByPriceBetween(BigDecimal startPrice,BigDecimal endPrice);
+
+    Set<ProductsDTO> findTop10ByCreatedAtBetween(LocalDateTime startDate, LocalDateTime endDate);
+
+    Set<ProductsDTO> findTop10();
+
+    Set<ProductsDTO> findAllByNameLike(String name);
 }

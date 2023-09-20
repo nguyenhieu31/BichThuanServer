@@ -16,7 +16,7 @@ public class TestCategory {
     @Test
     void create(){
         CategoriesDTO categoriesDTO = new CategoriesDTO();
-        categoriesDTO.setName("Dress");
+        categoriesDTO.setName("Jean");
         categoryService.create_Category(categoriesDTO);
     }
     @Test
