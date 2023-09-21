@@ -16,10 +16,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -91,7 +88,11 @@ public class ProductServiceImpl implements ProductService{
         productsDTO.setCreatedAt(product.getCreatedAt());
         productsDTO.setName(product.getName());
         productsDTO.setCategoryId(product.getCategory().getCategoryId());
-        productsDTO.setImage(product.getImage());
+        // convert byte to string base64
+        byte[] imageBytes = product.getImage();
+        String imageBase64 = Base64.getEncoder().encodeToString(imageBytes);
+        productsDTO.setImageBase64(imageBase64);
+
         productsDTO.setDescription(product.getDescription());
         productsDTO.setPrice(product.getPrice());
         productsDTO.setQuantity(product.getQuantity());
@@ -169,8 +170,8 @@ public class ProductServiceImpl implements ProductService{
     }
 
     @Override
-    public Set<ProductsDTO> findAllByNameLike(String name) {
-        Set<Product> products = productRepository.findByNameLike(name);
+    public Set<ProductsDTO> findByNameLikeIgnoreCase(String firstTwoCharacters) {
+        Set<Product> products = productRepository.findByNameLikeIgnoreCase("%" +  firstTwoCharacters + "%");
         Set<ProductsDTO> productsDTOS = new HashSet<>();
         products.forEach(product -> {
             ProductsDTO productsDTO = new ProductsDTO();
@@ -179,4 +180,21 @@ public class ProductServiceImpl implements ProductService{
         });
         return productsDTOS;
     }
+
+    public String getFirstTwoWordsFromProductName(String productName) {
+        if (productName == null) {
+            return null;
+        }
+        // Chia chuỗi thành các từ
+        String[] words = productName.split("\\s+");
+
+        if (words.length >= 2) {
+            // Lấy hai từ đầu tiên và kết hợp chúng thành một chuỗi
+            return words[0] + " " + words[1];
+        } else {
+            // Trường hợp có ít hơn hai từ, trả lại chuỗi ban đầu
+            return productName;
+        }
+    }
+
 }

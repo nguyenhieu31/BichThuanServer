@@ -113,13 +113,18 @@ public class TestProduct {
             System.out.println(productsDTO.getName());
             System.out.println(productsDTO.getDescription());
             System.out.println(productsDTO.getColorId());
+            System.out.println(productsDTO.getImageBase64());
         });
     }
 
     @Test
     void findAllByNameLike(){
-        String name = "Áo Hoodie";
-        Set<ProductsDTO> productsDTOS = productService.findAllByNameLike(name);
+
+        Long id = 4L;
+        ProductsDTO product = productService.findProductById(id);
+
+        String name = productService.getFirstTwoWordsFromProductName(product.getName());
+        Set<ProductsDTO> productsDTOS = productService.findByNameLikeIgnoreCase(name);
         productsDTOS.forEach(productsDTO -> {
             System.out.println(productsDTO.getName());
             System.out.println(productsDTO.getDescription());

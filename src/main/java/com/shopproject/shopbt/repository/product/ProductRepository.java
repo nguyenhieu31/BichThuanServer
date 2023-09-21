@@ -3,6 +3,8 @@ package com.shopproject.shopbt.repository.product;
 import com.shopproject.shopbt.entity.Categories;
 import com.shopproject.shopbt.entity.Product;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -16,6 +18,8 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
 
     Set<Product> findTop10ByCreatedAtBetween(LocalDateTime startDate, LocalDateTime endDate);
 
-    Set<Product> findByNameLike(String name);
+    Set<Product> findByNameLikeIgnoreCase(String name);
+
+
 
 }

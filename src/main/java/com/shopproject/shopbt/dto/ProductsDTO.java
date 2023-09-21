@@ -4,6 +4,7 @@ import lombok.Data;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.Base64;
 import java.util.Set;
 
 @Data
@@ -22,4 +23,5 @@ public class ProductsDTO {
     private Long categoryId;
     private Set<Integer> colorId;
     private Set<Integer> sizeId;
+    private String imageBase64;
 }

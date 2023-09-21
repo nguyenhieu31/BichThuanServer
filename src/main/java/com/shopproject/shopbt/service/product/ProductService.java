@@ -24,5 +24,8 @@ public interface ProductService {
 
     Set<ProductsDTO> findTop10();
 
-    Set<ProductsDTO> findAllByNameLike(String name);
+    Set<ProductsDTO> findByNameLikeIgnoreCase(String firstTwoCharacters);
+
+    String getFirstTwoWordsFromProductName(String productName);
+
 }
