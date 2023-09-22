@@ -22,7 +22,8 @@ public class Manager implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String email;
+    @Column(name = "manager_name")
+    private String managerName;
     private String password;
     @ManyToMany(fetch = FetchType.EAGER, cascade = {CascadeType.ALL})
     @JoinTable(
@@ -46,7 +47,7 @@ public class Manager implements UserDetails {
 
     @Override
     public String getUsername() {
-        return email;
+        return managerName;
     }
 
     @Override
@@ -76,8 +77,7 @@ public class Manager implements UserDetails {
     public String toString() {
         return "UserEntity{" +
                 "id=" + id +
-                ", userName='" + email + '\'' +
-                ", email='" + email + '\'' +
+                ", userName='" + managerName + '\'' +
                 '}';
     }
 }

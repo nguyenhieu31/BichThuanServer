@@ -29,8 +29,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         String authorization= request.getHeader("Authorization");
         String token=null;
-        final String managerEmail;
-        if(request.getServletPath().contains("/auth")){
+        final String userName;
+        if(request.getServletPath().startsWith("/web/api/v1")){
             filterChain.doFilter(request,response);
             return;
         }
@@ -43,10 +43,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             try {
                 boolean checkExpirationToken= jwtServices.isTokenExpiration(token);
                 if(!checkExpirationToken){
-                    managerEmail= jwtServices.ExtractUserName(token);
-                    if(managerEmail !=null){
-                        UserDetails userDetails= this.userDetailsService.loadUserByUsername(managerEmail);
-                        if(managerEmail.equals(userDetails.getUsername()) && !jwtServices.isTokenExpiration(token)){
+                    userName= jwtServices.ExtractUserName(token);
+                    if(userName !=null){
+                        UserDetails userDetails= this.userDetailsService.loadUserByUsername(userName);
+                        if(userName.equals(userDetails.getUsername()) && !jwtServices.isTokenExpiration(token)){
                             UsernamePasswordAuthenticationToken authenticationToken= new UsernamePasswordAuthenticationToken(userDetails,null,userDetails.getAuthorities());
                             authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                             SecurityContextHolder.getContext().setAuthentication(authenticationToken);
@@ -59,7 +59,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 return;
             }
         }else{
-            response.setStatus(402);
+            response.setStatus(401);
             response.getWriter().write("token isn't valid");
             return;
         }

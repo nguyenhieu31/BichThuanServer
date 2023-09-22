@@ -1,19 +1,17 @@
-package com.shopproject.shopbt.service.managers;
+package com.shopproject.shopbt.service.authentication;
 
-import com.shopproject.shopbt.dto.ManagerDTO;
-import com.shopproject.shopbt.entity.Manager;
-import com.shopproject.shopbt.entity.Roles;
-import com.shopproject.shopbt.entity.WhiteList;
+import com.shopproject.shopbt.entity.*;
 import com.shopproject.shopbt.repository.Manager.ManagerRepo;
 import com.shopproject.shopbt.repository.Role.RoleRepo;
 import com.shopproject.shopbt.repository.WhiteList.WhiteListRepo;
+import com.shopproject.shopbt.repository.user.UserRepository;
 import com.shopproject.shopbt.request.LoginRequest;
 import com.shopproject.shopbt.request.RefreshTokenRequest;
 import com.shopproject.shopbt.request.RegisterRequest;
-import com.shopproject.shopbt.response.ManagerResponse;
+import com.shopproject.shopbt.request.RegisterUserRequest;
+import com.shopproject.shopbt.response.AuthenticationResponse;
 import com.shopproject.shopbt.service.JwtServices.JwtServices;
 import io.jsonwebtoken.Claims;
-import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -25,13 +23,12 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
-import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.*;
 
 @Service
 @RequiredArgsConstructor
-public class ManagerService {
+public class AuthenticationService {
     private final JwtServices jwtServices;
     private final ManagerRepo managerRepo;
     private final PasswordEncoder passwordEncoder;
@@ -39,6 +36,8 @@ public class ManagerService {
     private final AuthenticationManager authenticationManager;
     private final WhiteListRepo whiteListRepo;
     private final UserDetailsService userDetailsService;
+    private final UserRepository userRepository;
+    //admin
     public String register(RegisterRequest request){
         List<String> nameRole= new ArrayList<>();
         request.getRoles().forEach(role->nameRole.add(role.getName()));
@@ -48,7 +47,7 @@ public class ManagerService {
             role.ifPresent(roles::add);
         });
         var manager= Manager.builder()
-                .email(request.getEmail())
+                .managerName(request.getUserName())
                 .password(passwordEncoder.encode(request.getPassword()))
                 .roles(roles)
                 .build();
@@ -59,17 +58,52 @@ public class ManagerService {
         }
         return "register is successful";
     }
-    public ManagerResponse authenticate(LoginRequest request){
+    //user
+    public String registerUser(RegisterUserRequest request){
+        Date time= new Date(System.currentTimeMillis());
+        Instant instant= time.toInstant();
+        ZoneId zoneId= ZoneId.of("UTC");
+        var user= User.builder()
+                .userName(request.getUserName())
+                .fullName(request.getFullName())
+                .password(passwordEncoder.encode(request.getPassword()))
+                .phoneNumber(request.getPhoneNumber())
+                .role("USER")
+                .createAt(instant.atZone(zoneId).toLocalDateTime())
+                .updateAt(instant.atZone(zoneId).toLocalDateTime())
+                .build();
+        var address= Address.builder()
+                .address(request.getAddress())
+                .user(user)
+                .build();
+        if (user.getAddresses() == null) {
+            user.setAddresses(new HashSet<>());
+        }
+        user.getAddresses().add(address);
+        try {
+            userRepository.save(user);
+            return "register is successful";
+        }catch (Exception e){
+            return "register is failed"+ e.getMessage();
+        }
+    }
+    public AuthenticationResponse authenticate(LoginRequest request){
         Authentication authentication= authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(request.getEmail(),request.getPassword())
+                new UsernamePasswordAuthenticationToken(request.getUserName(),request.getPassword())
         );
-        System.out.println(authentication);
-        var manager= managerRepo.findByEmail(request.getEmail())
-                .orElseThrow(()-> new UsernameNotFoundException("manager not found"));
-        var token= jwtServices.GeneratorAccessToken(manager);
-        var refreshToken= jwtServices.GeneratorRefreshToken(manager);
+        var manager= managerRepo.findByManagerName(request.getUserName());
+        String token=null;
+        String refreshToken= null;
+        if(manager.isPresent()){
+            token= jwtServices.GeneratorAccessToken(manager.get());
+            refreshToken= jwtServices.GeneratorRefreshToken(manager.get());
+        }else{
+            var user= userRepository.findByUserName(request.getUserName())
+                    .orElseThrow(()-> new UsernameNotFoundException("user is not found"));
+            token= jwtServices.GeneratorAccessToken(user);
+            refreshToken= jwtServices.GeneratorRefreshToken(user);
+        }
         Date expiration= jwtServices.decodedToken(refreshToken).getExpiration();
-        System.out.println(expiration);
         Instant instant= expiration.toInstant();
         ZoneId zoneId= ZoneId.of("UTC");
         var saveTokenOnWhiteList= WhiteList.builder()
@@ -77,12 +111,15 @@ public class ManagerService {
                 .expirationToken(instant.atZone(zoneId).toLocalDateTime())
                 .build();
         whiteListRepo.save(saveTokenOnWhiteList);
-        return ManagerResponse.builder()
+        if(token==null && refreshToken==null){
+            return null;
+        }
+        return AuthenticationResponse.builder()
                 .token(token)
                 .refreshToken(refreshToken)
                 .build();
     }
-    public ManagerResponse refreshToken(RefreshTokenRequest request){
+    public AuthenticationResponse refreshToken(RefreshTokenRequest request){
         String newToken=null;
         if(!jwtServices.isTokenExpiration(request.getRefreshToken()) && request.getRefreshToken() !=null){
             Claims claims= jwtServices.decodedToken(request.getRefreshToken());
@@ -91,7 +128,7 @@ public class ManagerService {
         }else{
             return null;
         }
-        return ManagerResponse.builder()
+        return AuthenticationResponse.builder()
                 .token(newToken)
                 .refreshToken(request.getRefreshToken())
                 .build();

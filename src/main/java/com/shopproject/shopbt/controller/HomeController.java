@@ -1,14 +1,15 @@
 package com.shopproject.shopbt.controller;
 
 import com.shopproject.shopbt.dto.ProductsDTO;
-import com.shopproject.shopbt.respon.Product_findbyid;
-import com.shopproject.shopbt.respon.Product_home;
+import com.shopproject.shopbt.response.Product_findbyid;
+import com.shopproject.shopbt.response.Product_home;
 import com.shopproject.shopbt.service.product.ProductService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.math.BigDecimal;
@@ -17,6 +18,7 @@ import java.util.Set;
 
 @RestController
 @AllArgsConstructor
+@RequestMapping("/web/api/v1")
 public class HomeController {
     private ProductService productService;
 

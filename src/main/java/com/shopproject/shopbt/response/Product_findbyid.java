@@ -1,4 +1,4 @@
-package com.shopproject.shopbt.respon;
+package com.shopproject.shopbt.response;
 
 import com.shopproject.shopbt.dto.ProductsDTO;
 import lombok.AllArgsConstructor;
