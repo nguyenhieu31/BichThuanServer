@@ -12,6 +12,8 @@ import com.shopproject.shopbt.repository.size.SizeRepository;
 import lombok.AllArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -121,19 +123,6 @@ public class ProductServiceImpl implements ProductService{
     }
 
     @Override
-    public Set<ProductsDTO> findProductsByCategoryId(Long id) {
-        Set<Product> products = productRepository.findProductsByCategory_CategoryId(id);
-        Set<ProductsDTO> productsDTOS = new HashSet<>();
-        products.forEach(product -> {
-            ProductsDTO productsDTO = new ProductsDTO();
-            productsDTO = readProduct(product, productsDTO);
-            productsDTOS.add(productsDTO);
-        });
-
-        return productsDTOS;
-    }
-
-    @Override
     public Set<ProductsDTO> findTop10ByPriceBetween(BigDecimal startPrice, BigDecimal endPrice) {
         Set<Product> products = productRepository.findTop10ByPriceBetween(startPrice,endPrice);
         Set<ProductsDTO> productsDTOS = new HashSet<>();
@@ -197,4 +186,15 @@ public class ProductServiceImpl implements ProductService{
         }
     }
 
+    @Override
+    public Page<ProductsDTO> findProductsByCategoryId(Long id, int page) {
+        PageRequest pageRequest = PageRequest.of(page, 12);
+        Page<Product> products = productRepository.findProductsByCategory_CategoryId(id, pageRequest);
+        Page<ProductsDTO> productsDTOS = products.map(product -> {
+            ProductsDTO productsDTO = new ProductsDTO();
+            productsDTO = readProduct(product, productsDTO);
+            return productsDTO;
+        });
+        return productsDTOS;
+    }
 }

@@ -1,4 +1,4 @@
-package com.shopproject.shopbt.respon;
+package com.shopproject.shopbt.response;
 
 import com.shopproject.shopbt.dto.ProductsDTO;
 import lombok.AllArgsConstructor;
@@ -12,8 +12,7 @@ import java.util.Set;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class Product_home {
-    private  Set<ProductsDTO> products_new;
-    private  Set<ProductsDTO> products_selling;
-    private Set<ProductsDTO> products_featured;
+public class Product_findbyid {
+    private ProductsDTO productsDTO;
+    private Set<ProductsDTO> products_same;
 }

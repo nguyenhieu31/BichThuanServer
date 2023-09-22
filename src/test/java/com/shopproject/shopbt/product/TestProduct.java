@@ -5,6 +5,7 @@ import com.shopproject.shopbt.service.product.ProductService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.Page;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -74,8 +75,8 @@ public class TestProduct {
 
     @Test
     void findProductByCateId(){
-        Long id = 3L;
-        Set<ProductsDTO> productsDTOS = productService.findProductsByCategoryId(id);
+        Long id = 1L;int page = 0;
+        Page<ProductsDTO> productsDTOS = productService.findProductsByCategoryId(id, page);
         productsDTOS.forEach(productsDTO -> {
             System.out.println(productsDTO.getProductId());
             System.out.println(productsDTO.getName());

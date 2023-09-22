@@ -1,17 +1,18 @@
 package com.shopproject.shopbt.controller;
 
 import com.shopproject.shopbt.dto.ProductsDTO;
-import com.shopproject.shopbt.respon.Product_findbyid;
-import com.shopproject.shopbt.respon.Product_home;
+import com.shopproject.shopbt.response.Product_Category;
+import com.shopproject.shopbt.response.Product_findbyid;
+import com.shopproject.shopbt.response.Product_home;
 import com.shopproject.shopbt.service.product.ProductService;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -55,5 +56,14 @@ public class HomeController {
                 .productsDTO(productsDTO)
                 .products_same(products_same).build());
     }
+
+    @GetMapping("/category/{id}")
+    public ResponseEntity<Product_Category> findByCategoryId(@PathVariable("id") Long id,@RequestParam(defaultValue = "0") int page){
+        Page<ProductsDTO> products_category = productService.findProductsByCategoryId(id, page);
+
+        return ResponseEntity.status(HttpStatus.OK).body(Product_Category.builder()
+                .products_category(products_category).build());
+    }
+
 
 }

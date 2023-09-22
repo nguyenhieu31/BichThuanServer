@@ -1,6 +1,7 @@
 package com.shopproject.shopbt.service.product;
 
 import com.shopproject.shopbt.dto.ProductsDTO;
+import org.springframework.data.domain.Page;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -16,8 +17,6 @@ public interface ProductService {
 
     void delete_Product(Long id);
 
-    Set<ProductsDTO> findProductsByCategoryId(Long id);
-
     Set<ProductsDTO> findTop10ByPriceBetween(BigDecimal startPrice,BigDecimal endPrice);
 
     Set<ProductsDTO> findTop10ByCreatedAtBetween(LocalDateTime startDate, LocalDateTime endDate);
@@ -27,5 +26,7 @@ public interface ProductService {
     Set<ProductsDTO> findByNameLikeIgnoreCase(String firstTwoCharacters);
 
     String getFirstTwoWordsFromProductName(String productName);
+
+    public Page<ProductsDTO> findProductsByCategoryId(Long id, int page);
 
 }
