@@ -8,27 +8,24 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.Set;
 
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "address")
-public class Address {
+@Table(name="whitelists")
+public class WhiteList {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Column(name = "address", nullable = true, length = 100)
-    private String address;
-    @ManyToOne(fetch = FetchType.LAZY, cascade = {CascadeType.ALL})
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
-<<<<<<< HEAD
+    private String token;
+    @Column(name = "expiration_token", columnDefinition = "timestamp")
+    private LocalDateTime expirationToken;
+    @CreationTimestamp
+    private Instant createdAt;
+    @UpdateTimestamp
+    private Instant updatedAt;
 }
-=======
-}
->>>>>>> 0895b5a0d0136bf4ca00ca97eaae95165d9f9be3

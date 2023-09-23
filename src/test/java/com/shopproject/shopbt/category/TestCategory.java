@@ -19,7 +19,6 @@ public class TestCategory {
         categoriesDTO.setName("Jean");
         categoryService.create_Category(categoriesDTO);
     }
-
     @Test
     void findById(){
         Long id = 1L;

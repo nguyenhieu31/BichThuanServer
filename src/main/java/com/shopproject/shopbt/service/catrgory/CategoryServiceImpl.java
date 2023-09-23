@@ -1,15 +1,16 @@
 package com.shopproject.shopbt.service.catrgory;
 
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.shopproject.shopbt.dto.CategoriesDTO;
-import com.shopproject.shopbt.dto.ProductsDTO;
 import com.shopproject.shopbt.entity.Categories;
-import com.shopproject.shopbt.entity.Product;
 import com.shopproject.shopbt.repository.category.CategoryRepository;
 import lombok.AllArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 

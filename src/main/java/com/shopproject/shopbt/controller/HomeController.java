@@ -1,7 +1,10 @@
 package com.shopproject.shopbt.controller;
 
 import com.shopproject.shopbt.dto.ProductsDTO;
+<<<<<<< HEAD
 import com.shopproject.shopbt.response.Product_Category;
+=======
+>>>>>>> 0895b5a0d0136bf4ca00ca97eaae95165d9f9be3
 import com.shopproject.shopbt.response.Product_findbyid;
 import com.shopproject.shopbt.response.Product_home;
 import com.shopproject.shopbt.service.product.ProductService;
@@ -12,7 +15,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+<<<<<<< HEAD
 import org.springframework.web.bind.annotation.RequestParam;
+=======
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+>>>>>>> 0895b5a0d0136bf4ca00ca97eaae95165d9f9be3
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -20,6 +28,7 @@ import java.util.Set;
 
 @Controller
 @AllArgsConstructor
+@RequestMapping("/web/api/v1")
 public class HomeController {
     private ProductService productService;
 

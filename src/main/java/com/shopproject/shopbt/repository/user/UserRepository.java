@@ -5,9 +5,11 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Optional;
 import java.util.Set;
 
 public interface UserRepository extends JpaRepository<User, Long> {
+    Optional<User> findByUserName(String userName);
     Set<User> findUsersByCreateAtBetween(LocalDateTime startDate, LocalDateTime endDate);
 
 }
