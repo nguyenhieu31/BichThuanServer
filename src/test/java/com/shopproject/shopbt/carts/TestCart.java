@@ -18,7 +18,7 @@ public class TestCart {
     @Test
     void create(){
         CartsDTO cartsDTO = new CartsDTO();
-        Long id = 1L;
+        Long id = 13L;
         cartsDTO.setUserId(id);
 
         cartService.create_Cart(cartsDTO);
@@ -26,12 +26,17 @@ public class TestCart {
 
     @Test
     void findById(){
-        Long id = 1L;
+        Long id = 2L;
         CartsDTO cartsDTO = cartService.findCartById(id);
         UsersDTO usersDTO = userService.findByUserId(cartsDTO.getUserId());
 
-        System.out.println(usersDTO.getFirstName()+" "+usersDTO.getLastName());
+        System.out.println(usersDTO.getFullName());
         System.out.println(usersDTO.getPhoneNumber());
-        System.out.println(usersDTO.getAddress());
+    }
+
+    @Test
+    void findByUserid(){
+        Long id = 13L;
+        CartsDTO cartsDTO = cartService.findByUserId(id);
     }
 }

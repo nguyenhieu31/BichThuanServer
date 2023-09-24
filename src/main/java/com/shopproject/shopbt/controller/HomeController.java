@@ -1,13 +1,15 @@
 package com.shopproject.shopbt.controller;
 
+import com.shopproject.shopbt.dto.ProductCartsDTO;
 import com.shopproject.shopbt.dto.ProductsDTO;
-<<<<<<< HEAD
+
+import com.shopproject.shopbt.response.Product_Carts;
 import com.shopproject.shopbt.response.Product_Category;
-=======
->>>>>>> 0895b5a0d0136bf4ca00ca97eaae95165d9f9be3
+
 import com.shopproject.shopbt.response.Product_findbyid;
 import com.shopproject.shopbt.response.Product_home;
 import com.shopproject.shopbt.service.product.ProductService;
+import com.shopproject.shopbt.service.product_cart.Product_CartService;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
@@ -15,12 +17,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-<<<<<<< HEAD
+
 import org.springframework.web.bind.annotation.RequestParam;
-=======
+
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
->>>>>>> 0895b5a0d0136bf4ca00ca97eaae95165d9f9be3
+
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -31,7 +32,7 @@ import java.util.Set;
 @RequestMapping("/web/api/v1")
 public class HomeController {
     private ProductService productService;
-
+    private Product_CartService productCartService;
     @GetMapping("/home")
     public ResponseEntity<Product_home> home(){
         // New Collection
@@ -63,7 +64,8 @@ public class HomeController {
         Set<ProductsDTO> products_same = productService.findByNameLikeIgnoreCase(p_name);
         return ResponseEntity.status(HttpStatus.OK).body(Product_findbyid.builder()
                 .productsDTO(productsDTO)
-                .products_same(products_same).build());
+                .products_same(products_same)
+                .build());
     }
 
     @GetMapping("/category/{id}")
@@ -71,8 +73,15 @@ public class HomeController {
         Page<ProductsDTO> products_category = productService.findProductsByCategoryId(id, page);
 
         return ResponseEntity.status(HttpStatus.OK).body(Product_Category.builder()
-                .products_category(products_category).build());
+                .products_category(products_category)
+                .build());
     }
 
-
+    @GetMapping("/cart/{id}")
+    public ResponseEntity<Product_Carts> findByCartId(@PathVariable("id") Long id){
+        Set<ProductCartsDTO> products_cart = productCartService.findProduct_CartByCartId(id);
+        return ResponseEntity.status(HttpStatus.OK).body(Product_Carts.builder()
+                .products_cart(products_cart)
+                .build());
+    }
 }

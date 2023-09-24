@@ -63,7 +63,7 @@ public class AuthenticationService {
         Date time= new Date(System.currentTimeMillis());
         Instant instant= time.toInstant();
         ZoneId zoneId= ZoneId.of("UTC");
-        var user= User.builder()
+        var user = User.builder()
                 .userName(request.getUserName())
                 .fullName(request.getFullName())
                 .password(passwordEncoder.encode(request.getPassword()))
@@ -72,7 +72,7 @@ public class AuthenticationService {
                 .createAt(instant.atZone(zoneId).toLocalDateTime())
                 .updateAt(instant.atZone(zoneId).toLocalDateTime())
                 .build();
-        var address= Address.builder()
+        var address = Address.builder()
                 .address(request.getAddress())
                 .user(user)
                 .build();

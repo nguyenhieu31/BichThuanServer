@@ -41,4 +41,9 @@ public class CartServiceImpl implements CartService{
     public void delete_CartById(Long id) {
         cartRepository.deleteById(id);
     }
+
+    @Override
+    public CartsDTO findByUserId(Long id) {
+        return modelMapper.map(cartRepository.findByUser_Userid(id), CartsDTO.class);
+    }
 }

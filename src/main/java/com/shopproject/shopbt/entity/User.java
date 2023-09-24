@@ -8,6 +8,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -30,27 +31,20 @@ public class User implements UserDetails {
     private String password;
     @Column(name = "phone_number", nullable = false,unique = true, length = 11)
     private String phoneNumber;
-<<<<<<< HEAD
-=======
     @Column(name = "role", nullable = false, length = 10)
     private String role;
->>>>>>> 0895b5a0d0136bf4ca00ca97eaae95165d9f9be3
     @CreationTimestamp
     private LocalDateTime createAt;
     @UpdateTimestamp
     private LocalDateTime updateAt;
-    @OneToMany(fetch = FetchType.LAZY,mappedBy = "user", cascade = {CascadeType.ALL})
+    @OneToMany(fetch = FetchType.EAGER,mappedBy = "user", cascade = {CascadeType.ALL})
     private Set<Address> addresses= new HashSet<Address>();
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "user")
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "user")
     private Set<Order> orders = new HashSet<Order>(0);
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "user")
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "user")
     private Set<Cart> carts = new HashSet<Cart>(0);
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "user")
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "user")
     private Set<Comment> comments = new HashSet<Comment>(0);
-<<<<<<< HEAD
-    @OneToMany(fetch = FetchType.LAZY,mappedBy = "user", cascade = {CascadeType.ALL})
-    private Set<Address> addresses= new HashSet<Address>();
-=======
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -86,5 +80,5 @@ public class User implements UserDetails {
     public String getPassword(){
         return password;
     }
->>>>>>> 0895b5a0d0136bf4ca00ca97eaae95165d9f9be3
+
 }

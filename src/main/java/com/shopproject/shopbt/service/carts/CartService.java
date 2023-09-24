@@ -10,4 +10,6 @@ public interface CartService {
     void update_Cart(CartsDTO cartsDTO);
 
     void delete_CartById(Long id);
+
+    CartsDTO findByUserId(Long id);
 }

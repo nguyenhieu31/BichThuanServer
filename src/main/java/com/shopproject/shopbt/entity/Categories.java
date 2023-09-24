@@ -31,6 +31,6 @@ public class Categories {
     @UpdateTimestamp
     @Column(nullable = false)
     private LocalDateTime updateAt;
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "category")
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "category")
     private Set<Product> products = new HashSet<Product>(0);
 }
