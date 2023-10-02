@@ -37,12 +37,12 @@ public class User implements UserDetails {
     private LocalDateTime createAt;
     @UpdateTimestamp
     private LocalDateTime updateAt;
-    @OneToMany(fetch = FetchType.EAGER,mappedBy = "user", cascade = {CascadeType.ALL})
+    @OneToMany(fetch = FetchType.EAGER,mappedBy = "user", cascade = CascadeType.ALL)
     private Set<Address> addresses= new HashSet<Address>();
     @OneToMany(fetch = FetchType.EAGER, mappedBy = "user")
     private Set<Order> orders = new HashSet<Order>(0);
-    @OneToMany(fetch = FetchType.EAGER, mappedBy = "user")
-    private Set<Cart> carts = new HashSet<Cart>(0);
+    @OneToOne(fetch = FetchType.EAGER, mappedBy = "user", cascade = CascadeType.ALL)
+    private Cart cart;
     @OneToMany(fetch = FetchType.EAGER, mappedBy = "user")
     private Set<Comment> comments = new HashSet<Comment>(0);
 

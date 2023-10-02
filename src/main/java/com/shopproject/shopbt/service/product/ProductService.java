@@ -1,6 +1,7 @@
 package com.shopproject.shopbt.service.product;
 
 import com.shopproject.shopbt.dto.ProductsDTO;
+import com.shopproject.shopbt.entity.Product;
 import org.springframework.data.domain.Page;
 
 import java.math.BigDecimal;
@@ -27,6 +28,7 @@ public interface ProductService {
 
     String getFirstTwoWordsFromProductName(String productName);
 
-    public Page<ProductsDTO> findProductsByCategoryId(Long id, int page);
+    Page<ProductsDTO> findProductsByCategoryId(Long id, int page);
 
+    List<Product> findByCategoryId(Long id);
 }

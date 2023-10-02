@@ -18,6 +18,7 @@ public class ProductsDTO {
     private String name;
     private BigDecimal price;
     private int quantity;
+    private int clickCount;
     private LocalDateTime updatedAt;
     private String updatedBy;
     private Long categoryId;

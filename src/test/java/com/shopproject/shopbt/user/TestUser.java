@@ -18,17 +18,17 @@ public class TestUser {
     @Autowired
     private AuthenticationService authenticationService;
 
-//    @Test
-//    void create(){
-//        UsersDTO usersDTO = new UsersDTO();
-//        usersDTO.setUserName("tuanvy");
-//        usersDTO.setFullName("Nguyễn Viên Tuấn Vỹ");
-//        usersDTO.setRole("USER");
-//        usersDTO.setPassword("12345");
-//        usersDTO.setPhoneNumber("0327443323");
-//
-//        userService.create_User(usersDTO);
-//    }
+    @Test
+    void create(){
+        UsersDTO usersDTO = new UsersDTO();
+        usersDTO.setUserName("tuanvy");
+        usersDTO.setFullName("Nguyễn Viên Tuấn Vỹ");
+        usersDTO.setRole("USER");
+        usersDTO.setPassword("12345");
+        usersDTO.setPhoneNumber("0327443323");
+
+        userService.create_User(usersDTO);
+    }
 
     @Test
     void findById(){

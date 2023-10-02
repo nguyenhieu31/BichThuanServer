@@ -14,7 +14,7 @@ public class UsersDTO {
     private String password;
     private String phoneNumber;
     private String role;
-    private Set<Long> cartIds;
+    private Long cartId;
     private Set<Long> addressIds;
     private Set<Long> orderIds;
     private Set<Long> commentIds;

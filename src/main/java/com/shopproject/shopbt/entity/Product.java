@@ -37,6 +37,8 @@ public class Product {
     private byte[] image;
     @Column(name = "material", nullable = false)
     private String material;
+    @Column(name = "clickCount")
+    private Integer clickCount;
     @CreationTimestamp
     @Column(nullable = false)
     private LocalDateTime createdAt;

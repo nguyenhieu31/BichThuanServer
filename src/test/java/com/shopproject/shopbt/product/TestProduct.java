@@ -1,6 +1,7 @@
 package com.shopproject.shopbt.product;
 
 import com.shopproject.shopbt.dto.ProductsDTO;
+import com.shopproject.shopbt.entity.Product;
 import com.shopproject.shopbt.service.product.ProductService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -131,5 +132,12 @@ public class TestProduct {
             System.out.println(productsDTO.getDescription());
             System.out.println(productsDTO.getColorId());
         });
+    }
+
+    @Test
+    void findByCateId(){
+        Long id = 1L;
+        List<Product> products = productService.findByCategoryId(id);
+        products.size();
     }
 }

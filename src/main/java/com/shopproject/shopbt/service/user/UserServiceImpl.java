@@ -1,5 +1,6 @@
 package com.shopproject.shopbt.service.user;
 
+import com.shopproject.shopbt.dto.CartsDTO;
 import com.shopproject.shopbt.dto.UsersDTO;
 import com.shopproject.shopbt.entity.*;
 import com.shopproject.shopbt.repository.Address.AddressRepo;
@@ -33,6 +34,8 @@ public class UserServiceImpl implements UserService{
         user = readUserDTO(user, usersDTO);
 
         userRepository.save(user);
+
+        createCartIfNotExists(user.getUserid());
     }
 
     @Override
@@ -69,16 +72,6 @@ public class UserServiceImpl implements UserService{
             });
         }
         user.setOrders(orders);
-
-        // cart
-        Set<Long> cartIds = usersDTO.getCartIds();
-        Set<Cart> carts = new HashSet<>();
-        if (cartIds != null){
-            cartIds.forEach(cartId -> {
-                carts.add(cartRepository.findById(cartId).get());
-            });
-        }
-        user.setCarts(carts);
 
         // comment
         Set<Long> commentIds = usersDTO.getCommentIds();
@@ -119,12 +112,8 @@ public class UserServiceImpl implements UserService{
         usersDTO.setOrderIds(orderIds);
 
         // cart id
-        Set<Long> cartIds = new HashSet<>();
-        Set<Cart> carts = user.getCarts();
-        carts.forEach(cart -> {
-            cartIds.add(cart.getCartId());
-        });
-        usersDTO.setCartIds(cartIds);
+        Long id = user.getCart().getCartId();
+        usersDTO.setCartId(id);
 
         // comment id
         Set<Long> commentIds = new HashSet<>();
@@ -153,5 +142,29 @@ public class UserServiceImpl implements UserService{
     public Set<UsersDTO> findUsersByToday(LocalDateTime startDate, LocalDateTime endDate) {
         Set<User> users = userRepository.findUsersByCreateAtBetween(startDate,endDate);
         return users.stream().map(user -> modelMapper.map(user, UsersDTO.class)).collect(Collectors.toSet());
+    }
+
+
+    public Boolean userHasCart(Long userId) {
+        User user = userRepository.findById(userId).orElse(null);
+        if (user != null) {
+            Cart cart = user.getCart();
+            return cart != null;
+        }
+        return false;
+    }
+
+    @Override
+    public CartsDTO createCartIfNotExists(Long userId) {
+        if (!userHasCart(userId)) {
+            User user = userRepository.findById(userId).orElse(null);
+            if (user != null) {
+                Cart cart = new Cart();
+                cart.setUser(user);
+                cart = cartRepository.save(cart);
+                return modelMapper.map(cart, CartsDTO.class);
+            }
+        }
+        return null;
     }
 }

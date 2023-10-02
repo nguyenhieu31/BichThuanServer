@@ -61,6 +61,7 @@ public class ProductServiceImpl implements ProductService{
         product.setPrice(productsDTO.getPrice());
         product.setMaterial(productsDTO.getMaterial());
         product.setQuantity(productsDTO.getQuantity());
+        product.setClickCount(0);
         Categories category = categoryRepository.findCategoriesByCategoryId(productsDTO.getCategoryId());
         product.setCategory(category);
 
@@ -196,5 +197,17 @@ public class ProductServiceImpl implements ProductService{
             return productsDTO;
         });
         return productsDTOS;
+    }
+
+    @Override
+    public List<Product> findByCategoryId(Long id) {
+        List<Product> products = productRepository.findProductsByCategory_CategoryId(id);
+//        Set<ProductsDTO> productsDTOS = new HashSet<>();
+//        products.forEach(product -> {
+//            ProductsDTO productsDTO = new ProductsDTO();
+//            productsDTO = readProduct(product, productsDTO);
+//            productsDTOS.add(productsDTO);
+//        });
+        return products;
     }
 }
