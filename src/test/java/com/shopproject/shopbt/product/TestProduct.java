@@ -32,7 +32,7 @@ public class TestProduct {
         productsDTO.setName("Áo Sơ Mi OLIVER Shirt");
         productsDTO.setDescription("Chất liệu thoáng mát, thiết kế trẻ trung hiện đại [BST EARLY SUMMER 2023] Áo có chất vải Cotton 100%, kiểu dáng trẻ trung trendy, chất liệu co giãn ...");
         MultipartFile file = new MockMultipartFile("1.jpg", new FileInputStream(new File("D:\\dev-spring-boot\\image\\1.jpg")));
-        productsDTO.setImage(file.getBytes());
+//        productsDTO.setImage(file.getBytes());
         productsDTO.setPrice(BigDecimal.valueOf(100000));
         productsDTO.setMaterial("Áo có chất vải Cotton 100%");
         productsDTO.setQuantity(100);

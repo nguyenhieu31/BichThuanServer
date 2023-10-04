@@ -1,30 +1,19 @@
 package com.shopproject.shopbt.controller;
 
 import com.shopproject.shopbt.dto.ProductsDTO;
-import com.shopproject.shopbt.entity.Product;
 import com.shopproject.shopbt.request.OffsetBasedPageRequest;
 import com.shopproject.shopbt.response.Product_findbyid;
 import com.shopproject.shopbt.response.Product_home;
 import com.shopproject.shopbt.service.product.ProductService;
 import lombok.AllArgsConstructor;
-import org.json.JSONArray;
-import org.json.JSONObject;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
