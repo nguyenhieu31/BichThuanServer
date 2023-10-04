@@ -24,7 +24,8 @@ public class Address {
     private Long id;
     @Column(name = "address", nullable = true, length = 100)
     private String address;
-    @ManyToOne(fetch = FetchType.LAZY, cascade = {CascadeType.ALL})
+    @ManyToOne(fetch = FetchType.EAGER, cascade = {CascadeType.ALL})
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 }
+

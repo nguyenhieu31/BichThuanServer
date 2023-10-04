@@ -23,6 +23,7 @@ public class CategoryServiceImpl implements CategoryService{
 
     @Override
     public CategoriesDTO findByCategoryId(Long id) {
+        Categories categories = categoryRepository.findById(id).get();
         return modelMapper.map(categoryRepository.findById(id), CategoriesDTO.class);
     }
 

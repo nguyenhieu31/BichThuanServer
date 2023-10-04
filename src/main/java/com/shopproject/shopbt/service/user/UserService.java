@@ -1,6 +1,8 @@
 package com.shopproject.shopbt.service.user;
 
+import com.shopproject.shopbt.dto.CartsDTO;
 import com.shopproject.shopbt.dto.UsersDTO;
+import com.shopproject.shopbt.entity.User;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -16,4 +18,6 @@ public interface UserService {
     void delete_UserById(Long id);
 
     Set<UsersDTO> findUsersByToday(LocalDateTime startDate, LocalDateTime endDate);
+
+    CartsDTO createCartIfNotExists(Long userId);
 }

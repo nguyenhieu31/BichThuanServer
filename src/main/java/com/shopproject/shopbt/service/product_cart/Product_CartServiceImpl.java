@@ -11,6 +11,9 @@ import lombok.AllArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
+import java.util.HashSet;
+import java.util.Set;
+
 @Service
 @AllArgsConstructor
 public class Product_CartServiceImpl implements Product_CartService{
@@ -29,7 +32,25 @@ public class Product_CartServiceImpl implements Product_CartService{
     @Override
     public ProductCartsDTO findProduct_CartById(Long id) {
         Product_Cart product_cart = productCartRepository.findById(id).get();
-        ProductCartsDTO productCartsDTO = new ProductCartsDTO();
+        ProductCartsDTO productCartsDTO = readProduct_Cart(product_cart, new ProductCartsDTO());
+
+        return productCartsDTO;
+    }
+
+    @Override
+    public void update_Product_Cart(ProductCartsDTO productCartsDTO) {
+        Product_Cart update_product_cart = productCartRepository.findById(productCartsDTO.getProductCartId()).get();
+        update_product_cart = readProduct_CartDTO(update_product_cart, productCartsDTO);
+
+        productCartRepository.save(update_product_cart);
+    }
+
+    @Override
+    public void delete_Product_CartById(Long id) {
+        productCartRepository.deleteById(id);
+    }
+
+    public ProductCartsDTO readProduct_Cart(Product_Cart product_cart, ProductCartsDTO productCartsDTO){
         productCartsDTO.setProductCartId(product_cart.getProduct_cart_id());
 //        productCartsDTO.setCreateAt(product_cart.getCreateAt());
 //        productCartsDTO.setUpdateAt(product_cart.getUpdateAt());
@@ -43,25 +64,29 @@ public class Product_CartServiceImpl implements Product_CartService{
         return productCartsDTO;
     }
 
-    @Override
-    public void update_Product_Cart(ProductCartsDTO productCartsDTO) {
-        Product_Cart update_product_cart = productCartRepository.findById(productCartsDTO.getProductCartId()).get();
-
-        update_product_cart.setColor(productCartsDTO.getColor());
-        update_product_cart.setSize(productCartsDTO.getSize());
-        update_product_cart.setQuantity(productCartsDTO.getQuantity());
-        update_product_cart.setStatus(productCartsDTO.getStatus());
+    public Product_Cart readProduct_CartDTO(Product_Cart productCart, ProductCartsDTO productCartsDTO){
+        productCart.setColor(productCartsDTO.getColor());
+        productCart.setSize(productCartsDTO.getSize());
+        productCart.setQuantity(productCartsDTO.getQuantity());
+        productCart.setStatus(productCartsDTO.getStatus());
         Cart cart = cartRepository.findById(productCartsDTO.getCartId()).get();
-        update_product_cart.setCart(cart);
+        productCart.setCart(cart);
         Product product = productRepository.findById(productCartsDTO.getProductId()).get();
-        update_product_cart.setProduct(product);
+        productCart.setProduct(product);
 
-
-        productCartRepository.save(update_product_cart);
+        return productCart;
     }
-
     @Override
-    public void delete_Product_CartById(Long id) {
-        productCartRepository.deleteById(id);
+    public Set<ProductCartsDTO> findProduct_CartByCartId(Long id) {
+        Set<Product_Cart> product_carts = productCartRepository.findByCart_CartId(id);
+        Set<ProductCartsDTO> productCartsDTOS = new HashSet<>();
+
+        product_carts.forEach(productCart -> {
+            ProductCartsDTO productCartsDTO = new ProductCartsDTO();
+            productCartsDTO = readProduct_Cart(productCart, productCartsDTO);
+
+            productCartsDTOS.add(productCartsDTO);
+        });
+        return productCartsDTOS;
     }
 }

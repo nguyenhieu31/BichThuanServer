@@ -6,10 +6,6 @@ import java.time.LocalDateTime;
 @Data
 public class AddressDTO {
     private Long id;
-
     private String address;
-
-    private LocalDateTime createAt;
-
-    private LocalDateTime updateAt;
+    private Long userId;
 }

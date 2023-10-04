@@ -6,6 +6,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import java.util.Set;
+
 @SpringBootTest
 public class TestProduct_Cart {
     @Autowired
@@ -14,13 +16,13 @@ public class TestProduct_Cart {
     @Test
     void create(){
         ProductCartsDTO productCartsDTO = new ProductCartsDTO();
-        Long cartId = 1L;
+        Long cartId = 2L;
         productCartsDTO.setCartId(cartId);
-        Long productId = 4L;
+        Long productId = 6L;
         productCartsDTO.setProductId(productId);
-        productCartsDTO.setColor("Green");
-        productCartsDTO.setQuantity(100);
-        productCartsDTO.setSize("XL");
+        productCartsDTO.setColor("Red");
+        productCartsDTO.setQuantity(2);
+        productCartsDTO.setSize("L");
         productCartsDTO.setStatus(1);
 
         productCartService.create_Product_Cart(productCartsDTO);
@@ -45,5 +47,11 @@ public class TestProduct_Cart {
         productCartsDTO.setProductId(productId);
 
         productCartService.update_Product_Cart(productCartsDTO);
+    }
+
+    @Test
+    void findProduct_CartByCartId(){
+        Long id = 2L;
+        Set<ProductCartsDTO> productCartsDTOS = productCartService.findProduct_CartByCartId(id);
     }
 }
