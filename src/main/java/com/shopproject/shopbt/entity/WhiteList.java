@@ -25,7 +25,18 @@ public class WhiteList {
     @Column(name = "expiration_token", columnDefinition = "timestamp")
     private LocalDateTime expirationToken;
     @CreationTimestamp
-    private Instant createdAt;
+    @Column(nullable = false)
+    private LocalDateTime createdAt;
     @UpdateTimestamp
-    private Instant updatedAt;
+    @Column(nullable = false)
+    private LocalDateTime updatedAt;
+    @PrePersist
+    protected void onCreate() {
+        createdAt = LocalDateTime.now();
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        updatedAt = LocalDateTime.now();
+    }
 }

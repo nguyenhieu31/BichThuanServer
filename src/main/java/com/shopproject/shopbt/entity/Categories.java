@@ -27,10 +27,19 @@ public class Categories {
     private String name;
     @CreationTimestamp
     @Column(nullable = false)
-    private LocalDateTime createAt;
+    private LocalDateTime createdAt;
     @UpdateTimestamp
     @Column(nullable = false)
-    private LocalDateTime updateAt;
+    private LocalDateTime updatedAt;
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "category")
     private Set<Product> products = new HashSet<Product>(0);
+    @PrePersist
+    protected void onCreate() {
+        createdAt = LocalDateTime.now();
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        updatedAt = LocalDateTime.now();
+    }
 }

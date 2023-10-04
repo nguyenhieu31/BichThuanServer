@@ -40,7 +40,7 @@ public class UserServiceImpl implements UserService{
 
     @Override
     public Set<UsersDTO> findUsersByToday(LocalDateTime startDate, LocalDateTime endDate) {
-        Set<User> users = userRepository.findUsersByCreateAtBetween(startDate,endDate);
+        Set<User> users = userRepository.findUsersByCreatedAtBetween(startDate,endDate);
         return users.stream().map(user -> modelMapper.map(user, UsersDTO.class)).collect(Collectors.toSet());
     }
 }

@@ -13,7 +13,7 @@ public class ProductsDTO {
     private LocalDateTime createdAt;
     private String createdBy;
     private String description;
-    private byte[] image;
+    private String image;
     private String material;
     private String name;
     private BigDecimal price;
@@ -23,5 +23,4 @@ public class ProductsDTO {
     private Long categoryId;
     private Set<Integer> colorId;
     private Set<Integer> sizeId;
-    private String imageBase64;
 }

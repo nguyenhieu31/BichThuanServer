@@ -37,7 +37,7 @@ public class Gallery_ImageServiceImpl implements Gallery_ImageService{
         Gallery_Image update_galleryImage = galleryImageRepository.findById(galleryImagesDTO.getId()).get();
         Product update_product = productRepository.findById(galleryImagesDTO.getProductId()).get();
         update_galleryImage.setProduct(update_product);
-        update_galleryImage.setImage(galleryImagesDTO.getImage());
+//        update_galleryImage.setImage(galleryImagesDTO.getImage());
 
         galleryImageRepository.save(update_galleryImage);
     }

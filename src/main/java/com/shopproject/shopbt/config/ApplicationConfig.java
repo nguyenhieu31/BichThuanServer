@@ -16,6 +16,9 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.filter.CorsFilter;
 
 import java.util.Optional;
 
@@ -55,5 +58,16 @@ public class ApplicationConfig {
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception{
         return configuration.getAuthenticationManager();
+    }
+    @Bean
+    public CorsFilter corsFilter(){
+        UrlBasedCorsConfigurationSource source= new UrlBasedCorsConfigurationSource();
+        CorsConfiguration configuration= new CorsConfiguration();
+        configuration.setAllowCredentials(true);//cho phép sử dụng cookie khi gửi request
+        configuration.addAllowedOrigin("http://localhost:3000");//url của react js
+        configuration.addAllowedHeader("*");// cho phép tất cả các header
+        configuration.addAllowedMethod("*"); //cho phép các phương thức ( get, post, put, delete)
+        source.registerCorsConfiguration("/**",configuration);
+        return new CorsFilter(source);
     }
 }

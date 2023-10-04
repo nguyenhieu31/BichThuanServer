@@ -9,11 +9,6 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class RegisterUserRequest {
+public class LogoutRequest {
     private String userName;
-    private String fullName;
-    private String password;
-    private String phoneNumber;
-    private String address;
-    private String otp;
 }

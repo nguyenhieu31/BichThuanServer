@@ -10,6 +10,7 @@ import java.util.Set;
 
 public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findByUserName(String userName);
-    Set<User> findUsersByCreateAtBetween(LocalDateTime startDate, LocalDateTime endDate);
+    Optional<User> findByPhoneNumber(String number);
+    Set<User> findUsersByCreatedAtBetween(LocalDateTime startDate, LocalDateTime endDate);
 
 }

@@ -9,6 +9,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.Instant;
+import java.time.LocalDateTime;
 
 @Data
 @Builder
@@ -22,7 +23,18 @@ public class BlackList {
     private Long id;
     private String token;
     @CreationTimestamp
-    private Instant createdAt;
+    @Column(nullable = false)
+    private LocalDateTime createdAt;
     @UpdateTimestamp
-    private Instant updatedAt;
+    @Column(nullable = false)
+    private LocalDateTime updatedAt;
+    @PrePersist
+    protected void onCreate() {
+        createdAt = LocalDateTime.now();
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        updatedAt = LocalDateTime.now();
+    }
 }

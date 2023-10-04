@@ -57,7 +57,7 @@ public class OrderServiceImpl implements OrderService{
 
     @Override
     public Set<OrdersDTO> findOrdersByToday(LocalDateTime startDate, LocalDateTime endDate) {
-        Set<Order> orders = orderRepository.findOrdersByCreateAtBetween(startDate, endDate);
+        Set<Order> orders = orderRepository.findOrdersByCreatedAtBetween(startDate, endDate);
         return orders.stream().map(order -> modelMapper.map(order, OrdersDTO.class)).collect(Collectors.toSet());
     }
 }

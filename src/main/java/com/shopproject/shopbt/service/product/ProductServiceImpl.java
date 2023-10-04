@@ -11,7 +11,7 @@ import com.shopproject.shopbt.repository.product.ProductRepository;
 import com.shopproject.shopbt.repository.size.SizeRepository;
 import lombok.AllArgsConstructor;
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -55,7 +55,7 @@ public class ProductServiceImpl implements ProductService{
         product.setCreatedBy(productsDTO.getCreatedBy());
         product.setName(productsDTO.getName());
         product.setDescription(productsDTO.getDescription());
-        product.setImage(productsDTO.getImage());
+//        product.setImage(productsDTO.getImage());
         product.setPrice(productsDTO.getPrice());
         product.setMaterial(productsDTO.getMaterial());
         product.setQuantity(productsDTO.getQuantity());
@@ -88,23 +88,17 @@ public class ProductServiceImpl implements ProductService{
         productsDTO.setCreatedAt(product.getCreatedAt());
         productsDTO.setName(product.getName());
         productsDTO.setCategoryId(product.getCategory().getCategoryId());
-        // convert byte to string base64
-        byte[] imageBytes = product.getImage();
-        String imageBase64 = Base64.getEncoder().encodeToString(imageBytes);
-        productsDTO.setImageBase64(imageBase64);
-
+        productsDTO.setImage(product.getImage());
         productsDTO.setDescription(product.getDescription());
         productsDTO.setPrice(product.getPrice());
         productsDTO.setQuantity(product.getQuantity());
         productsDTO.setMaterial(product.getMaterial());
-
         Set<Integer> colorIds = new HashSet<>();
         Set<Color> colors = product.getColors();
         colors.forEach(colorId -> {
             colorIds.add(Math.toIntExact(colorId.getColorId()));
         });
         productsDTO.setColorId(colorIds);
-
         Set<Integer> sizeIds = new HashSet<>();
         Set<Size> sizes = product.getSizes();
         sizes.forEach(sizeId -> {
@@ -118,6 +112,21 @@ public class ProductServiceImpl implements ProductService{
     @Override
     public void delete_Product(Long id) {
         productRepository.deleteById(id);
+    }
+
+    @Override
+    public Set<ProductsDTO> findALLByLimitOffset(Pageable pageable) {
+        try{
+            List<Product> products= productRepository.findAll(pageable).getContent();
+            Set<ProductsDTO> productsDTOS=new HashSet<>();
+            products.forEach((p)->{
+                ProductsDTO product=new ProductsDTO();
+                productsDTOS.add(readProduct(p,product));
+            });
+            return productsDTOS;
+        }catch (IllegalArgumentException e){
+            throw new IllegalArgumentException(e.getMessage());
+        }
     }
 
     @Override
@@ -158,8 +167,8 @@ public class ProductServiceImpl implements ProductService{
     }
 
     @Override
-    public Set<ProductsDTO> findTop10() {
-        Set<Product> products = productRepository.findAll().stream().limit(10).collect(Collectors.toSet());
+    public Set<ProductsDTO> findProductFeature() {
+        Set<Product> products = productRepository.findAll().stream().limit(4).collect(Collectors.toSet());
         Set<ProductsDTO> productsDTOS = new HashSet<>();
         products.forEach(product -> {
             ProductsDTO productsDTO = new ProductsDTO();

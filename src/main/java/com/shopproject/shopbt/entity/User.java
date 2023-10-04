@@ -33,9 +33,20 @@ public class User implements UserDetails {
     @Column(name = "role", nullable = false, length = 10)
     private String role;
     @CreationTimestamp
-    private LocalDateTime createAt;
+    @Column(nullable = false)
+    private LocalDateTime createdAt;
     @UpdateTimestamp
-    private LocalDateTime updateAt;
+    @Column(nullable = false)
+    private LocalDateTime updatedAt;
+    @PrePersist
+    protected void onCreate() {
+        createdAt = LocalDateTime.now();
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        updatedAt = LocalDateTime.now();
+    }
     @OneToMany(fetch = FetchType.LAZY,mappedBy = "user", cascade = {CascadeType.ALL})
     private Set<Address> addresses= new HashSet<Address>();
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "user")

@@ -33,8 +33,8 @@ public class Product {
     private BigDecimal price;
     @Column(name = "quantity", nullable = false)
     private int quantity;
-    @Column(name = "image")
-    private byte[] image;
+    @Column(name = "image", columnDefinition = "text")
+    private String image;
     @Column(name = "material", nullable = false)
     private String material;
     @CreationTimestamp
@@ -43,6 +43,15 @@ public class Product {
     @UpdateTimestamp
     @Column(nullable = false)
     private LocalDateTime updatedAt;
+    @PrePersist
+    protected void onCreate() {
+        createdAt = LocalDateTime.now();
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        updatedAt = LocalDateTime.now();
+    }
     @Column(nullable = false, length = 25)
     private String createdBy;
     @Column(nullable = false, length = 25)

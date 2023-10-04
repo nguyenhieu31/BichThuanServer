@@ -23,12 +23,21 @@ public class Gallery_Image {
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "product_id",nullable = false)
     private Product product;
-    @Column(name = "image")
-    private byte[] image;
+    @Column(name = "image",columnDefinition = "text")
+    private String image;
     @CreationTimestamp
     @Column(nullable = false)
     private LocalDateTime createdAt;
     @UpdateTimestamp
     @Column(nullable = false)
     private LocalDateTime updatedAt;
+    @PrePersist
+    protected void onCreate() {
+        createdAt = LocalDateTime.now();
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        updatedAt = LocalDateTime.now();
+    }
 }

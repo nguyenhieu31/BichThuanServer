@@ -27,7 +27,18 @@ public class Order {
     @Column(nullable = false)
     private int status;
     @CreationTimestamp
-    private LocalDateTime createAt;
+    @Column(nullable = false)
+    private LocalDateTime createdAt;
     @UpdateTimestamp
-    private LocalDateTime updateAt;
+    @Column(nullable = false)
+    private LocalDateTime updatedAt;
+    @PrePersist
+    protected void onCreate() {
+        createdAt = LocalDateTime.now();
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        updatedAt = LocalDateTime.now();
+    }
 }

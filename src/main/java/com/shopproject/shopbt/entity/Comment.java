@@ -36,8 +36,17 @@ public class Comment {
     private String productName;
     @CreationTimestamp
     @Column(nullable = false)
-    private LocalDateTime createAt;
+    private LocalDateTime createdAt;
     @UpdateTimestamp
     @Column(nullable = false)
-    private LocalDateTime updateAt;
+    private LocalDateTime updatedAt;
+    @PrePersist
+    protected void onCreate() {
+        createdAt = LocalDateTime.now();
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        updatedAt = LocalDateTime.now();
+    }
 }

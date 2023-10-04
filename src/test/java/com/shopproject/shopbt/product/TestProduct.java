@@ -108,12 +108,12 @@ public class TestProduct {
 
     @Test
     void findTop10(){
-        Set<ProductsDTO> productsDTOS = productService.findTop10();
+        Set<ProductsDTO> productsDTOS = productService.findProductFeature();
         productsDTOS.forEach(productsDTO -> {
             System.out.println(productsDTO.getName());
             System.out.println(productsDTO.getDescription());
             System.out.println(productsDTO.getColorId());
-            System.out.println(productsDTO.getImageBase64());
+//            System.out.println(productsDTO.getImageBase64());
         });
     }
 

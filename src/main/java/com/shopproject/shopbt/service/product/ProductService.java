@@ -1,10 +1,10 @@
 package com.shopproject.shopbt.service.product;
 
 import com.shopproject.shopbt.dto.ProductsDTO;
+import org.springframework.data.domain.Pageable;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Set;
 
 public interface ProductService {
@@ -15,14 +15,14 @@ public interface ProductService {
     void update_Product(ProductsDTO productsDTO);
 
     void delete_Product(Long id);
-
+    Set<ProductsDTO> findALLByLimitOffset(Pageable pageable);
     Set<ProductsDTO> findProductsByCategoryId(Long id);
 
     Set<ProductsDTO> findTop10ByPriceBetween(BigDecimal startPrice,BigDecimal endPrice);
 
     Set<ProductsDTO> findTop10ByCreatedAtBetween(LocalDateTime startDate, LocalDateTime endDate);
 
-    Set<ProductsDTO> findTop10();
+    Set<ProductsDTO> findProductFeature();
 
     Set<ProductsDTO> findByNameLikeIgnoreCase(String firstTwoCharacters);
 

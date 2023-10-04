@@ -1,14 +1,16 @@
 package com.shopproject.shopbt.service.authentication;
 
+import com.shopproject.shopbt.ExceptionCustom.LoginException;
+import com.shopproject.shopbt.ExceptionCustom.LogoutException;
+import com.shopproject.shopbt.ExceptionCustom.RefreshTokenException;
+import com.shopproject.shopbt.ExceptionCustom.RegisterException;
 import com.shopproject.shopbt.entity.*;
+import com.shopproject.shopbt.repository.BlackList.BlackListRepo;
 import com.shopproject.shopbt.repository.Manager.ManagerRepo;
 import com.shopproject.shopbt.repository.Role.RoleRepo;
 import com.shopproject.shopbt.repository.WhiteList.WhiteListRepo;
 import com.shopproject.shopbt.repository.user.UserRepository;
-import com.shopproject.shopbt.request.LoginRequest;
-import com.shopproject.shopbt.request.RefreshTokenRequest;
-import com.shopproject.shopbt.request.RegisterRequest;
-import com.shopproject.shopbt.request.RegisterUserRequest;
+import com.shopproject.shopbt.request.*;
 import com.shopproject.shopbt.response.AuthenticationResponse;
 import com.shopproject.shopbt.service.JwtServices.JwtServices;
 import io.jsonwebtoken.Claims;
@@ -37,6 +39,8 @@ public class AuthenticationService {
     private final WhiteListRepo whiteListRepo;
     private final UserDetailsService userDetailsService;
     private final UserRepository userRepository;
+    private final BlackListRepo blackListRepo;
+//    private final RedisService redisService;
     //admin
     public String register(RegisterRequest request){
         List<String> nameRole= new ArrayList<>();
@@ -59,18 +63,26 @@ public class AuthenticationService {
         return "register is successful";
     }
     //user
-    public String registerUser(RegisterUserRequest request){
-        Date time= new Date(System.currentTimeMillis());
-        Instant instant= time.toInstant();
-        ZoneId zoneId= ZoneId.of("UTC");
+    public String registerUser(RegisterUserRequest request) throws RegisterException {
+        if(request.getUserName()!=null){
+            var user= userRepository.findByUserName(request.getUserName());
+            if(user.isPresent()){
+                throw new RegisterException("Tài khoản đã tồn tại");
+            }
+        }
+        if(request.getPhoneNumber()!=null){
+            var user= userRepository.findByPhoneNumber(request.getPhoneNumber());
+            if(user.isPresent()){
+                throw new RegisterException("Số điện thoại đã tồn tại");
+            }
+        }
+
         var user= User.builder()
                 .userName(request.getUserName())
                 .fullName(request.getFullName())
                 .password(passwordEncoder.encode(request.getPassword()))
                 .phoneNumber(request.getPhoneNumber())
                 .role("USER")
-                .createAt(instant.atZone(zoneId).toLocalDateTime())
-                .updateAt(instant.atZone(zoneId).toLocalDateTime())
                 .build();
         var address= Address.builder()
                 .address(request.getAddress())
@@ -82,16 +94,17 @@ public class AuthenticationService {
         user.getAddresses().add(address);
         try {
             userRepository.save(user);
-            return "register is successful";
+            return "đăng kí thành công";
         }catch (Exception e){
-            return "register is failed"+ e.getMessage();
+            throw  new RegisterException(e.getMessage());
         }
     }
-    public AuthenticationResponse authenticate(LoginRequest request){
+    public AuthenticationResponse authenticate(LoginRequest request) throws LoginException {
         Authentication authentication= authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(request.getUserName(),request.getPassword())
         );
         var manager= managerRepo.findByManagerName(request.getUserName());
+//        String key="1";
         String token=null;
         String refreshToken= null;
         if(manager.isPresent()){
@@ -112,25 +125,52 @@ public class AuthenticationService {
                 .build();
         whiteListRepo.save(saveTokenOnWhiteList);
         if(token==null && refreshToken==null){
-            return null;
+            throw new LoginException("Tài khoản hoặc mật khẩu không đúng!");
         }
+//        redisService.saveToken(key, token);
         return AuthenticationResponse.builder()
                 .token(token)
                 .refreshToken(refreshToken)
                 .build();
     }
-    public AuthenticationResponse refreshToken(RefreshTokenRequest request){
+    public AuthenticationResponse refreshToken(RefreshTokenRequest request) throws RefreshTokenException {
         String newToken=null;
         if(!jwtServices.isTokenExpiration(request.getRefreshToken()) && request.getRefreshToken() !=null){
             Claims claims= jwtServices.decodedToken(request.getRefreshToken());
             UserDetails manager= this.userDetailsService.loadUserByUsername(claims.getSubject());
             newToken= jwtServices.GeneratorTokenByRefreshToken(request.getToken(),manager);
         }else{
-            return null;
+            throw new RefreshTokenException("RefreshToken expires");
         }
         return AuthenticationResponse.builder()
                 .token(newToken)
                 .refreshToken(request.getRefreshToken())
                 .build();
+    }
+    private void clearToken(String userName){
+        List<WhiteList> listToken=  whiteListRepo.findAll();
+        listToken.stream().forEach(obj->{
+            Claims claims= jwtServices.decodedToken(obj.getToken());
+            if(claims.getSubject().equals(userName)){
+                var tokenBlacklist= BlackList.builder()
+                        .token(obj.getToken())
+                        .build();
+                whiteListRepo.delete(obj);
+                blackListRepo.save(tokenBlacklist);
+            }
+        });
+    }
+    public String logout(LogoutRequest request) throws LogoutException {
+        var manager= managerRepo.findByManagerName(request.getUserName());
+        if(manager.isPresent()){
+            clearToken(manager.get().getManagerName());
+            return "đăng xuất thành công";
+        }
+        var user= userRepository.findByUserName(request.getUserName());
+        if(user.isPresent()){
+            clearToken(user.get().getUsername());
+            return "đăng xuất thành công";
+        }
+        throw new LogoutException("đăng xuất thất bại");
     }
 }

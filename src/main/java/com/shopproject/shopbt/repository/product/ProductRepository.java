@@ -19,7 +19,4 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     Set<Product> findTop10ByCreatedAtBetween(LocalDateTime startDate, LocalDateTime endDate);
 
     Set<Product> findByNameLikeIgnoreCase(String name);
-
-
-
 }

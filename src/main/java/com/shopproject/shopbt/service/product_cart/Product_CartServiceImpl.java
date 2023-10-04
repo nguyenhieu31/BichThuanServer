@@ -31,8 +31,8 @@ public class Product_CartServiceImpl implements Product_CartService{
         Product_Cart product_cart = productCartRepository.findById(id).get();
         ProductCartsDTO productCartsDTO = new ProductCartsDTO();
         productCartsDTO.setProductCartId(product_cart.getProduct_cart_id());
-        productCartsDTO.setCreateAt(product_cart.getCreateAt());
-        productCartsDTO.setUpdateAt(product_cart.getUpdateAt());
+//        productCartsDTO.setCreateAt(product_cart.getCreateAt());
+//        productCartsDTO.setUpdateAt(product_cart.getUpdateAt());
         productCartsDTO.setColor(product_cart.getColor());
         productCartsDTO.setQuantity(product_cart.getQuantity());
         productCartsDTO.setSize(product_cart.getSize());

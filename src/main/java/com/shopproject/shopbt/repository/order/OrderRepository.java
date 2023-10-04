@@ -9,5 +9,5 @@ import java.util.Set;
 public interface OrderRepository extends JpaRepository<Order, Long>{
     Set<Order> findOrdersByUser_Userid(Long id);
 
-    Set<Order> findOrdersByCreateAtBetween(LocalDateTime start, LocalDateTime end);
+    Set<Order> findOrdersByCreatedAtBetween(LocalDateTime start, LocalDateTime end);
 }
