@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/system/api/v1")
+@RequestMapping("/system")
 public class AdminController {
     @GetMapping("/hello")
     public ResponseEntity<String> hello(){

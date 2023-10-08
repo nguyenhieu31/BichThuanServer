@@ -1,10 +1,13 @@
 package com.shopproject.shopbt.controller;
 
+import com.shopproject.shopbt.ExceptionCustom.ProductException;
+import com.shopproject.shopbt.dto.ProductCartsDTO;
 import com.shopproject.shopbt.dto.ProductsDTO;
 import com.shopproject.shopbt.request.OffsetBasedPageRequest;
 import com.shopproject.shopbt.response.Product_findbyid;
 import com.shopproject.shopbt.response.Product_home;
 import com.shopproject.shopbt.service.product.ProductService;
+import jakarta.annotation.Nullable;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -12,6 +15,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import java.math.BigDecimal;
 import java.util.Set;
@@ -19,6 +23,7 @@ import java.util.stream.Collectors;
 
 @RestController
 @AllArgsConstructor
+@RequestMapping("/web")
 public class HomeController {
     private ProductService productService;
     @GetMapping("/home")
@@ -43,14 +48,26 @@ public class HomeController {
             return ResponseEntity.status(401).body(e.getMessage());
         }
     }
-    @GetMapping("product/{id}")
-    public ResponseEntity<Product_findbyid> findByProductId(@PathVariable("id") Long id){
-        ProductsDTO productsDTO = productService.findProductById(id);
-        String p_name = productService.getFirstTwoWordsFromProductName(productsDTO.getName());
-        Set<ProductsDTO> products_same = productService.findByNameLikeIgnoreCase(p_name);
-        return ResponseEntity.status(HttpStatus.OK).body(Product_findbyid.builder()
-                .productsDTO(productsDTO)
-                .products_same(products_same).build());
+    @GetMapping("/shop")
+    public ResponseEntity<?> findProductShop(){
+        try{
+            Pageable pageable= new OffsetBasedPageRequest(0,16, Sort.Direction.ASC,"productId");
+            Set<ProductsDTO> products= productService.findALLByLimitOffset(pageable);
+            return ResponseEntity.status(200).body(products);
+        }catch (Exception e){
+            return ResponseEntity.status(401).body(e.getMessage());
+        }
     }
-
+    @GetMapping("/product/{id}")
+    public ResponseEntity<?> findByProductId(@PathVariable("id") Long id)  {
+        try{
+            Product_findbyid product= productService.findProductById(id);
+            return ResponseEntity.status(HttpStatus.OK).body(product);
+        }catch (ProductException e){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }catch (Exception e){
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+        }
+    }
 }

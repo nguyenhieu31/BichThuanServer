@@ -1,5 +1,6 @@
 package com.shopproject.shopbt.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -22,5 +23,6 @@ public class Size {
     @Column(name = "name", nullable = false, length = 10)
     private String name;
     @ManyToMany(mappedBy = "sizes")
+    @JsonIgnore
     private Set<Product> products = new HashSet<Product>(0);
 }

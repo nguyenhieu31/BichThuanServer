@@ -22,8 +22,8 @@ public class LineChartController {
 
     @GetMapping("/category/{id}")
     public ResponseEntity<List<Product>> getProductsByCategory(@PathVariable("id") Long categoryId) {
-        List<Product> products = productService.findByCategoryId(categoryId);
-        return new ResponseEntity<>(products, HttpStatus.OK);
+//        List<Product> products = productService.findByCategoryId(categoryId);
+        return new ResponseEntity<>(null, HttpStatus.OK);
     }
 }
 

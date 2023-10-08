@@ -1,6 +1,7 @@
 package com.shopproject.shopbt.response;
 
 import com.shopproject.shopbt.dto.ProductsDTO;
+import com.shopproject.shopbt.entity.Gallery_Image;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -13,6 +14,6 @@ import java.util.Set;
 @AllArgsConstructor
 @NoArgsConstructor
 public class Product_findbyid {
-    private ProductsDTO productsDTO;
-    private Set<ProductsDTO> products_same;
+    private ProductsDTO product;
+    private Set<ProductsDTO> productSame;
 }

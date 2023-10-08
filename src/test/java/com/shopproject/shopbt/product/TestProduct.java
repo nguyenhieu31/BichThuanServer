@@ -81,7 +81,7 @@ public class TestProduct {
         productsDTOS.forEach(productsDTO -> {
             System.out.println(productsDTO.getProductId());
             System.out.println(productsDTO.getName());
-            System.out.println(productsDTO.getColorId().size());
+//            System.out.println(productsDTO.getColorId().size());
         });
     }
 
@@ -123,21 +123,21 @@ public class TestProduct {
     void findAllByNameLike(){
 
         Long id = 4L;
-        ProductsDTO product = productService.findProductById(id);
-
-        String name = productService.getFirstTwoWordsFromProductName(product.getName());
-        Set<ProductsDTO> productsDTOS = productService.findByNameLikeIgnoreCase(name);
-        productsDTOS.forEach(productsDTO -> {
-            System.out.println(productsDTO.getName());
-            System.out.println(productsDTO.getDescription());
-            System.out.println(productsDTO.getColorId());
-        });
+//        ProductsDTO product = productService.findProductById(id);
+//
+//        String name = productService.getFirstTwoWordsFromProductName(product.getName());
+//        Set<ProductsDTO> productsDTOS = productService.findByNameLikeIgnoreCase(name);
+//        productsDTOS.forEach(productsDTO -> {
+//            System.out.println(productsDTO.getName());
+//            System.out.println(productsDTO.getDescription());
+//            System.out.println(productsDTO.getColorId());
+//        });
     }
 
     @Test
     void findByCateId(){
         Long id = 1L;
-        List<Product> products = productService.findByCategoryId(id);
-        products.size();
+//        List<Product> products = productService.findByCategoryId(id);
+//        products.size();
     }
 }

@@ -96,7 +96,7 @@ public class AuthenticationService {
             userRepository.save(user);
             return "đăng kí thành công";
         }catch (Exception e){
-            throw  new RegisterException(e.getMessage());
+            throw new RegisterException(e.getMessage());
         }
     }
     public AuthenticationResponse authenticate(LoginRequest request) throws LoginException {
