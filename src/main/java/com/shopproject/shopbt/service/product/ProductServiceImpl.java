@@ -1,15 +1,13 @@
 package com.shopproject.shopbt.service.product;
 
 import com.shopproject.shopbt.dto.ProductsDTO;
-import com.shopproject.shopbt.entity.Categories;
-import com.shopproject.shopbt.entity.Color;
-import com.shopproject.shopbt.entity.Product;
-import com.shopproject.shopbt.entity.Size;
+import com.shopproject.shopbt.entity.*;
 import com.shopproject.shopbt.repository.category.CategoryRepository;
 import com.shopproject.shopbt.repository.color.ColorRepository;
 import com.shopproject.shopbt.repository.product.ProductRepository;
 import com.shopproject.shopbt.repository.size.SizeRepository;
 import lombok.AllArgsConstructor;
+import org.json.JSONObject;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -36,13 +34,35 @@ public class ProductServiceImpl implements ProductService{
     }
 
     @Override
-    public ProductsDTO findProductById(Long id) {
-        Product product = productRepository.findById(id).get();
-        ProductsDTO productsDTO = new ProductsDTO();
-        productsDTO = readProduct(product, productsDTO);
-        return productsDTO;
+    public ProductsDTO
+    findProductById(Long id) {
+        try{
+            Product product = productRepository.findByProductId(id);
+            ProductsDTO productsDTO = readProduct(product, new ProductsDTO());
+
+            return productsDTO;
+        } catch (IllegalArgumentException e){
+            throw new IllegalArgumentException(e.getMessage());
+        }
     }
 
+    private ProductsDTO ConvertOneDTO(Object[] product){
+        ProductsDTO productsDTO = new ProductsDTO();
+        System.out.println(product[0]);
+        productsDTO.setProductId((Long) product[0]);
+        productsDTO.setName((String) product[1]);
+        System.out.println(product[2]);
+        productsDTO.setColorNames((Set<Color>) product[2]);
+        productsDTO.setDescription((String) product[3]);
+        productsDTO.setGalleryImages((Set<Gallery_Image>) product[4]);
+        productsDTO.setImage((String) product[5]);
+        productsDTO.setPrice((BigDecimal) product[6]);
+        productsDTO.setMaterial((String) product[7]);
+        productsDTO.setSizeNames((List<String>) product[8]);
+        productsDTO.setQuantity((Integer) product[9]);
+
+        return productsDTO;
+    }
     @Override
     public void update_Product(ProductsDTO productsDTO) {
         Product product = productRepository.findById(productsDTO.getProductId()).get();
@@ -51,7 +71,7 @@ public class ProductServiceImpl implements ProductService{
         productRepository.save(product);
     }
 
-    public Product readProductDTO(Product product,ProductsDTO productsDTO){
+    private Product readProductDTO(Product product,ProductsDTO productsDTO){
         product.setCreatedBy(productsDTO.getCreatedBy());
         product.setName(productsDTO.getName());
         product.setDescription(productsDTO.getDescription());
@@ -62,27 +82,27 @@ public class ProductServiceImpl implements ProductService{
         Categories category = categoryRepository.findCategoriesByCategoryId(productsDTO.getCategoryId());
         product.setCategory(category);
 
-        // add set colors
-        Set<Integer> colorIds = productsDTO.getColorId();
-        Set<Color> colors = new HashSet<>();
-        colorIds.forEach(colorId -> {
-            colors.add(colorRepository.findByColorId(colorId));
-        });
-        product.setColors(colors);
-
-
-        // add set sizes
-        Set<Integer> sizeIds = productsDTO.getSizeId();
-        Set<Size> sizes = new HashSet<>();
-        sizeIds.forEach(sizeId -> {
-            sizes.add(sizeRepository.findBySizeId(sizeId));
-        });
-        product.setSizes(sizes);
+//        // add set colors
+//        Set<Integer> colorIds = productsDTO.getColorId();
+//        Set<Color> colors = new HashSet<>();
+//        colorIds.forEach(colorId -> {
+//            colors.add(colorRepository.findByColorId(colorId));
+//        });
+//        product.setColors(colors);
+//
+//
+//        // add set sizes
+//        Set<Integer> sizeIds = productsDTO.getSizeId();
+//        Set<Size> sizes = new HashSet<>();
+//        sizeIds.forEach(sizeId -> {
+//            sizes.add(sizeRepository.findBySizeId(sizeId));
+//        });
+//        product.setSizes(sizes);
         product.setUpdatedBy(productsDTO.getUpdatedBy());
         return product;
     }
 
-    public ProductsDTO readProduct(Product product,ProductsDTO productsDTO){
+    private ProductsDTO readProduct(Product product,ProductsDTO productsDTO){
         productsDTO.setProductId(product.getProductId());
         productsDTO.setCreatedBy(product.getCreatedBy());
         productsDTO.setCreatedAt(product.getCreatedAt());
@@ -93,21 +113,32 @@ public class ProductServiceImpl implements ProductService{
         productsDTO.setPrice(product.getPrice());
         productsDTO.setQuantity(product.getQuantity());
         productsDTO.setMaterial(product.getMaterial());
-        Set<Integer> colorIds = new HashSet<>();
-        Set<Color> colors = product.getColors();
-        colors.forEach(colorId -> {
-            colorIds.add(Math.toIntExact(colorId.getColorId()));
-        });
-        productsDTO.setColorId(colorIds);
-        Set<Integer> sizeIds = new HashSet<>();
-        Set<Size> sizes = product.getSizes();
-        sizes.forEach(sizeId -> {
-            sizeIds.add(Math.toIntExact(sizeId.getSizeId()));
-        });
-        productsDTO.setSizeId(sizeIds);
+
+        productsDTO.setColorNames(product.getColors());
+        Set<Size> sizes = product.getSizes().stream()
+                .sorted(Comparator.comparing(Size::getSizeId))
+                .collect(Collectors.toCollection(LinkedHashSet::new));
+        List<String> sizeNames = new ArrayList<>();
+        for (var size : sizes){
+            sizeNames.add(size.getName());
+        }
+        productsDTO.setSizeNames(sizeNames);
+        productsDTO.setGalleryImages(product.getGallery_images());
+
         productsDTO.setUpdatedAt(product.getUpdatedAt());
         productsDTO.setUpdatedBy(product.getUpdatedBy());
         return productsDTO;
+    }
+
+    private ProductsDTO ConvertToDto(Object[] product){
+        ProductsDTO productsDTO = new ProductsDTO();
+        System.out.println(product[0]);
+        productsDTO.setProductId((Long) product[0]);
+        productsDTO.setImage((String) product[1]);
+        productsDTO.setName((String) product[2]);
+        productsDTO.setPrice((BigDecimal) product[3]);
+
+        return  productsDTO;
     }
     @Override
     public void delete_Product(Long id) {
@@ -115,43 +146,44 @@ public class ProductServiceImpl implements ProductService{
     }
 
     @Override
-    public Set<ProductsDTO> findALLByLimitOffset(Pageable pageable) {
+    public Set<ProductsDTO> findALLByLimitOffset() {
         try{
-            List<Product> products= productRepository.findAll(pageable).getContent();
-            Set<ProductsDTO> productsDTOS=new HashSet<>();
-            products.forEach((p)->{
-                ProductsDTO product=new ProductsDTO();
-                productsDTOS.add(readProduct(p,product));
-            });
+            Set<Object[]> products = productRepository.findALLByLimitOffset();
+            Set<ProductsDTO> productsDTOS = products.stream()
+                    .limit(4)
+                    .map(this::ConvertToDto)
+                    .collect(Collectors.toSet());
             return productsDTOS;
-        }catch (IllegalArgumentException e){
+        } catch (IllegalArgumentException e){
             throw new IllegalArgumentException(e.getMessage());
         }
     }
 
     @Override
     public Set<ProductsDTO> findProductsByCategoryId(Long id) {
-        Set<Product> products = productRepository.findProductsByCategory_CategoryId(id);
-        Set<ProductsDTO> productsDTOS = new HashSet<>();
-        products.forEach(product -> {
-            ProductsDTO productsDTO = new ProductsDTO();
-            productsDTO = readProduct(product, productsDTO);
-            productsDTOS.add(productsDTO);
-        });
-
-        return productsDTOS;
+        try{
+            Set<Object[]> products = productRepository.findProductByCateId(id);
+            Set<ProductsDTO> productsDTOS = products.stream()
+                    .map(this::ConvertToDto)
+                    .collect(Collectors.toSet());
+            return productsDTOS;
+        } catch (IllegalArgumentException e){
+            throw new IllegalArgumentException(e.getMessage());
+        }
     }
 
     @Override
-    public Set<ProductsDTO> findTop10ByPriceBetween(BigDecimal startPrice, BigDecimal endPrice) {
-        Set<Product> products = productRepository.findTop10ByPriceBetween(startPrice,endPrice);
-        Set<ProductsDTO> productsDTOS = new HashSet<>();
-        products.forEach(product -> {
-            ProductsDTO productsDTO = new ProductsDTO();
-            productsDTO = readProduct(product, productsDTO);
-            productsDTOS.add(productsDTO);
-        });
-        return productsDTOS;
+    public Set<ProductsDTO> findByPriceBetweenPrice(BigDecimal startPrice, BigDecimal endPrice) {
+        try{
+            Set<Object[]> products = productRepository.findByPriceBetweenPrice(startPrice,endPrice);
+            Set<ProductsDTO> productsDTOS = products.stream()
+                    .limit(4)
+                    .map(this::ConvertToDto)
+                    .collect(Collectors.toSet());
+            return productsDTOS;
+        } catch (IllegalArgumentException e){
+            throw new IllegalArgumentException(e.getMessage());
+        }
     }
 
     @Override
@@ -168,26 +200,30 @@ public class ProductServiceImpl implements ProductService{
 
     @Override
     public Set<ProductsDTO> findProductFeature() {
-        Set<Product> products = productRepository.findAll().stream().limit(4).collect(Collectors.toSet());
-        Set<ProductsDTO> productsDTOS = new HashSet<>();
-        products.forEach(product -> {
-            ProductsDTO productsDTO = new ProductsDTO();
-            productsDTO = readProduct(product, productsDTO);
-            productsDTOS.add(productsDTO);
-        });
-        return productsDTOS;
+        try{
+            Set<Object[]> products = productRepository.findProductFeature();
+            Set<ProductsDTO> productsDTOS = products.stream()
+                    .limit(4)
+                    .map(this::ConvertToDto)
+                    .collect(Collectors.toSet());
+            return productsDTOS;
+        } catch (IllegalArgumentException e){
+            throw new IllegalArgumentException(e.getMessage());
+        }
     }
 
     @Override
-    public Set<ProductsDTO> findByNameLikeIgnoreCase(String firstTwoCharacters) {
-        Set<Product> products = productRepository.findByNameLikeIgnoreCase("%" +  firstTwoCharacters + "%");
-        Set<ProductsDTO> productsDTOS = new HashSet<>();
-        products.forEach(product -> {
-            ProductsDTO productsDTO = new ProductsDTO();
-            productsDTO = readProduct(product, productsDTO);
-            productsDTOS.add(productsDTO);
-        });
-        return productsDTOS;
+    public Set<ProductsDTO> findByNameLikeIgnoreCase(String name) {
+        try{
+            Set<Object[]> products = productRepository.findProductByNameLike(name);
+            Set<ProductsDTO> productsDTOS = products.stream()
+                    .map(this::ConvertToDto)
+                    .limit(4)
+                    .collect(Collectors.toSet());
+            return productsDTOS;
+        } catch (IllegalArgumentException e){
+            throw new IllegalArgumentException(e.getMessage());
+        }
     }
 
     public String getFirstTwoWordsFromProductName(String productName) {

@@ -22,11 +22,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/auth")
+@RequestMapping("/web")
 @RequiredArgsConstructor
 public class AuthenticationController {
     private final AuthenticationService authenticationService;
-    @PostMapping("/register")
+    @PostMapping("/auth/register")
     public ResponseEntity<String> registerUser(@RequestBody RegisterUserRequest request) {
         try{
             String message= authenticationService.registerUser(request);
@@ -45,7 +45,7 @@ public class AuthenticationController {
         cookie.setHttpOnly(true);
         return cookie;
     }
-    @PostMapping("/login")
+    @PostMapping("/auth/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest request, HttpServletResponse response){
         try{
             AuthenticationResponse authenticationResponse= authenticationService.authenticate(request);
@@ -63,7 +63,7 @@ public class AuthenticationController {
             return ResponseEntity.status(401).body(error);
         }
     }
-    @PostMapping("/refreshToken")
+    @PostMapping("/auth/refreshToken")
     public ResponseEntity<?> refreshToken(@RequestBody RefreshTokenRequest request){
         try{
             AuthenticationResponse managerResponse= authenticationService.refreshToken(request);
@@ -72,7 +72,7 @@ public class AuthenticationController {
             return ResponseEntity.status(403).body(e.getMessage());
         }
     }
-    @PostMapping("/logout")
+    @PostMapping("/auth/logout")
     public ResponseEntity<String> logout(@RequestBody LogoutRequest request, HttpServletResponse response){
         try{
             Cookie accessTokenCookie= new Cookie("accessToken", "");

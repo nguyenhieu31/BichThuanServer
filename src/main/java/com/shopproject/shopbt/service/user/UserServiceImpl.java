@@ -92,8 +92,8 @@ public class UserServiceImpl implements UserService{
         usersDTO.setFullName(user.getFullName());
         usersDTO.setPassword(user.getPassword());
         usersDTO.setRole(user.getRole());
-        usersDTO.setCreateAt(user.getCreateAt());
-        usersDTO.setUpdateAt(user.getUpdateAt());
+        usersDTO.setCreateAt(user.getCreatedAt());
+        usersDTO.setUpdateAt(user.getUpdatedAt());
 
         // address id
         Set<Long> addressIds = new HashSet<>();

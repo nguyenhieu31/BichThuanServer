@@ -1,5 +1,6 @@
 package com.shopproject.shopbt.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -23,9 +24,11 @@ public class Product_Cart {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long product_cart_id;
     @ManyToOne(fetch = FetchType.EAGER)
+    @JsonIgnore
     @JoinColumn(name = "cart_id", nullable = false)
     private Cart cart;
     @ManyToOne(fetch = FetchType.EAGER)
+    @JsonIgnore
     @JoinColumn(name = "product_id", nullable = false)
     private Product product;
     @Column(nullable = false, length = 10)

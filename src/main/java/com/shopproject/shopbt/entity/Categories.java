@@ -1,5 +1,6 @@
 package com.shopproject.shopbt.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -32,6 +33,7 @@ public class Categories {
     @Column(nullable = false)
     private LocalDateTime updatedAt;
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "category")
+    @JsonIgnore
     private Set<Product> products = new HashSet<Product>(0);
     @PrePersist
     protected void onCreate() {

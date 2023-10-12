@@ -1,5 +1,6 @@
 package com.shopproject.shopbt.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -22,6 +23,7 @@ public class Gallery_Image {
     private Long id;
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "product_id",nullable = false)
+    @JsonIgnore
     private Product product;
     @Column(name = "image",columnDefinition = "text")
     private String image;

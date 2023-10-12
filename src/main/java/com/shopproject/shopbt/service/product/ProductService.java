@@ -15,10 +15,10 @@ public interface ProductService {
     void update_Product(ProductsDTO productsDTO);
 
     void delete_Product(Long id);
-    Set<ProductsDTO> findALLByLimitOffset(Pageable pageable);
+    Set<ProductsDTO> findALLByLimitOffset();
     Set<ProductsDTO> findProductsByCategoryId(Long id);
 
-    Set<ProductsDTO> findTop10ByPriceBetween(BigDecimal startPrice,BigDecimal endPrice);
+    Set<ProductsDTO> findByPriceBetweenPrice(BigDecimal startPrice,BigDecimal endPrice);
 
     Set<ProductsDTO> findTop10ByCreatedAtBetween(LocalDateTime startDate, LocalDateTime endDate);
 

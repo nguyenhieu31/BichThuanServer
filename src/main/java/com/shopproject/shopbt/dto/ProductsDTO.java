@@ -1,10 +1,13 @@
 package com.shopproject.shopbt.dto;
 
+import com.shopproject.shopbt.entity.Color;
+import com.shopproject.shopbt.entity.Gallery_Image;
 import lombok.Data;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Base64;
+import java.util.List;
 import java.util.Set;
 
 @Data
@@ -22,6 +25,7 @@ public class ProductsDTO {
     private LocalDateTime updatedAt;
     private String updatedBy;
     private Long categoryId;
-    private Set<Integer> colorId;
-    private Set<Integer> sizeId;
+    private Set<Color> colorNames;
+    private List<String> sizeNames;
+    private Set<Gallery_Image> galleryImages;
 }

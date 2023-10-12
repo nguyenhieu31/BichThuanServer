@@ -20,10 +20,10 @@ public class LineChartController {
     @Autowired
     private ProductService productService;
 
-    @GetMapping("/category/{id}")
-    public ResponseEntity<List<Product>> getProductsByCategory(@PathVariable("id") Long categoryId) {
-        List<Product> products = productService.findByCategoryId(categoryId);
-        return new ResponseEntity<>(products, HttpStatus.OK);
-    }
+//    @GetMapping("/category/{id}")
+//    public ResponseEntity<List<Product>> getProductsByCategory(@PathVariable("id") Long categoryId) {
+//        List<Product> products = productService.findByCategoryId(categoryId);
+//        return new ResponseEntity<>(products, HttpStatus.OK);
+//    }
 }
 
