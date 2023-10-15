@@ -9,6 +9,7 @@ import com.shopproject.shopbt.repository.BlackList.BlackListRepo;
 import com.shopproject.shopbt.repository.Manager.ManagerRepo;
 import com.shopproject.shopbt.repository.Role.RoleRepo;
 import com.shopproject.shopbt.repository.WhiteList.WhiteListRepo;
+import com.shopproject.shopbt.repository.carts.CartRepository;
 import com.shopproject.shopbt.repository.user.UserRepository;
 import com.shopproject.shopbt.request.*;
 import com.shopproject.shopbt.response.AuthenticationResponse;
@@ -40,6 +41,7 @@ public class AuthenticationService {
     private final UserDetailsService userDetailsService;
     private final UserRepository userRepository;
     private final BlackListRepo blackListRepo;
+    private final CartRepository cartRepository;
 //    private final RedisService redisService;
     //admin
     public String register(RegisterRequest request){
@@ -76,7 +78,6 @@ public class AuthenticationService {
                 throw new RegisterException("Số điện thoại đã tồn tại");
             }
         }
-
         var user= User.builder()
                 .userName(request.getUserName())
                 .fullName(request.getFullName())
@@ -88,12 +89,16 @@ public class AuthenticationService {
                 .address(request.getAddress())
                 .user(user)
                 .build();
+        var cart= Cart.builder()
+                .user(user)
+                .build();
         if (user.getAddresses() == null) {
             user.setAddresses(new HashSet<>());
         }
         user.getAddresses().add(address);
         try {
             userRepository.save(user);
+            cartRepository.save(cart);
             return "đăng kí thành công";
         }catch (Exception e){
             throw new RegisterException(e.getMessage());
@@ -135,10 +140,10 @@ public class AuthenticationService {
     }
     public AuthenticationResponse refreshToken(RefreshTokenRequest request) throws RefreshTokenException {
         String newToken=null;
-        if(!jwtServices.isTokenExpiration(request.getRefreshToken()) && request.getRefreshToken() !=null){
+        if(request.getRefreshToken() !=null && !jwtServices.isTokenExpiration(request.getRefreshToken())){
             Claims claims= jwtServices.decodedToken(request.getRefreshToken());
-            UserDetails manager= this.userDetailsService.loadUserByUsername(claims.getSubject());
-            newToken= jwtServices.GeneratorTokenByRefreshToken(request.getToken(),manager);
+            UserDetails user= this.userDetailsService.loadUserByUsername(claims.getSubject());
+            newToken= jwtServices.GeneratorTokenByRefreshToken(request.getToken(),user);
         }else{
             throw new RefreshTokenException("RefreshToken expires");
         }

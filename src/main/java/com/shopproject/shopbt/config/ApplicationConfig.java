@@ -17,9 +17,11 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
 
+import java.util.Arrays;
 import java.util.Optional;
 
 @Configuration
@@ -59,15 +61,27 @@ public class ApplicationConfig {
     public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception{
         return configuration.getAuthenticationManager();
     }
+//    @Bean
+//    public CorsFilter corsFilter(){
+//        UrlBasedCorsConfigurationSource source= new UrlBasedCorsConfigurationSource();
+//        CorsConfiguration configuration= new CorsConfiguration();
+//        configuration.setAllowCredentials(true);//cho phép sử dụng cookie khi gửi request
+//        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE"));
+//        configuration.addAllowedOrigin("http://localhost:3000");//url của react js
+//        configuration.addAllowedHeader("*");// cho phép tất cả các header
+//        configuration.addAllowedMethod("*"); //cho phép các phương thức ( get, post, put, delete)
+//        source.registerCorsConfiguration("/**",configuration);
+//        return new CorsFilter(source);
+//    }
     @Bean
-    public CorsFilter corsFilter(){
-        UrlBasedCorsConfigurationSource source= new UrlBasedCorsConfigurationSource();
-        CorsConfiguration configuration= new CorsConfiguration();
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowCredentials(true);//cho phép sử dụng cookie khi gửi request
         configuration.addAllowedOrigin("http://localhost:3000");//url của react js
-        configuration.addAllowedHeader("*");// cho phép tất cả các header
-        configuration.addAllowedMethod("*"); //cho phép các phương thức ( get, post, put, delete)
-        source.registerCorsConfiguration("/**",configuration);
-        return new CorsFilter(source);
+        configuration.setAllowedMethods(Arrays.asList("GET","POST","PUT","PATCH","DELETE","OPTIONS"));
+        configuration.setAllowedHeaders(Arrays.asList("*"));
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
     }
 }

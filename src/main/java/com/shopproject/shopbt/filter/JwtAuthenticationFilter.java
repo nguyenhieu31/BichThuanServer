@@ -30,7 +30,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String authorization= request.getHeader("Authorization");
         String token=null;
         final String userName;
-        if(request.getServletPath().startsWith("/web")){
+        if(request.getServletPath().startsWith("/web") && !request.getServletPath().startsWith("/web/addToCart")){
             filterChain.doFilter(request,response);
             return;
         }
@@ -39,8 +39,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return;
         }
         token= authorization.substring(7);
-        if(token!=null && !jwtServices.isTokenInBlackList(token)){
-            try {
+        try{
+            if(token!=null && !jwtServices.isTokenInBlackList(token)){
                 boolean checkExpirationToken= jwtServices.isTokenExpiration(token);
                 if(!checkExpirationToken){
                     userName= jwtServices.ExtractUserName(token);
@@ -53,15 +53,18 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                         }
                     }
                 }
-            }catch (ExpiredJwtException e){
-                response.setStatus(403);
-                response.getWriter().write("Login session expired");
+            }else{
+                response.setStatus(401);
+                response.getWriter().write("token isn't valid");
                 return;
             }
-        }else{
-            response.setStatus(401);
-            response.getWriter().write("token isn't valid");
+        }catch (ExpiredJwtException e){
+            response.setStatus(403);
+            response.getWriter().write("Login session expired");
             return;
+        } catch (Exception e){
+            System.out.println(e.getMessage());
+            e.printStackTrace();
         }
         filterChain.doFilter(request,response);
     }

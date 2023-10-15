@@ -19,7 +19,6 @@ public interface ProductService {
     void delete_Product(Long id);
     Set<ProductsDTO> findALLByLimitOffset(Pageable pageable);
     Set<ProductsDTO> findProductsByCategoryId(Long id);
-    Set<ProductsDTO> findAllProduct(int limit,int offset);
 
     Set<ProductsDTO> findTop10ByPriceBetween(BigDecimal startPrice,BigDecimal endPrice);
 
@@ -30,5 +29,4 @@ public interface ProductService {
     Set<ProductsDTO> findByNameLikeIgnoreCase(String firstTwoCharacters);
 
     String getFirstTwoWordsFromProductName(String productName);
-
 }

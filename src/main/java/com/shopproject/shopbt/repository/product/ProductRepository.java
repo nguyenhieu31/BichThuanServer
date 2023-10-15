@@ -13,7 +13,6 @@ import java.util.Set;
 
 public interface ProductRepository extends JpaRepository<Product, Long> {
     Set<Product> findProductsByCategory_CategoryId(Long id);
-
     Set<Product> findTop10ByPriceBetween(BigDecimal start, BigDecimal end);
 
     Set<Product> findTop10ByCreatedAtBetween(LocalDateTime startDate, LocalDateTime endDate);

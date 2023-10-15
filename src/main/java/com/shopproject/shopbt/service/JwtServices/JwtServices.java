@@ -1,10 +1,12 @@
 package com.shopproject.shopbt.service.JwtServices;
 
+import com.shopproject.shopbt.ExceptionCustom.RefreshTokenException;
 import com.shopproject.shopbt.entity.BlackList;
 import com.shopproject.shopbt.entity.WhiteList;
 import com.shopproject.shopbt.repository.BlackList.BlackListRepo;
 import com.shopproject.shopbt.repository.WhiteList.WhiteListRepo;
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
@@ -16,6 +18,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.security.Key;
 import java.util.*;
@@ -93,27 +96,44 @@ public class JwtServices {
         }
         return true;
     }
-    public String GeneratorTokenByRefreshToken(String token, UserDetails userDetails){
+    @Transactional
+    public String GeneratorTokenByRefreshToken(String token, UserDetails userDetails) throws RefreshTokenException {
         List<WhiteList> tokens= whiteListRepo.findAll();
+        List<WhiteList> tokensToRemove = new ArrayList<>();
         final String[] newToken= new String[1];
-        tokens.forEach(item->{
-            if(!isTokenExpiration(item.getToken())){
-                final String userName= ExtractUserName(item.getToken());
-                if(userName.equals(userDetails.getUsername())){
-                    UserDetails user= this.userDetailsService.loadUserByUsername(userName);
-                    newToken[0]= this.GeneratorAccessToken(user);
+        Iterator<WhiteList> iterator= tokens.iterator();
+        while(iterator.hasNext()){
+            WhiteList item= iterator.next();
+            try{
+                if(!isTokenExpiration(item.getToken())){
+                    final String userName= ExtractUserName(item.getToken());
+                    if(userName.equals(userDetails.getUsername())){
+                        UserDetails user= this.userDetailsService.loadUserByUsername(userName);
+                        newToken[0]= this.GeneratorAccessToken(user);
+                    }
                 }
-            }else{
+            }catch (ExpiredJwtException e){
                 var tokenBlackList= BlackList.builder()
                         .token(item.getToken())
                         .build();
+                tokensToRemove.add(item);
                 blackListRepo.save(tokenBlackList);
             }
-        });
-        var saveToken= BlackList.builder()
-                .token(token)
-                .build();
-        blackListRepo.save(saveToken);
-        return newToken[0];
+        }
+        for(WhiteList item:tokensToRemove){
+            Long deleteRecord= whiteListRepo.deleteByToken(item.getToken());
+        }
+        Optional<BlackList> findTokenInBlack= blackListRepo.findByToken(token);
+        if(findTokenInBlack.isEmpty()){
+            var saveToken= BlackList.builder()
+                    .token(token)
+                    .build();
+            blackListRepo.save(saveToken);
+        }
+        if(newToken[0]!= null){
+            return newToken[0];
+        }else{
+            throw new RefreshTokenException("token not valid");
+        }
     }
 }

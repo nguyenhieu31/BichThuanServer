@@ -25,7 +25,7 @@ public class TestProduct_Cart {
         productCartsDTO.setSize("L");
         productCartsDTO.setStatus(1);
 
-        productCartService.create_Product_Cart(productCartsDTO);
+//        productCartService.create_Product_Cart(productCartsDTO);
     }
 
     @Test

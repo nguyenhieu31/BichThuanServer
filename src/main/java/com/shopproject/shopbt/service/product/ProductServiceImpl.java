@@ -146,13 +146,7 @@ public class ProductServiceImpl implements ProductService{
             productsDTO = readProduct(product, productsDTO);
             productsDTOS.add(productsDTO);
         });
-
         return productsDTOS;
-    }
-
-    @Override
-    public Set<ProductsDTO> findAllProduct(int limit, int offset) {
-        return null;
     }
 
     @Override
@@ -192,8 +186,8 @@ public class ProductServiceImpl implements ProductService{
     }
 
     @Override
-    public Set<ProductsDTO> findByNameLikeIgnoreCase(String firstTwoCharacters) {
-        Set<Product> products = productRepository.findByNameLikeIgnoreCase("%" +  firstTwoCharacters + "%");
+    public Set<ProductsDTO> findByNameLikeIgnoreCase(String name) {
+        Set<Product> products = productRepository.findByNameLikeIgnoreCase("%" +  name + "%");
         Set<ProductsDTO> productsDTOS = new HashSet<>();
         products.forEach(product -> {
             ProductsDTO productsDTO = new ProductsDTO();
