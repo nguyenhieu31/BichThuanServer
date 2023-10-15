@@ -1,10 +1,9 @@
 package com.shopproject.shopbt.dto;
 
+import lombok.Data;
 import com.shopproject.shopbt.entity.Color;
 import com.shopproject.shopbt.entity.Gallery_Image;
 import com.shopproject.shopbt.entity.Size;
-import lombok.Data;
-
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Base64;

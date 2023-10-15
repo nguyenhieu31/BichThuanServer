@@ -22,10 +22,12 @@ public class Product_Cart {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long product_cart_id;
     @ManyToOne(fetch = FetchType.EAGER)
+    @JsonIgnore
     @JoinColumn(name = "cart_id", nullable = false)
     @JsonIgnore
     private Cart cart;
     @ManyToOne(fetch = FetchType.EAGER)
+    @JsonIgnore
     @JoinColumn(name = "product_id", nullable = false)
     @JsonIgnore
     private Product product;
