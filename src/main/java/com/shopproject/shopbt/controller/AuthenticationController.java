@@ -11,7 +11,9 @@ import com.shopproject.shopbt.request.RefreshTokenRequest;
 import com.shopproject.shopbt.request.RegisterUserRequest;
 import com.shopproject.shopbt.response.AuthenticationResponse;
 import com.shopproject.shopbt.service.JwtServices.JwtServices;
+import com.shopproject.shopbt.service.Redis.RedisService;
 import com.shopproject.shopbt.service.authentication.AuthenticationService;
+import com.shopproject.shopbt.util.CookieUtil;
 import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -31,6 +33,8 @@ import java.util.Map;
 public class AuthenticationController {
     private final AuthenticationService authenticationService;
     private final JwtServices jwtServices;
+    private final RedisService redisService;
+    private final CookieUtil cookieUtil;
     @PostMapping("/auth/register")
     public ResponseEntity<String> registerUser(@RequestBody RegisterUserRequest request) {
         try{
@@ -44,43 +48,38 @@ public class AuthenticationController {
 //    public ResponseEntity<String> register(@RequestBody RegisterRequest request){
 //        return ResponseEntity.status(HttpStatus.OK).body(authenticationService.register(request));
 //    }
-    private Cookie addAttributeForCookie(Cookie cookie, int expires){
-        cookie.setMaxAge(expires);
-        cookie.setPath("/");
-        return cookie;
-    }
-    private void generatorTokenCookie(HttpServletResponse response, AuthenticationResponse authenticationResponse) {
-        Cookie accessTokenCookie= new Cookie("accessToken",authenticationResponse.getToken());
-        Cookie refreshTokenCookie= new Cookie("refreshToken",authenticationResponse.getRefreshToken());
-        accessTokenCookie=addAttributeForCookie(accessTokenCookie, 5*60*1000);
-        refreshTokenCookie= addAttributeForCookie(refreshTokenCookie,24*60*60*1000);
-        refreshTokenCookie.setHttpOnly(true);
-        response.addCookie(accessTokenCookie);
-        response.addCookie(refreshTokenCookie);
-    }
     @PostMapping("/auth/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest request, HttpServletResponse response){
         try{
             AuthenticationResponse authenticationResponse= authenticationService.authenticate(request);
-            generatorTokenCookie(response, authenticationResponse);
+            cookieUtil.generatorTokenCookie(response, authenticationResponse);
             return ResponseEntity.status(200).body(authenticationResponse);
         }catch (LoginException e){
             Map<String,String> error= new HashMap<>();
             error.put("error","Authenticated failed");
             error.put("message",e.getMessage());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+        }catch (Exception e){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
     }
+
     @GetMapping("/auth/checkStateLogin")
-    public ResponseEntity<?> checkStateLogin(HttpServletRequest request, HttpServletResponse response){
+    public ResponseEntity<?> checkStateLogin(HttpServletRequest request){
         try{
             Cookie[] cookies= request.getCookies();
             String token = null;
+            String keyToken=null;
             for(Cookie cookie:cookies){
-                if(cookie.getName().equals("accessToken")) token=cookie.getValue();
+                if(cookie.getName().equals("accessToken")) keyToken=cookie.getValue();
             }
-            if(token!=null && token.length()>0 && !jwtServices.isTokenExpiration(token)){
-                return ResponseEntity.status(HttpStatus.OK).body(jwtServices.ExtractUserName(token));
+            if(keyToken!=null){
+                token= redisService.getDataFromRedis(keyToken);
+                if(token!=null && !jwtServices.isTokenExpiration(token)){
+                    return ResponseEntity.status(HttpStatus.OK).body(jwtServices.ExtractUserName(token));
+                }else{
+                    return ResponseEntity.status(403).body("session is expires");
+                }
             }else{
                 return ResponseEntity.status(401).body("session is expires");
             }
@@ -104,24 +103,28 @@ public class AuthenticationController {
                         .refreshToken(refreshToken)
                         .build();
                 AuthenticationResponse authenticationResponse= authenticationService.refreshToken(refreshTokenRequest);
-                generatorTokenCookie(response, authenticationResponse);
+                cookieUtil.generatorTokenCookie(response, authenticationResponse);
                 return ResponseEntity.status(HttpStatus.OK).body(authenticationResponse);
             }else{
                 return ResponseEntity.status(401).body("session expires");
             }
         }catch (RefreshTokenException e){
+            var authenticationRes= AuthenticationResponse.builder()
+                    .token(null)
+                    .refreshToken(null)
+                    .build();
+            cookieUtil.generatorTokenCookie(response,authenticationRes);
             return ResponseEntity.status(401).body(e.getMessage());
         }
     }
     @PostMapping("/auth/logout")
     public ResponseEntity<String> logout(@RequestBody LogoutRequest request, HttpServletResponse response){
         try{
-            Cookie accessTokenCookie= new Cookie("accessToken", "");
-            Cookie refreshTokenCookie= new Cookie("refreshToken", "");
-            accessTokenCookie.setMaxAge(0);
-            refreshTokenCookie.setMaxAge(0);
-            response.addCookie(accessTokenCookie);
-            response.addCookie(refreshTokenCookie);
+            var authenticationRes= AuthenticationResponse.builder()
+                    .token(null)
+                    .refreshToken(null)
+                    .build();
+            cookieUtil.generatorTokenCookie(response,authenticationRes);
             return ResponseEntity.status(200).body(authenticationService.logout(request));
         }catch (LogoutException e){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());

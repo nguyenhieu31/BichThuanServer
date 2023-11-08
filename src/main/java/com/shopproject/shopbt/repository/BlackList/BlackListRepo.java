@@ -8,5 +8,6 @@ import java.util.Optional;
 
 @Repository
 public interface BlackListRepo extends JpaRepository<BlackList,Long> {
+
     Optional<BlackList> findByToken(String token);
 }

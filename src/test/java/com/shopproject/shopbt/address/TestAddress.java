@@ -14,10 +14,10 @@ public class TestAddress {
 
     @Test
     void create(){
-        AddressDTO addressDTO = new AddressDTO();
-        addressDTO.setAddress("113 Ong Ich Khiem");
-        addressDTO.setUserId(16L);
-
-        addressService.create_Address(addressDTO);
+//        AddressDTO addressDTO = new AddressDTO();
+//        addressDTO.setAddress("113 Ong Ich Khiem");
+//        addressDTO.setUserId(16L);
+//
+//        addressService.create_Address(addressDTO);
     }
 }

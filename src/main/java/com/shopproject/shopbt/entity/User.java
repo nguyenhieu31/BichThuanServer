@@ -28,6 +28,8 @@ public class User implements UserDetails {
     private String fullName;
     @Column(name="password", nullable = false, length = 150)
     private String password;
+    @Column(name = "email",unique = true)
+    private String email; // for OAuth2
     @Column(name = "phone_number", nullable = false,unique = true, length = 11)
     private String phoneNumber;
     @Column(name = "role", nullable = false, length = 10)

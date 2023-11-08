@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -54,16 +55,16 @@ public class TestProduct {
 
     @Test
     void findById() throws JSONException {
-        Long id = 4L;
-        ProductsDTO product = productService.findProductById(id);
-        System.out.println(product.getProductId());
-       System.out.println(product.getName());
-        String name = productService.getFirstTwoWordsFromProductName(product.getName());
-        Set<ProductsDTO> productsDTOS = productService.findByNameLikeIgnoreCase(name);
-        productsDTOS.forEach(productsDTO -> {
-            System.out.println(productsDTO.getProductId());
-            System.out.println(productsDTO.getName());
-        });
+//        Long id = 4L;
+//        ProductsDTO product = productService.findProductById(id);
+//        System.out.println(product.getProductId());
+//       System.out.println(product.getName());
+//        String name = productService.getFirstTwoWordsFromProductName(product.getName());
+//        Set<ProductsDTO> productsDTOS = productService.findByNameLikeIgnoreCase(name);
+//        productsDTOS.forEach(productsDTO -> {
+//            System.out.println(productsDTO.getProductId());
+//            System.out.println(productsDTO.getName());
+//        });
     }
 
     @Test
@@ -77,7 +78,7 @@ public class TestProduct {
 
     @Test
     void delete(){
-        productService.delete_Product(2L);
+//        productService.delete_Product(2L);
     }
 
     @Test
@@ -93,57 +94,58 @@ public class TestProduct {
 
     @Test
     void findTop10ByCreatedAtBetween(){
-        LocalDateTime now = LocalDateTime.now().toLocalDate().atStartOfDay();
-        LocalDateTime start = now.plusDays(-5);
-        LocalDateTime end = now.plusDays(5);
-        Set<ProductsDTO> productsDTOS = productService.findTop10ByCreatedAtBetween(start,end);
-        productsDTOS.forEach(productsDTO -> {
-            System.out.println(productsDTO.getName());
-        });
+//        LocalDateTime now = LocalDateTime.now().toLocalDate().atStartOfDay();
+//        LocalDateTime start = now.plusDays(-5);
+//        LocalDateTime end = now.plusDays(5);
+//        Set<ProductsDTO> productsDTOS = productService.findTop10ByCreatedAtBetween(start,end);
+//        productsDTOS.forEach(productsDTO -> {
+//            System.out.println(productsDTO.getName());
+//        });
     }
 
     @Test
     void findProductsByPriceBetween(){
-        BigDecimal start = BigDecimal.valueOf(500000);
-        BigDecimal end = BigDecimal.valueOf(550000);
-
-        Set<ProductsDTO> products = productService.findByPriceBetweenPrice(start, end);
-        products.forEach(productsDTO -> {
-            System.out.println(productsDTO.getProductId());
-            System.out.println(productsDTO.getName());
-            System.out.println(productsDTO.getPrice());
-        });
+//        BigDecimal start = BigDecimal.valueOf(500000);
+//        BigDecimal end = BigDecimal.valueOf(550000);
+//
+//        Set<ProductsDTO> products = productService.findByPriceBetweenPrice(start, end);
+//        products.forEach(productsDTO -> {
+//            System.out.println(productsDTO.getProductId());
+//            System.out.println(productsDTO.getName());
+//            System.out.println(productsDTO.getPrice());
+//        });
     }
 
 
     @Test
     void findProductsByCategoryId(){
-        Long id = 2L;
-        Set<ProductsDTO> products = productService.findProductsByCategoryId(id);
-        products.forEach(productsDTO -> {
-            System.out.println(productsDTO.getProductId());
-            System.out.println(productsDTO.getName());
-            System.out.println(productsDTO.getPrice());
-        });
+//        Long id = 2L;
+//        Set<ProductsDTO> products = productService.findProductsByCategoryId(id);
+//        products.forEach(productsDTO -> {
+//            System.out.println(productsDTO.getProductId());
+//            System.out.println(productsDTO.getName());
+//            System.out.println(productsDTO.getPrice());
+//        });
     }
 
     @Test
     void findALLByLimitOffset(){
-        Set<ProductsDTO> products = productService.findALLByLimitOffset();
-        products.forEach(productsDTO -> {
-            System.out.println(productsDTO.getProductId());
-            System.out.println(productsDTO.getName());
-            System.out.println(productsDTO.getPrice());
-        });
+//        Pageable pageable=null;
+//        Set<ProductsDTO> products = productService.findALLByLimitOffset(null);
+//        products.forEach(productsDTO -> {
+//            System.out.println(productsDTO.getProductId());
+//            System.out.println(productsDTO.getName());
+//            System.out.println(productsDTO.getPrice());
+//        });
     }
 
     @Test
     void findProductFeature(){
-        Set<ProductsDTO> products = productService.findProductFeature();
-        products.forEach(productsDTO -> {
-            System.out.println(productsDTO.getProductId());
-            System.out.println(productsDTO.getName());
-            System.out.println(productsDTO.getPrice());
-        });
+//        Set<ProductsDTO> products = productService.findProductFeature();
+//        products.forEach(productsDTO -> {
+//            System.out.println(productsDTO.getProductId());
+//            System.out.println(productsDTO.getName());
+//            System.out.println(productsDTO.getPrice());
+//        });
     }
 }

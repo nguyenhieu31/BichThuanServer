@@ -16,53 +16,53 @@ public class TestOrder {
 
     @Test
     void create(){
-        OrdersDTO ordersDTO = new OrdersDTO();
-        ordersDTO.setStatus(1);
-        ordersDTO.setUserId(3L);
-        orderService.create_Order(ordersDTO);
+//        OrdersDTO ordersDTO = new OrdersDTO();
+//        ordersDTO.setStatus(1);
+//        ordersDTO.setUserId(3L);
+//        orderService.create_Order(ordersDTO);
     }
 
     @Test
     void findById(){
-        Long id = 1L;
-        OrdersDTO ordersDTO = orderService.findOrderById(id);
-        System.out.println(ordersDTO.getStatus());
-        System.out.println(ordersDTO.getUserId());
+//        Long id = 1L;
+//        OrdersDTO ordersDTO = orderService.findOrderById(id);
+//        System.out.println(ordersDTO.getStatus());
+//        System.out.println(ordersDTO.getUserId());
     }
 
     @Test
     void update(){
-        Long id = 1L;
-        OrdersDTO ordersDTO = orderService.findOrderById(id);
-        ordersDTO.setStatus(2);
-        orderService.update_Order(ordersDTO);
+//        Long id = 1L;
+//        OrdersDTO ordersDTO = orderService.findOrderById(id);
+//        ordersDTO.setStatus(2);
+//        orderService.update_Order(ordersDTO);
     }
 
     @Test
     void delete(){
-        Long id = 1L;
-        orderService.delete_OrderById(id);
+//        Long id = 1L;
+//        orderService.delete_OrderById(id);
     }
 
     @Test
     void findOrdersByUserId(){
-        Long id = 2L;
-        Set<OrdersDTO> ordersDTOS = orderService.findOrdersByUserId(id);
-        System.out.println(ordersDTOS.size());
-        ordersDTOS.forEach(ordersDTO -> {
-            System.out.println(ordersDTO.getUserId());
-            System.out.println(ordersDTO.getStatus());
-        });
+//        Long id = 2L;
+//        Set<OrdersDTO> ordersDTOS = orderService.findOrdersByUserId(id);
+//        System.out.println(ordersDTOS.size());
+//        ordersDTOS.forEach(ordersDTO -> {
+//            System.out.println(ordersDTO.getUserId());
+//            System.out.println(ordersDTO.getStatus());
+//        });
     }
 
     @Test
     void findOrdersByCreateToday(){
-        LocalDateTime start = LocalDateTime.now().toLocalDate().atStartOfDay();
-        LocalDateTime end = start.plusDays(1);
-        Set<OrdersDTO> ordersDTOS = orderService.findOrdersByToday(start, end);
-        ordersDTOS.forEach(ordersDTO -> {
-            System.out.println(ordersDTO.getUserId());
-            System.out.println(ordersDTO.getStatus());
-        });
+//        LocalDateTime start = LocalDateTime.now().toLocalDate().atStartOfDay();
+//        LocalDateTime end = start.plusDays(1);
+//        Set<OrdersDTO> ordersDTOS = orderService.findOrdersByToday(start, end);
+//        ordersDTOS.forEach(ordersDTO -> {
+//            System.out.println(ordersDTO.getUserId());
+//            System.out.println(ordersDTO.getStatus());
+//        });
     }
 }

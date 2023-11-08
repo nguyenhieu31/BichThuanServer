@@ -8,6 +8,9 @@ import com.shopproject.shopbt.repository.product.ProductRepository;
 import com.shopproject.shopbt.repository.product_cart.Product_CartRepository;
 import com.shopproject.shopbt.repository.user.UserRepository;
 import com.shopproject.shopbt.request.AddToCartRequest;
+import com.shopproject.shopbt.request.CartRequest;
+import com.shopproject.shopbt.request.ProductCartRequest;
+import com.shopproject.shopbt.response.CartResponse;
 import lombok.AllArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.security.core.Authentication;
@@ -16,9 +19,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import javax.security.auth.login.LoginException;
-import java.util.HashSet;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 @Service
 @AllArgsConstructor
@@ -34,10 +35,10 @@ public class Product_CartServiceImpl implements Product_CartService{
             UserDetails user= (UserDetails) authentication.getPrincipal();
             Optional<User> findUser= userRepository.findByUserName(user.getUsername());
             if(findUser.isPresent()){
-                Optional<Product> product= productRepository.findById(id);
+                Product product= productRepository.findByProductId(id);
                 Cart findCartByUserId= cartRepository.findByUser_Userid(findUser.get().getUserid());
-                if (product.isPresent() && findCartByUserId !=null){
-                        Optional<Product_Cart> isProductCart= productCartRepository.findByProduct_ProductIdAndSize(id,request.getSize());
+                if (product.getProductId()!=null && findCartByUserId !=null){
+                        Optional<Product_Cart> isProductCart= productCartRepository.findByProduct_ProductIdAndSizeAndCart_CartId(id,request.getSize(),findCartByUserId.getCartId());
                     try{
                         if(isProductCart.isPresent()){
                             Product_Cart existingProductCart = isProductCart.get();
@@ -45,7 +46,7 @@ public class Product_CartServiceImpl implements Product_CartService{
                             productCartRepository.save(existingProductCart);
                         }else{
                             var productCart= Product_Cart.builder()
-                                    .product(product.get())
+                                    .product(product)
                                     .cart(findCartByUserId)
                                     .color(request.getColor())
                                     .size(request.getSize())
@@ -71,11 +72,96 @@ public class Product_CartServiceImpl implements Product_CartService{
     }
 
     @Override
-    public ProductCartsDTO findProduct_CartById(Long id) {
-        Product_Cart product_cart = productCartRepository.findById(id).get();
-        ProductCartsDTO productCartsDTO = readProduct_Cart(product_cart, new ProductCartsDTO());
+    public List<CartResponse> getAllProductCartByUser() throws Exception {
+        Authentication authentication= SecurityContextHolder.getContext().getAuthentication();
+        try{
+            if(authentication.isAuthenticated()){
+                UserDetails user= (UserDetails) authentication.getPrincipal();
+                Optional<User> findUserInfo= userRepository.findByUserName(user.getUsername());
+                if(findUserInfo.isPresent()){
+                    Cart getCartByUserId= cartRepository.findByUser_Userid(findUserInfo.get().getUserid());
 
+                    List<CartResponse> products= findProduct_CartByCartId(getCartByUserId.getCartId());
+                    return products;
+                }else{
+                    throw new LoginException("user is not found");
+                }
+            }else{
+                throw new LoginException("bạn chưa đăng nhập?");
+            }
+        }catch(ClassCastException e){
+            throw new ClassCastException("bạn chưa đăng nhập?");
+        }
+    }
+
+    @Override
+    public ProductCartsDTO findProduct_CartById(Long id) throws ProductException {
+        Product_Cart productCart = productCartRepository.findByProduct_cart_id(id);
+        if(productCart!=null){
+            Product product= productRepository.findByProductId(productCart.getProduct().getProductId());
+            int quantityNew= productCart.getQuantity()+1;
+            if(product!=null && quantityNew<product.getQuantity()){
+                productCart.setQuantity(quantityNew);
+                productCartRepository.save(productCart);
+            }else{
+                throw new ProductException("không thể thêm sản phẩm vượt quá số lượng trong kho!");
+            }
+        }
+        ProductCartsDTO productCartsDTO = readProduct_Cart(productCart, new ProductCartsDTO());
         return productCartsDTO;
+    }
+
+    @Override
+    public CartResponse incrementProductCart(Long productCartId, ProductCartRequest request) throws Exception {
+        try{
+            Product product= productRepository.findByProductId(request.getProductId());
+            if(product!=null && product.getQuantity()>request.getQuantity()){
+                    Product_Cart productCart=productCartRepository.findByProduct_cart_id(productCartId);
+                    int newQuantity= request.getQuantity()+1;
+                    productCart.setQuantity(newQuantity);
+                    productCartRepository.save(productCart);
+                    return CartResponse.builder()
+                            .productCartId(productCartId)
+                            .quantity(newQuantity)
+                            .size(request.getSize())
+                            .color(request.getColor())
+                            .image(request.getImage())
+                            .name(request.getName())
+                            .productId(request.getProductId())
+                            .price(request.getPrice())
+                            .build();
+            }else{
+                throw new Exception("không thể thêm vì vượt quá số lượng trong kho");
+            }
+        }catch (Exception e){
+            throw new Exception(e.getMessage());
+        }
+    }
+
+    @Override
+    public CartResponse decrementProductCart(Long productCartId, ProductCartRequest request) throws Exception {
+        try{
+            Product_Cart productCart= productCartRepository.findByProduct_cart_id(productCartId);
+            if (productCart!=null){
+                int newQuantity= request.getQuantity()-1;
+                productCart.setQuantity(newQuantity);
+                productCartRepository.save(productCart);
+                return CartResponse.builder()
+                        .productCartId(productCartId)
+                        .quantity(newQuantity)
+                        .size(request.getSize())
+                        .color(request.getColor())
+                        .image(request.getImage())
+                        .name(request.getName())
+                        .productId(request.getProductId())
+                        .price(request.getPrice())
+                        .build();
+            }else{
+                throw new Exception("không thể giảm số lượng sản phẩm trong giỏ");
+            }
+        }catch(Exception e){
+            throw new Exception(e.getMessage());
+        }
     }
 
     @Override
@@ -86,9 +172,59 @@ public class Product_CartServiceImpl implements Product_CartService{
         productCartRepository.save(update_product_cart);
     }
 
+//    @Override
+//    public CartResponse updateQuantity(CartRequest cartRequest) throws Exception {
+//        try{
+//            Optional<Product_Cart> productCartOP= productCartRepository.findById(cartRequest.getProductCartId());
+//            if(productCartOP.isPresent()){
+//                Product_Cart productCart= productCartOP.get();
+//                if(productCart.getProduct().getQuantity()>cartRequest.getQuantity()){
+//                    productCart.setQuantity(cartRequest.getQuantity());
+//                    productCartRepository.save(productCart);
+//                    return CartResponse.builder()
+//                            .productCartId(productCart.getProduct_cart_id())
+//                            .productId(productCart.getProduct().getProductId())
+//                            .price(productCart.getProduct().getPrice())
+//                            .name(productCart.getProduct().getName())
+//                            .image(productCart.getProduct().getImage())
+//                            .color(productCart.getColor())
+//                            .size(productCart.getSize())
+//                            .quantity(productCart.getQuantity())
+//                            .build();
+//                }else{
+//                    throw new Exception("so luong khong phu hop");
+//                }
+//            }else{
+//                throw new Exception("khong the cap nhat so luong");
+//            }
+//        }catch (Exception e){
+//            throw new Exception("khong tim thay san pham");
+//        }
+//    }
+
     @Override
-    public void delete_Product_CartById(Long id) {
-        productCartRepository.deleteById(id);
+    public void delete_Product_CartById(Long productCartId) {
+        productCartRepository.deleteById(productCartId);
+    }
+
+    @Override
+    public List<CartResponse> updateCart(String userName) throws Exception {
+        try{
+            if(userName!=null){
+                Optional<User> findUserByUserName= userRepository.findByUserName(userName);
+                if(findUserByUserName.isPresent()){
+                    Cart findCartByUserId= cartRepository.findByUser_Userid(findUserByUserName.get().getUserid());
+                    List<CartResponse> products= findProduct_CartByCartId(findCartByUserId.getCartId());
+                    return products;
+                }else{
+                    throw new LoginException("người dùng chưa đăng nhập");
+                }
+            }else{
+                throw new LoginException("phien dang nhap het han");
+            }
+        }catch (Exception e){
+            throw new Exception(e.getMessage());
+        }
     }
 
     public ProductCartsDTO readProduct_Cart(Product_Cart product_cart, ProductCartsDTO productCartsDTO){
@@ -114,20 +250,10 @@ public class Product_CartServiceImpl implements Product_CartService{
         productCart.setCart(cart);
         Product product = productRepository.findById(productCartsDTO.getProductId()).get();
         productCart.setProduct(product);
-
         return productCart;
     }
-    @Override
-    public Set<ProductCartsDTO> findProduct_CartByCartId(Long id) {
-        Set<Product_Cart> product_carts = productCartRepository.findByCart_CartId(id);
-        Set<ProductCartsDTO> productCartsDTOS = new HashSet<>();
-
-        product_carts.forEach(productCart -> {
-            ProductCartsDTO productCartsDTO = new ProductCartsDTO();
-            productCartsDTO = readProduct_Cart(productCart, productCartsDTO);
-
-            productCartsDTOS.add(productCartsDTO);
-        });
-        return productCartsDTOS;
+    private List<CartResponse> findProduct_CartByCartId(Long id) {
+        List<CartResponse> product_carts = productCartRepository.findByCart_CartId(id);
+        return product_carts;
     }
 }

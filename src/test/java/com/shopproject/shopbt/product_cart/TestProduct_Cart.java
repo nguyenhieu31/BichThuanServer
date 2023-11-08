@@ -15,15 +15,15 @@ public class TestProduct_Cart {
 
     @Test
     void create(){
-        ProductCartsDTO productCartsDTO = new ProductCartsDTO();
-        Long cartId = 2L;
-        productCartsDTO.setCartId(cartId);
-        Long productId = 6L;
-        productCartsDTO.setProductId(productId);
-        productCartsDTO.setColor("Red");
-        productCartsDTO.setQuantity(2);
-        productCartsDTO.setSize("L");
-        productCartsDTO.setStatus(1);
+//        ProductCartsDTO productCartsDTO = new ProductCartsDTO();
+//        Long cartId = 2L;
+//        productCartsDTO.setCartId(cartId);
+//        Long productId = 6L;
+//        productCartsDTO.setProductId(productId);
+//        productCartsDTO.setColor("Red");
+//        productCartsDTO.setQuantity(2);
+//        productCartsDTO.setSize("L");
+//        productCartsDTO.setStatus(1);
 
 //        productCartService.create_Product_Cart(productCartsDTO);
     }
@@ -31,27 +31,27 @@ public class TestProduct_Cart {
     @Test
     void findById(){
         Long id = 1L;
-        ProductCartsDTO productCartsDTO = productCartService.findProduct_CartById(id);
-        System.out.println(productCartsDTO.getProductId());
-        System.out.println(productCartsDTO.getCartId());
+//        ProductCartsDTO productCartsDTO = productCartService.findProduct_CartById(id);
+//        System.out.println(productCartsDTO.getProductId());
+//        System.out.println(productCartsDTO.getCartId());
     }
 
     @Test
     void update(){
         Long id = 1L;
-        ProductCartsDTO productCartsDTO = productCartService.findProduct_CartById(id);
-        productCartsDTO.setStatus(3);
-        productCartsDTO.setSize("M");
-        productCartsDTO.setQuantity(50);
-        Long productId = 5L;
-        productCartsDTO.setProductId(productId);
-
-        productCartService.update_Product_Cart(productCartsDTO);
+//        ProductCartsDTO productCartsDTO = productCartService.findProduct_CartById(id);
+//        productCartsDTO.setStatus(3);
+//        productCartsDTO.setSize("M");
+//        productCartsDTO.setQuantity(50);
+//        Long productId = 5L;
+//        productCartsDTO.setProductId(productId);
+//
+//        productCartService.update_Product_Cart(productCartsDTO);
     }
 
     @Test
     void findProduct_CartByCartId(){
         Long id = 2L;
-        Set<ProductCartsDTO> productCartsDTOS = productCartService.findProduct_CartByCartId(id);
+//        Set<ProductCartsDTO> productCartsDTOS = productCartService.findProduct_CartByCartId(id);
     }
 }

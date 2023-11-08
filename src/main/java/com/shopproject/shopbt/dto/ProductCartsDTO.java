@@ -2,6 +2,7 @@ package com.shopproject.shopbt.dto;
 
 import lombok.Data;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Data
@@ -15,5 +16,4 @@ public class ProductCartsDTO {
     private int quantity;
     private String size;
     private int status;
-
 }

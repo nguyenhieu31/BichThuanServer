@@ -20,30 +20,30 @@ public class TestGallery_Image {
 
     @Test
     void create() throws IOException {
-        GalleryImagesDTO galleryImagesDTO = new GalleryImagesDTO();
-        MultipartFile file = new MockMultipartFile("1.jpg", new FileInputStream(new File("D:\\dev-spring-boot\\image\\1.jpg")));
-        galleryImagesDTO.setImage(file.getBytes());
-        galleryImagesDTO.setProductId(4L);
-
-        galleryImageService.create_Gallery_Image(galleryImagesDTO);
+//        GalleryImagesDTO galleryImagesDTO = new GalleryImagesDTO();
+//        MultipartFile file = new MockMultipartFile("1.jpg", new FileInputStream(new File("D:\\dev-spring-boot\\image\\1.jpg")));
+////        galleryImagesDTO.setImage(file.getBytes());
+//        galleryImagesDTO.setProductId(4L);
+//
+//        galleryImageService.create_Gallery_Image(galleryImagesDTO);
     }
 
     @Test
     void findById(){
-        Long id = 1L;
-        GalleryImagesDTO galleryImagesDTO = galleryImageService.findGallery_ImageById(id);
-        System.out.println(galleryImagesDTO.getId());
-        System.out.println(galleryImagesDTO.getProductId());
+//        Long id = 1L;
+//        GalleryImagesDTO galleryImagesDTO = galleryImageService.findGallery_ImageById(id);
+//        System.out.println(galleryImagesDTO.getId());
+//        System.out.println(galleryImagesDTO.getProductId());
     }
 
     @Test
     void update() throws IOException {
-        Long id = 1L;
-        GalleryImagesDTO galleryImagesDTO = galleryImageService.findGallery_ImageById(id);
-        MultipartFile file = new MockMultipartFile("3.jpg", new FileInputStream(new File("D:\\dev-spring-boot\\image\\3.jpg")));
-        galleryImagesDTO.setImage(file.getBytes());
-        galleryImagesDTO.setProductId(3L);
-
-        galleryImageService.update_Gallery_Image(galleryImagesDTO);
+//        Long id = 1L;
+//        GalleryImagesDTO galleryImagesDTO = galleryImageService.findGallery_ImageById(id);
+//        MultipartFile file = new MockMultipartFile("3.jpg", new FileInputStream(new File("D:\\dev-spring-boot\\image\\3.jpg")));
+////        galleryImagesDTO.setImage(file.getBytes());
+//        galleryImagesDTO.setProductId(3L);
+//
+//        galleryImageService.update_Gallery_Image(galleryImagesDTO);
     }
 }

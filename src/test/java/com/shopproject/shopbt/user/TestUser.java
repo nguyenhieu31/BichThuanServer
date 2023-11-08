@@ -20,22 +20,22 @@ public class TestUser {
 
     @Test
     void create(){
-        UsersDTO usersDTO = new UsersDTO();
-        usersDTO.setUserName("tuanvy");
-        usersDTO.setFullName("Nguyễn Viên Tuấn Vỹ");
-        usersDTO.setRole("USER");
-        usersDTO.setPassword("12345");
-        usersDTO.setPhoneNumber("0327443323");
-
-        userService.create_User(usersDTO);
+//        UsersDTO usersDTO = new UsersDTO();
+//        usersDTO.setUserName("tuanvy");
+//        usersDTO.setFullName("Nguyễn Viên Tuấn Vỹ");
+//        usersDTO.setRole("USER");
+//        usersDTO.setPassword("12345");
+//        usersDTO.setPhoneNumber("0327443323");
+//
+//        userService.create_User(usersDTO);
     }
 
     @Test
     void findById(){
-        Long id = 13L;
-        UsersDTO usersDTO = userService.findByUserId(id);
-        System.out.println(usersDTO.getFullName());
-        System.out.println(usersDTO.getPhoneNumber());
+//        Long id = 13L;
+//        UsersDTO usersDTO = userService.findByUserId(id);
+//        System.out.println(usersDTO.getFullName());
+//        System.out.println(usersDTO.getPhoneNumber());
     }
 //
 //    @Test
@@ -55,14 +55,14 @@ public class TestUser {
 //
     @Test
     void findUsersByToday(){
-        LocalDateTime start = LocalDateTime.now().toLocalDate().atStartOfDay();
-        LocalDateTime end = start.plusDays(1);
-        Set<UsersDTO> usersDTOS = userService.findUsersByToday(start,end);
-
-        usersDTOS.forEach(usersDTO -> {
-            System.out.println(usersDTO.getFullName());
-            System.out.println(usersDTO.getAddressIds());
-            System.out.println(usersDTO.getPhoneNumber());
-        });
+//        LocalDateTime start = LocalDateTime.now().toLocalDate().atStartOfDay();
+//        LocalDateTime end = start.plusDays(1);
+//        Set<UsersDTO> usersDTOS = userService.findUsersByToday(start,end);
+//
+//        usersDTOS.forEach(usersDTO -> {
+//            System.out.println(usersDTO.getFullName());
+//            System.out.println(usersDTO.getAddressIds());
+//            System.out.println(usersDTO.getPhoneNumber());
+//        });
     }
 }

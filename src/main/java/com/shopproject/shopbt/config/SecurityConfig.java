@@ -29,8 +29,8 @@ public class SecurityConfig {
                 .cors(Customizer.withDefaults())
                 .csrf((csrf)-> csrf.disable())
                 .authorizeHttpRequests(auth ->
-                        auth.requestMatchers("/**").permitAll()
-                                .requestMatchers("/web/addToCart/**").hasRole("USER")
+                        auth.requestMatchers("/**","/socket.io/**").permitAll()
+                                .requestMatchers("/web/cart/**").hasRole("USER")
                                 .requestMatchers("/system/**").hasRole("ADMIN")
                                 .anyRequest().authenticated()
                 )
@@ -44,7 +44,6 @@ public class SecurityConfig {
                         .invalidateHttpSession(true)
                         .permitAll()
                 )
-
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }

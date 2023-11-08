@@ -4,6 +4,7 @@ import com.shopproject.shopbt.entity.Manager;
 import com.shopproject.shopbt.entity.User;
 import com.shopproject.shopbt.repository.Manager.ManagerRepo;
 import com.shopproject.shopbt.repository.user.UserRepository;
+import com.shopproject.shopbt.util.CookieUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -16,6 +17,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -31,6 +33,14 @@ public class ApplicationConfig {
     private final ManagerRepo managerRepo;
     @Autowired
     private final UserRepository userRepository;
+    @Bean
+    public CookieUtil cookieUtil(){
+        return new CookieUtil();
+    }
+    @Bean
+    public RestTemplate restTemplate(){
+        return new RestTemplate();
+    }
     @Bean
     public UserDetailsService userDetailsService(){
         return username -> {
@@ -82,6 +92,7 @@ public class ApplicationConfig {
         configuration.setAllowedHeaders(Arrays.asList("*"));
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
+        source.registerCorsConfiguration("/socket.io/?EIO=4&transport=polling&t=OiybJbh",configuration);
         return source;
     }
 }

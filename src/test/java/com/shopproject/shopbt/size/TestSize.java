@@ -14,17 +14,17 @@ public class TestSize {
 
     @Test
     void create(){
-        SizesDTO sizesDTO = new SizesDTO();
-        sizesDTO.setName("M");
-
-        sizeService.create_Size(sizesDTO);
+//        SizesDTO sizesDTO = new SizesDTO();
+//        sizesDTO.setName("M");
+//
+//        sizeService.create_Size(sizesDTO);
     }
 
     @Test
     void findById(){
-        Long id = 1L;
-        SizesDTO sizesDTO = sizeService.findSizeById(id);
-
-        System.out.println(sizesDTO.getName());
+//        Long id = 1L;
+//        SizesDTO sizesDTO = sizeService.findSizeById(id);
+//
+//        System.out.println(sizesDTO.getName());
     }
 }

@@ -97,7 +97,7 @@ public class JwtServices {
         return true;
     }
     @Transactional
-    public String GeneratorTokenByRefreshToken(String token, UserDetails userDetails) throws RefreshTokenException {
+    public String GeneratorTokenByRefreshToken( UserDetails userDetails) throws RefreshTokenException {
         List<WhiteList> tokens= whiteListRepo.findAll();
         List<WhiteList> tokensToRemove = new ArrayList<>();
         final String[] newToken= new String[1];
@@ -122,13 +122,6 @@ public class JwtServices {
         }
         for(WhiteList item:tokensToRemove){
             Long deleteRecord= whiteListRepo.deleteByToken(item.getToken());
-        }
-        Optional<BlackList> findTokenInBlack= blackListRepo.findByToken(token);
-        if(findTokenInBlack.isEmpty()){
-            var saveToken= BlackList.builder()
-                    .token(token)
-                    .build();
-            blackListRepo.save(saveToken);
         }
         if(newToken[0]!= null){
             return newToken[0];

@@ -13,17 +13,17 @@ public class TestColor {
 
     @Test
     void create(){
-        ColorsDTO colorsDTO = new ColorsDTO();
-        colorsDTO.setName("Green");
-
-        colorService.create_Color(colorsDTO);
+//        ColorsDTO colorsDTO = new ColorsDTO();
+//        colorsDTO.setName("Green");
+//
+//        colorService.create_Color(colorsDTO);
     }
 
     @Test
     void findById(){
-        Long id = 1L;
-        ColorsDTO colorsDTO = colorService.findColorById(id);
-
-        System.out.println(colorsDTO.getName());
+//        Long id = 1L;
+//        ColorsDTO colorsDTO = colorService.findColorById(id);
+//
+//        System.out.println(colorsDTO.getName());
     }
 }

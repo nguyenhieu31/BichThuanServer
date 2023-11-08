@@ -8,6 +8,8 @@ import com.shopproject.shopbt.repository.product.ProductRepository;
 import com.shopproject.shopbt.repository.size.SizeRepository;
 import lombok.AllArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -37,19 +39,16 @@ public class ProductServiceImpl implements ProductService{
         try{
             Product product = productRepository.findByProductId(id);
             ProductsDTO productsDTO = readProduct(product, new ProductsDTO());
-
             return productsDTO;
         } catch (IllegalArgumentException e){
             throw new IllegalArgumentException(e.getMessage());
         }
     }
 
-    private ProductsDTO ConvertOneDTO(Object[] product){
+    private ProductsDTO ConvertOneDTO(Object[] product) {
         ProductsDTO productsDTO = new ProductsDTO();
-        System.out.println(product[0]);
         productsDTO.setProductId((Long) product[0]);
         productsDTO.setName((String) product[1]);
-        System.out.println(product[2]);
         productsDTO.setColorNames((Set<Color>) product[2]);
         productsDTO.setDescription((String) product[3]);
         productsDTO.setGalleryImages((Set<Gallery_Image>) product[4]);
@@ -60,15 +59,14 @@ public class ProductServiceImpl implements ProductService{
         productsDTO.setQuantity((Integer) product[9]);
 
         return productsDTO;
-
-    @Override
-    public void update_Product(ProductsDTO productsDTO) {
-        Product product = productRepository.findById(productsDTO.getProductId()).get();
-        product = readProductDTO(product,productsDTO);
-
-        productRepository.save(product);
     }
+        @Override
+        public void update_Product(ProductsDTO productsDTO) {
+            Product product = productRepository.findById(productsDTO.getProductId()).get();
+            product = readProductDTO(product,productsDTO);
 
+            productRepository.save(product);
+        }
         private Product readProductDTO(Product product,ProductsDTO productsDTO){
             product.setCreatedBy(productsDTO.getCreatedBy());
             product.setName(productsDTO.getName());
@@ -96,7 +94,6 @@ public class ProductServiceImpl implements ProductService{
 //            sizes.add(sizeRepository.findBySizeId(sizeId));
 //        });
 //        product.setSizes(sizes);
-    private Product readProductDTO(Product product,ProductsDTO productsDTO){
             product.setUpdatedBy(productsDTO.getUpdatedBy());
             return product;
         }
@@ -110,9 +107,9 @@ public class ProductServiceImpl implements ProductService{
             productsDTO.setImage(product.getImage());
             productsDTO.setDescription(product.getDescription());
             productsDTO.setPrice(product.getPrice());
+            productsDTO.setPriceDiscount(product.getPriceDiscount());
             productsDTO.setQuantity(product.getQuantity());
             productsDTO.setMaterial(product.getMaterial());
-
             productsDTO.setColorNames(product.getColors());
             Set<Size> sizes = product.getSizes().stream()
                     .sorted(Comparator.comparing(Size::getSizeId))
@@ -131,12 +128,10 @@ public class ProductServiceImpl implements ProductService{
 
     private ProductsDTO ConvertToDto(Object[] product){
         ProductsDTO productsDTO = new ProductsDTO();
-        System.out.println(product[0]);
         productsDTO.setProductId((Long) product[0]);
         productsDTO.setImage((String) product[1]);
         productsDTO.setName((String) product[2]);
         productsDTO.setPrice((BigDecimal) product[3]);
-
         return  productsDTO;
         }
     @Override
@@ -145,11 +140,10 @@ public class ProductServiceImpl implements ProductService{
     }
 
     @Override
-    public Set<ProductsDTO> findALLByLimitOffset() {
+    public Set<ProductsDTO> findALLByLimitOffset(Pageable pageable) {
         try{
-            Set<Object[]> products = productRepository.findALLByLimitOffset();
+            Page<Object[]> products = productRepository.findDataByLimitOffset(pageable);
             Set<ProductsDTO> productsDTOS = products.stream()
-                    .limit(4)
                     .map(this::ConvertToDto)
                     .collect(Collectors.toSet());
             return productsDTOS;
@@ -217,7 +211,6 @@ public class ProductServiceImpl implements ProductService{
             Set<Object[]> products = productRepository.findProductByNameLike(name);
             Set<ProductsDTO> productsDTOS = products.stream()
                     .map(this::ConvertToDto)
-                    .limit(4)
                     .collect(Collectors.toSet());
             return productsDTOS;
         } catch (IllegalArgumentException e){

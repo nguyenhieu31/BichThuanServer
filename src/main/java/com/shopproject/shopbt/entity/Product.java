@@ -1,10 +1,8 @@
 package com.shopproject.shopbt.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.Type;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,6 +32,8 @@ public class Product {
     private String name;
     @Column(name = "price", nullable = false, precision = 12, scale = 0)
     private BigDecimal price;
+    @Column(name = "price_discount",precision = 12,scale = 0)
+    private BigDecimal priceDiscount;
     @Column(name = "quantity", nullable = false)
     private int quantity;
     @Column(name = "image", columnDefinition = "text")

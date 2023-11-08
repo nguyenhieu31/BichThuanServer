@@ -20,6 +20,7 @@ public class ProductsDTO {
     private String material;
     private String name;
     private BigDecimal price;
+    private BigDecimal priceDiscount;
     private int quantity;
     private int clickCount;
     private LocalDateTime updatedAt;

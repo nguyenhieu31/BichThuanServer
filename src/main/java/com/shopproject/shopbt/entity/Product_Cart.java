@@ -24,12 +24,10 @@ public class Product_Cart {
     @ManyToOne(fetch = FetchType.EAGER)
     @JsonIgnore
     @JoinColumn(name = "cart_id", nullable = false)
-    @JsonIgnore
     private Cart cart;
     @ManyToOne(fetch = FetchType.EAGER)
     @JsonIgnore
     @JoinColumn(name = "product_id", nullable = false)
-    @JsonIgnore
     private Product product;
     @Column(nullable = false, length = 10)
     private String size;

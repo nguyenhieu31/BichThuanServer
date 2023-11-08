@@ -4,20 +4,21 @@ import com.shopproject.shopbt.dto.CategoriesDTO;
 import com.shopproject.shopbt.dto.ProductsDTO;
 import com.shopproject.shopbt.request.OffsetBasedPageRequest;
 import com.shopproject.shopbt.service.catrgory.CategoryService;
-import com.shopproject.shopbt.service.catrgory.CategoryServiceImpl;
 import com.shopproject.shopbt.service.product.ProductService;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.parameters.P;
 import org.springframework.web.bind.annotation.*;
-import com.shopproject.shopbt.service.catrgory.CategoryService;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import java.util.Set;
+
+import java.util.*;
+import java.util.stream.Collectors;
 
 @RestController
 @AllArgsConstructor
@@ -69,6 +70,27 @@ public class ShopController {
             return ResponseEntity.status(HttpStatus.OK).body(productService.findByNameLikeIgnoreCase(searchName));
         }catch (Exception e){
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+        }
+    }
+    @GetMapping("/shop/products/sort")
+    public ResponseEntity<?> findALlProductBySortPrice(@RequestParam("sortName") String sortName,@RequestParam int offset, @RequestParam int limit){
+        try{
+            Pageable pageable=null;
+            if(sortName.equals("increase")){
+                pageable=new OffsetBasedPageRequest(offset,limit,Sort.Direction.ASC,"price");
+            }else{
+                pageable= new OffsetBasedPageRequest(offset,limit,Sort.Direction.DESC,"price");
+            }
+            Set<ProductsDTO> products= productService.findALLByLimitOffset(pageable);
+            products=sortName.equals("increase")?products.stream().sorted(Comparator.comparing(ProductsDTO::getPrice)).collect(Collectors.toCollection(LinkedHashSet::new)):
+                    products.stream().sorted(Comparator.comparing(ProductsDTO::getPrice).reversed()).collect(Collectors.toCollection(LinkedHashSet::new));
+            List<ProductsDTO> productsDTOS= new ArrayList<>();
+            for(ProductsDTO product:products){
+                productsDTOS.add(product);
+            }
+            return ResponseEntity.status(HttpStatus.OK).body(productsDTOS);
+        }catch(Exception e){
+            return ResponseEntity.status(HttpStatus.OK).body(e.getMessage());
         }
     }
 
