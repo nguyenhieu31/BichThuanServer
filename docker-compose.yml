@@ -1,0 +1,54 @@
+services:
+  app:
+    container_name: Shop-Bich-Thuan
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - 8087:8087
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db.wwskgqabljuehiwkhqhj.supabase.co:5432/postgres
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: BichThuanShop20122023@
+      SPRING_DATASOURCE_DRIVER-CLASS-NAME: org.postgresql.Driver
+      SPRING_JPA_HIBERNATE_DDL-AUTO: none
+      SPRING_JPA_SHOW-SQL: "true"
+      SPRING_JPA_PROPERTIES_HIBERNATE_JDBC_LOB_NON_CONTEXTUAL_CREATION: "true"
+      SERVER_PORT: "8087"
+      JWT_SECRET_KEY: tHjPU5EeOEZtEgxIHgBxXqZ1uij0PlAErQXNocKDuxzvzbFSZ6DHshSch1/Um7lF
+      JWT_EXPIRATION_ACCESS_TOKEN: "900000"
+      JWT_EXPIRATION_REFRESH_TOKEN: "86400000"
+      ACCESS_TOKEN_KEY: "1"
+      REFRESH_TOKEN_KEY: "2"
+      SPRING_APPLICATION_NAME: bichthuan-app
+      SERVER_SERVLET_CONTEXT-PATH: /api/v1
+      SPRING_DATA_REDIS_HOST: redis
+      SPRING_DATA_REDIS_PORT: 6379
+  db:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_DB: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: BichThuanShop20122023@
+    ports:
+      - 5432:5432
+  redis:
+    image: redis:6.0.7
+    container_name: redis
+    restart: always
+    volumes:
+      - redis_volume_data:/data
+    hostname: redis
+    ports:
+      - 6379:6379
+  redis_insight:
+    image: redislabs/redisinsight:latest
+    container_name: redis_insight
+    restart: always
+    ports:
+      - 8001:8001
+    volumes:
+      - redis_insight_volume_data:/db
+volumes:
+  redis_volume_data:
+  redis_insight_volume_data:
