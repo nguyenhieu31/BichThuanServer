@@ -5,8 +5,10 @@ import com.shopproject.shopbt.entity.Order;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
@@ -23,7 +25,7 @@ public interface OrderRepository extends JpaRepository<Order, Long>{
     Page<OrdersDTO> findLatestOrders(Pageable pageable);
 
     @Query("""
-    SELECT new com.shopproject.shopbt.dto.OrdersDTO(o.oderId, u.fullName, o.address, p.image, p.name, o.status)
+    SELECT new com.shopproject.shopbt.dto.OrdersDTO(o.oderId, o.status, u.fullName, o.address, p.image, p.name, ot.pricePerUnit, ot.quantity, ot.size, ot.color)
     FROM Order o
     JOIN OrderItem ot ON o.oderId = ot.order.oderId
     JOIN Product p ON ot.product.productId = p.productId
@@ -34,11 +36,16 @@ public interface OrderRepository extends JpaRepository<Order, Long>{
     Optional<Order> findOrderByOrderId(@Param("id") Long id);
 
     @Query("""
-            SELECT new com.shopproject.shopbt.dto.OrdersDTO(o.orderId, u.fullName, o.address, p.image, p.name, o.status)
+            SELECT new com.shopproject.shopbt.dto.OrdersDTO(o.oderId, o.status, u.fullName, o.address, p.image, p.name, ot.pricePerUnit, ot.quantity, ot.size, ot.color)
             FROM Order o
-            JOIN OrderItem ot ON o.orderId = ot.order.orderId
+            JOIN OrderItem ot ON o.oderId = ot.order.oderId
             JOIN Product p ON ot.product.productId = p.productId
             JOIN User u ON o.user.userid = u.userid
             WHERE date(o.createdAt) BETWEEN CURRENT_DATE - 7 AND CURRENT_DATE""")
     Set<OrdersDTO> findAllOrderBy7Day();
+
+    @Transactional
+    @Modifying
+    @Query("DELETE FROM Order o WHERE o.oderId = :id")
+    void deleteOrderAndOrderItemsByOrderId(@Param("id") Long id);
 }

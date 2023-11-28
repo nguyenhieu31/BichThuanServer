@@ -32,11 +32,16 @@ public class UsersDTO {
 
     }
 
-    public UsersDTO(Long userid, String fullName, String userName, String phoneNumber, String email) {
+    public UsersDTO(Long userid, String fullName, String userName, String phoneNumber, String email, String role) {
         this.userid = userid;
         this.fullName = fullName;
         this.userName = userName;
         this.phoneNumber = phoneNumber;
         this.email = email;
+        this.role  = role;
+    }
+
+    public UsersDTO(Long userid) {
+        this.userid = userid;
     }
 }

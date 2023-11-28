@@ -36,6 +36,12 @@ public class OrderItem {
     @Column(nullable = false)
     private int quantity;
 
+    @Column(nullable = false, length = 20)
+    private String color;
+
+    @Column(nullable = false, length = 15)
+    private String size;
+
     @Column(nullable = false)
     private BigDecimal pricePerUnit;
 

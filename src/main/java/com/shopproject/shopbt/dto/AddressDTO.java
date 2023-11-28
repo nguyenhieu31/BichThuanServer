@@ -8,4 +8,11 @@ public class AddressDTO {
     private Long id;
     private String address;
     private Long userId;
+
+    public AddressDTO(String address) {
+        this.address = address;
+    }
+
+    public AddressDTO() {
+    }
 }

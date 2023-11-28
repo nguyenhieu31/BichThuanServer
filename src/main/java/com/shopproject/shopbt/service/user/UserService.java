@@ -27,4 +27,6 @@ public interface UserService {
     Set<UsersDTO> findAllUserRegisterByToday();
 
     Set<UsersDTO> findAllUserRegisterBy7Days();
+
+    UsersDTO findUserIdByUserName(String name);
 }

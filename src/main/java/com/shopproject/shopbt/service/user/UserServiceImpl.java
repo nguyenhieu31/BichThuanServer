@@ -183,4 +183,9 @@ public class UserServiceImpl implements UserService{
     public List<UsersDTO> getByUserName(String username) {
         return userRepository.getByUserName(username);
     }
+
+    @Override
+    public UsersDTO findUserIdByUserName(String name) {
+        return userRepository.getUserIdByUserName(name).orElseThrow(() -> new RuntimeException("User not found"));
+    }
 }

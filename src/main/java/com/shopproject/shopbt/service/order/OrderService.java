@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Set;
 
 public interface OrderService {
-    void create_Order(OrdersDTO ordersDTO);
+    OrdersDTO create_Order(OrdersDTO ordersDTO);
 
     OrdersDTO findOrderById(Long id);
 

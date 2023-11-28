@@ -22,13 +22,16 @@ public interface UserRepository extends JpaRepository<User, Long> {
             "where u.userName = :username ")
     List<UsersDTO> getByUserName(@Param("username") String username);
 
-    @Query("select new com.shopproject.shopbt.dto.UsersDTO(u.userid, u.fullName, u.userName, u.phoneNumber, u.email) " +
+    @Query("select new com.shopproject.shopbt.dto.UsersDTO(u.userid, u.fullName, u.userName, u.phoneNumber, u.email, u.role) " +
             "from User u " +
             "where date(u.createdAt) = current_date")
     Set<UsersDTO> findAllUserRegisterByToday();
 
-    @Query("select new com.shopproject.shopbt.dto.UsersDTO(u.userid, u.fullName, u.userName, u.phoneNumber, u.email) " +
+    @Query("select new com.shopproject.shopbt.dto.UsersDTO(u.userid, u.fullName, u.userName, u.phoneNumber, u.email, u.role) " +
             "from User u " +
             "where date(u.createdAt) between current_date - 7  and current_date")
     Set<UsersDTO> findAllUserRegisterBy7Days();
+
+    @Query("select new com.shopproject.shopbt.dto.UsersDTO(u.userid) from User u where u.userName = :name")
+    Optional<UsersDTO> getUserIdByUserName(@Param("name") String name);
 }

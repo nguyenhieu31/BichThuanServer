@@ -27,7 +27,7 @@ public class OrderServiceImpl implements OrderService{
 
 
     @Override
-    public void create_Order(OrdersDTO ordersDTO) {
+    public OrdersDTO create_Order(OrdersDTO ordersDTO) {
         Order order = new Order();
         User user = userRepository.findById(ordersDTO.getUserId()).orElseThrow(() -> new UsernameNotFoundException(("User not found")));
         if (user != null){
@@ -36,7 +36,7 @@ public class OrderServiceImpl implements OrderService{
         order.setStatus(ordersDTO.getStatus());
         order.setAddress(ordersDTO.getAddress());
 
-        orderRepository.save(order);
+        return readOrder(orderRepository.save(order));
     }
 
     private OrdersDTO readOrder(Order order){
@@ -77,18 +77,13 @@ public class OrderServiceImpl implements OrderService{
 
     @Override
     public void update_Order(OrdersDTO ordersDTO) {
-        Order order = modelMapper.map(ordersDTO, Order.class);
-        User user = userRepository.findById(ordersDTO.getUserId()).get();
-        order.setUser(user);
-
-        orderRepository.save(order);
-
+        Order order = readOrderDTO(ordersDTO);
         orderRepository.save(order);
     }
 
     @Override
     public void delete_OrderById(Long id) {
-        orderRepository.deleteById(id);
+        orderRepository.deleteOrderAndOrderItemsByOrderId(id);
     }
 
     @Override
