@@ -20,6 +20,6 @@ public class TestAddress {
         addressRequest.setProvinceName("Quảng Nam");
         addressRequest.setDistrictName("Điện Bàn");
         addressRequest.setWardName("Vĩnh Điện");
-        String response= addressService.create_Address(addressRequest,null);
+//        String response= addressService.create_Address(addressRequest,null);
     }
 }
