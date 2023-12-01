@@ -25,6 +25,10 @@ public class OrderServiceImpl implements OrderService{
     private UserRepository userRepository;
     private ModelMapper modelMapper;
 
+    @Override
+    public OrdersDTO findStatusByOrderId(Long id) {
+        return orderRepository.findStatusByOrderId(id);
+    }
 
     @Override
     public OrdersDTO create_Order(OrdersDTO ordersDTO) {

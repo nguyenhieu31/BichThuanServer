@@ -23,4 +23,6 @@ public interface OrderService {
     Set<OrdersDTO> findALLByOrderToday();
 
     Set<OrdersDTO> findAllOrderBy7Day();
+
+    OrdersDTO findStatusByOrderId(Long id);
 }

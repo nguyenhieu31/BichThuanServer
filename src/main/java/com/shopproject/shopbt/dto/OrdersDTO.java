@@ -57,4 +57,8 @@ public class OrdersDTO {
         this.size     = size;
         this.color    = color;
     }
+
+    public OrdersDTO(int status) {
+        this.status = status;
+    }
 }

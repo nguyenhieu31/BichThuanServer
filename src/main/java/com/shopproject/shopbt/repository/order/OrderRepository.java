@@ -48,4 +48,7 @@ public interface OrderRepository extends JpaRepository<Order, Long>{
     @Modifying
     @Query("DELETE FROM Order o WHERE o.oderId = :id")
     void deleteOrderAndOrderItemsByOrderId(@Param("id") Long id);
+
+    @Query("select new com.shopproject.shopbt.dto.OrdersDTO(o.status) from Order o where o.oderId = :id")
+    OrdersDTO findStatusByOrderId(@Param("id") Long id);
 }
