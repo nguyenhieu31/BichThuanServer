@@ -1,5 +1,6 @@
 package com.shopproject.shopbt.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -49,24 +50,27 @@ public class User implements UserDetails {
     protected void onUpdate() {
         updatedAt = LocalDateTime.now();
     }
-    @OneToMany(fetch = FetchType.LAZY,mappedBy = "user", cascade = {CascadeType.ALL})
+    @OneToMany(fetch = FetchType.EAGER,mappedBy = "user", cascade = { CascadeType.MERGE, CascadeType.REMOVE,CascadeType.REFRESH, CascadeType.DETACH })
     private Set<Address> addresses= new HashSet<Address>();
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "user")
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "user")
     private Set<Order> orders = new HashSet<Order>(0);
-    @OneToOne(fetch = FetchType.LAZY, mappedBy = "user")
+    @OneToOne(fetch = FetchType.EAGER, mappedBy = "user")
     private Cart cart;
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "user")
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "user")
     private Set<Comment> comments = new HashSet<Comment>(0);
+    @OneToMany(mappedBy = "user",fetch = FetchType.LAZY)
+    private Set<User_Voucher> userVouchers;
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+    private Set<FreeShippingMember> freeShippingMembers;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        Collection<? extends GrantedAuthority> authorities= List.of(new SimpleGrantedAuthority("ROLE_"+role));
-        return authorities;
+        return List.of(new SimpleGrantedAuthority("ROLE_"+role));
     }
 
     @Override
     public String getUsername() {
-        return userName;
+        return email!=null?email:userName;
     }
 
     @Override

@@ -26,6 +26,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.time.ZoneId;
@@ -95,17 +96,12 @@ public class AuthenticationService {
                 .phoneNumber(request.getPhoneNumber())
                 .role("USER")
                 .build();
-        var address= Address.builder()
-                .address(request.getAddress())
-                .user(user)
-                .build();
         var cart= Cart.builder()
                 .user(user)
                 .build();
         if (user.getAddresses() == null) {
             user.setAddresses(new HashSet<>());
         }
-        user.getAddresses().add(address);
         try {
             userRepository.save(user);
             cartRepository.save(cart);
@@ -172,32 +168,26 @@ public class AuthenticationService {
             throw new RefreshTokenException("refreshToken expired");
         }
     }
-    private void clearToken(String userName){
-        List<WhiteList> listToken=  whiteListRepo.findAll();
-        listToken.stream().forEach(obj->{
-            Claims claims= jwtServices.decodedToken(obj.getToken());
-            if(claims.getSubject().equals(userName)){
-                var tokenBlacklist= BlackList.builder()
-                        .token(obj.getToken())
-                        .build();
-                whiteListRepo.delete(obj);
-                blackListRepo.save(tokenBlacklist);
-            }
-        });
-        redisService.deleteDataInRedis(accessTokenKey);
-        redisService.deleteDataInRedis(refreshTokenKey);
-    }
-    public String logout(LogoutRequest request) throws LogoutException {
-        var manager= managerRepo.findByManagerName(request.getUserName());
-        if(manager.isPresent()){
-            clearToken(manager.get().getManagerName());
-            return "đăng xuất thành công";
+    @Transactional
+    public Long clearToken() throws Exception {
+        String refreshToken= redisService.getDataFromRedis(refreshTokenKey);
+        if(refreshToken!=null){
+            Long deleteRecord= whiteListRepo.deleteByToken(refreshToken);
+            redisService.deleteDataInRedis(accessTokenKey);
+            redisService.deleteDataInRedis(refreshTokenKey);
+            return deleteRecord;
+        }else{
+            throw new Exception("không thể đăng xuất");
         }
-        var user= userRepository.findByUserName(request.getUserName());
-        if(user.isPresent()){
-            clearToken(user.get().getUsername());
+
+    }
+    @Transactional
+    public String logout() throws Exception {
+        Long deleteRecord=clearToken();
+        if(deleteRecord>0){
             return "đăng xuất thành công";
         }
         throw new LogoutException("đăng xuất thất bại");
     }
+
 }

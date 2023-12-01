@@ -6,6 +6,7 @@ import com.shopproject.shopbt.entity.User;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Set;
 
 public interface UserService {
@@ -20,4 +21,6 @@ public interface UserService {
     Set<UsersDTO> findUsersByToday(LocalDateTime startDate, LocalDateTime endDate);
 
     CartsDTO createCartIfNotExists(Long userId);
+
+    List<UsersDTO> getByUserName(String username);
 }

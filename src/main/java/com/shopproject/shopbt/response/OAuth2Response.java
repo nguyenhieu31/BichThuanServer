@@ -1,4 +1,4 @@
-package com.shopproject.shopbt.request;
+package com.shopproject.shopbt.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,6 +9,8 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class LogoutRequest {
-    private String userName;
+public class OAuth2Response {
+    private String accessToken;
+    private String refreshToken;
+    private String fullName;
 }

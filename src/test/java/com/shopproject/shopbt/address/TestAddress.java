@@ -1,6 +1,7 @@
 package com.shopproject.shopbt.address;
 
 import com.shopproject.shopbt.dto.AddressDTO;
+import com.shopproject.shopbt.request.AddressRequest;
 import com.shopproject.shopbt.service.address.AddressService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,10 +15,11 @@ public class TestAddress {
 
     @Test
     void create(){
-//        AddressDTO addressDTO = new AddressDTO();
-//        addressDTO.setAddress("113 Ong Ich Khiem");
-//        addressDTO.setUserId(16L);
-//
-//        addressService.create_Address(addressDTO);
+        AddressRequest addressRequest= new AddressRequest();
+        addressRequest.setAddress("175 trần nhân tông");
+        addressRequest.setProvinceName("Quảng Nam");
+        addressRequest.setDistrictName("Điện Bàn");
+        addressRequest.setWardName("Vĩnh Điện");
+        String response= addressService.create_Address(addressRequest,null);
     }
 }

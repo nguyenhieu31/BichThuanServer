@@ -4,9 +4,11 @@ import com.shopproject.shopbt.entity.Manager;
 import com.shopproject.shopbt.entity.User;
 import com.shopproject.shopbt.repository.Manager.ManagerRepo;
 import com.shopproject.shopbt.repository.user.UserRepository;
+import com.shopproject.shopbt.service.Redis.RedisService;
 import com.shopproject.shopbt.util.CookieUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -17,6 +19,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
@@ -27,12 +30,16 @@ import java.util.Arrays;
 import java.util.Optional;
 
 @Configuration
+@EnableTransactionManagement
 @RequiredArgsConstructor
 public class ApplicationConfig {
     @Autowired
     private final ManagerRepo managerRepo;
     @Autowired
     private final UserRepository userRepository;
+    private final RedisService redisService;
+    @Value("${GOOGLE.STATE_KEY}")
+    private String googleState;
     @Bean
     public CookieUtil cookieUtil(){
         return new CookieUtil();
@@ -44,7 +51,16 @@ public class ApplicationConfig {
     @Bean
     public UserDetailsService userDetailsService(){
         return username -> {
-             Optional<Manager> manager= managerRepo.findByManagerName(username);
+             String oauth2State= redisService.getDataFromRedis(googleState);
+             if(oauth2State!=null){
+                 Optional<User> isUser= userRepository.findByEmail(username);
+                 if(isUser.isPresent()){
+                     return isUser.get();
+                 }else{
+                     throw new UsernameNotFoundException("userName is not found");
+                 }
+             }
+            Optional<Manager> manager= managerRepo.findByManagerName(username);
              if(manager.isPresent()){
                  return manager.get();
              }else{

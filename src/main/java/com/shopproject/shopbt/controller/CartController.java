@@ -10,8 +10,6 @@ import com.shopproject.shopbt.service.product_cart.Product_CartService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.messaging.handler.annotation.MessageMapping;
-import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -33,11 +31,9 @@ public class CartController {
     public ResponseEntity<?> getAllProductInCart(){
         try{
             return ResponseEntity.status(HttpStatus.OK).body(productCartService.getAllProductCartByUser());
-        }catch (LoginException e){
+        }catch (LoginException | ClassCastException e){
             return ResponseEntity.status(403).body(e.getMessage());
-        } catch (ClassCastException e){
-            return ResponseEntity.status(403).body(e.getMessage());
-        }catch (Exception e){
+        } catch (Exception e){
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         }
     }

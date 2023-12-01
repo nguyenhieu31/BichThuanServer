@@ -4,7 +4,6 @@ import com.shopproject.shopbt.response.AuthenticationResponse;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Value;
-
 public class CookieUtil {
     @Value("${JWT.EXPIRATION_ACCESS_TOKEN}")
     private String expiresAccessToken;

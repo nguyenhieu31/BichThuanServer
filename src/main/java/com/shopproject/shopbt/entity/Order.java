@@ -9,6 +9,8 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -19,11 +21,15 @@ import java.time.LocalDateTime;
 public class Order {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long orderId;
 
-    private Long oderId;
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
+
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "order")
+    private Set<OrderItem> order_items = new HashSet<>();
+
     @Column(nullable = false)
     private int status;
     @CreationTimestamp

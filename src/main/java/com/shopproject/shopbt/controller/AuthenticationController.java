@@ -1,17 +1,18 @@
 package com.shopproject.shopbt.controller;
 
 
-import com.shopproject.shopbt.ExceptionCustom.LoginException;
-import com.shopproject.shopbt.ExceptionCustom.LogoutException;
-import com.shopproject.shopbt.ExceptionCustom.RefreshTokenException;
-import com.shopproject.shopbt.ExceptionCustom.RegisterException;
+import com.shopproject.shopbt.ExceptionCustom.*;
+import com.shopproject.shopbt.entity.Address;
+import com.shopproject.shopbt.entity.User;
+import com.shopproject.shopbt.request.AddressRequest;
 import com.shopproject.shopbt.request.LoginRequest;
-import com.shopproject.shopbt.request.LogoutRequest;
 import com.shopproject.shopbt.request.RefreshTokenRequest;
 import com.shopproject.shopbt.request.RegisterUserRequest;
 import com.shopproject.shopbt.response.AuthenticationResponse;
 import com.shopproject.shopbt.service.JwtServices.JwtServices;
+import com.shopproject.shopbt.service.OAuth2.GoogleOAuth2Service;
 import com.shopproject.shopbt.service.Redis.RedisService;
+import com.shopproject.shopbt.service.address.AddressService;
 import com.shopproject.shopbt.service.authentication.AuthenticationService;
 import com.shopproject.shopbt.util.CookieUtil;
 import io.jsonwebtoken.ExpiredJwtException;
@@ -19,8 +20,11 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -35,6 +39,10 @@ public class AuthenticationController {
     private final JwtServices jwtServices;
     private final RedisService redisService;
     private final CookieUtil cookieUtil;
+    private final GoogleOAuth2Service googleOAuth2Service;
+    private final AddressService addressService;
+    @Value("${GOOGLE.STATE_KEY}")
+    private String googleOAuth2State;
     @PostMapping("/auth/register")
     public ResponseEntity<String> registerUser(@RequestBody RegisterUserRequest request) {
         try{
@@ -75,6 +83,10 @@ public class AuthenticationController {
             }
             if(keyToken!=null){
                 token= redisService.getDataFromRedis(keyToken);
+                String checkOAuth2= redisService.getDataFromRedis(googleOAuth2State);
+                if(checkOAuth2!=null && !googleOAuth2Service.checkExpiresAccessToken()){
+                    return ResponseEntity.status(HttpStatus.OK).body(redisService.getDataFromRedis("name"));
+                }
                 if(token!=null && !jwtServices.isTokenExpiration(token)){
                     return ResponseEntity.status(HttpStatus.OK).body(jwtServices.ExtractUserName(token));
                 }else{
@@ -85,6 +97,8 @@ public class AuthenticationController {
             }
         }catch (ExpiredJwtException e){
             return ResponseEntity.status(403).body("token is expires");
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
     }
     @GetMapping("/auth/refreshToken")
@@ -117,17 +131,40 @@ public class AuthenticationController {
             return ResponseEntity.status(401).body(e.getMessage());
         }
     }
-    @PostMapping("/auth/logout")
-    public ResponseEntity<String> logout(@RequestBody LogoutRequest request, HttpServletResponse response){
+    @GetMapping("/auth/logout")
+    public ResponseEntity<String> logout( HttpServletResponse response){
         try{
             var authenticationRes= AuthenticationResponse.builder()
                     .token(null)
                     .refreshToken(null)
                     .build();
             cookieUtil.generatorTokenCookie(response,authenticationRes);
-            return ResponseEntity.status(200).body(authenticationService.logout(request));
+            String oauth2State= redisService.getDataFromRedis(googleOAuth2State);
+            if(oauth2State!=null){
+                return ResponseEntity.status(200).body(googleOAuth2Service.logout());
+            }
+            return ResponseEntity.status(200).body(authenticationService.logout());
         }catch (LogoutException e){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }catch (Exception e){
+            return ResponseEntity.status(401).body(e.getMessage());
+        }
+    }
+    @PostMapping("/auth/update-address")
+    public ResponseEntity<?> SaveAddress(@RequestBody AddressRequest request){
+        try{
+            Authentication authentication= SecurityContextHolder.getContext().getAuthentication();
+            if(authentication.isAuthenticated()){
+                User user= (User) authentication.getPrincipal();
+                Address address=addressService.create_Address(request,user);
+                return ResponseEntity.status(HttpStatus.OK).body(address);
+            }else{
+                throw new LoginException("phiên đăng nhập hết hạn");
+            }
+        } catch (LoginException e){
+            return ResponseEntity.status(403).body(e.getMessage());
+        }catch (AddressException e){
+            return ResponseEntity.status(400).body(e.getMessage());
         }
     }
 }

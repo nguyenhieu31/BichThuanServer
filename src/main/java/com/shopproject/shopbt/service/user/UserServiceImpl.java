@@ -15,6 +15,8 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -107,7 +109,7 @@ public class UserServiceImpl implements UserService{
         Set<Long> orderIds = new HashSet<>();
         Set<Order> orders = user.getOrders();
         orders.forEach(order -> {
-            orderIds.add(order.getOderId());
+            orderIds.add(order.getOrderId());
         });
         usersDTO.setOrderIds(orderIds);
 
@@ -166,5 +168,11 @@ public class UserServiceImpl implements UserService{
             }
         }
         return null;
+    }
+
+    @Override
+    public List<UsersDTO> getByUserName(String username) {
+
+        return userRepository.getByUserName(username);
     }
 }

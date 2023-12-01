@@ -19,4 +19,13 @@ public class UsersDTO {
     private Set<Long> orderIds;
     private Set<Long> commentIds;
     private LocalDateTime updateAt;
+
+    private Long orderid;
+    public UsersDTO(){}
+
+    public UsersDTO(Long userid, Long orderid){
+        this.userid = userid;
+        this.orderid = orderid;
+    }
+
 }

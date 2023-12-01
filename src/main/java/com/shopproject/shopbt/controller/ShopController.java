@@ -2,6 +2,7 @@ package com.shopproject.shopbt.controller;
 
 import com.shopproject.shopbt.dto.CategoriesDTO;
 import com.shopproject.shopbt.dto.ProductsDTO;
+import com.shopproject.shopbt.entity.Product;
 import com.shopproject.shopbt.request.OffsetBasedPageRequest;
 import com.shopproject.shopbt.service.catrgory.CategoryService;
 import com.shopproject.shopbt.service.product.ProductService;
@@ -91,6 +92,20 @@ public class ShopController {
             return ResponseEntity.status(HttpStatus.OK).body(productsDTOS);
         }catch(Exception e){
             return ResponseEntity.status(HttpStatus.OK).body(e.getMessage());
+        }
+    }
+    @GetMapping("/shop/products/category")
+    public ResponseEntity<?> findAllProductByCategoryName(@RequestParam("categoryName") String categoryName, @RequestParam int offset, @RequestParam int limit){
+        try{
+            Pageable pageable=new OffsetBasedPageRequest(offset,limit,Sort.Direction.ASC, "productId");
+            Set<ProductsDTO> productsDTOS= productService.findAllProductByCategoryName(pageable,categoryName);
+            if(productsDTOS!=null){
+                return ResponseEntity.status(HttpStatus.OK).body(productsDTOS);
+            }else {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Không tìm thấy sản phẩm nào");
+            }
+        }catch (Exception e){
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         }
     }
 

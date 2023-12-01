@@ -11,8 +11,11 @@ import com.shopproject.shopbt.request.AddToCartRequest;
 import com.shopproject.shopbt.request.CartRequest;
 import com.shopproject.shopbt.request.ProductCartRequest;
 import com.shopproject.shopbt.response.CartResponse;
+import com.shopproject.shopbt.service.Redis.RedisService;
 import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -22,18 +25,28 @@ import javax.security.auth.login.LoginException;
 import java.util.*;
 
 @Service
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class Product_CartServiceImpl implements Product_CartService{
-    private Product_CartRepository productCartRepository;
-    private CartRepository cartRepository;
-    private ProductRepository productRepository;
-    private UserRepository userRepository;
+    private final Product_CartRepository productCartRepository;
+    private final CartRepository cartRepository;
+    private final ProductRepository productRepository;
+    private final UserRepository userRepository;
+    private final RedisService redisService;
+    @Value("${GOOGLE.STATE_KEY}")
+    private String googleState;
     @Override
     public String create_Product_Cart(Long id, AddToCartRequest request) throws LoginException, ProductException {
         Authentication authentication= SecurityContextHolder.getContext().getAuthentication();
+        String checkState= redisService.getDataFromRedis(googleState);
+        String email= redisService.getDataFromRedis("email");
         if(authentication.isAuthenticated()){
             UserDetails user= (UserDetails) authentication.getPrincipal();
-            Optional<User> findUser= userRepository.findByUserName(user.getUsername());
+            Optional<User> findUser= null;
+            if(checkState!=null){
+                findUser= userRepository.findByEmail(email);
+            }else{
+                findUser= userRepository.findByUserName(user.getUsername());
+            }
             if(findUser.isPresent()){
                 Product product= productRepository.findByProductId(id);
                 Cart findCartByUserId= cartRepository.findByUser_Userid(findUser.get().getUserid());
@@ -41,9 +54,13 @@ public class Product_CartServiceImpl implements Product_CartService{
                         Optional<Product_Cart> isProductCart= productCartRepository.findByProduct_ProductIdAndSizeAndCart_CartId(id,request.getSize(),findCartByUserId.getCartId());
                     try{
                         if(isProductCart.isPresent()){
-                            Product_Cart existingProductCart = isProductCart.get();
-                            existingProductCart.setQuantity(existingProductCart.getQuantity() + request.getQuantity());
-                            productCartRepository.save(existingProductCart);
+                            if(!(isProductCart.get().getQuantity()==product.getQuantity())){
+                                Product_Cart existingProductCart = isProductCart.get();
+                                existingProductCart.setQuantity(existingProductCart.getQuantity() + request.getQuantity());
+                                productCartRepository.save(existingProductCart);
+                            }else{
+                                throw new ProductException("Không thể thêm sản phẩm quá số lượng trong kho đang có");
+                            }
                         }else{
                             var productCart= Product_Cart.builder()
                                     .product(product)
@@ -57,7 +74,7 @@ public class Product_CartServiceImpl implements Product_CartService{
                         }
                         return "thêm vào giỏ hàng thành công";
                     }catch(Exception e){
-                        throw new ProductException("Không thể thêm sản phẩm vào giỏ hàng");
+                        throw new ProductException(e.getMessage());
                     }
                 }else{
                     throw new ProductException("không tìm thấy sản phẩm");
@@ -73,16 +90,21 @@ public class Product_CartServiceImpl implements Product_CartService{
 
     @Override
     public List<CartResponse> getAllProductCartByUser() throws Exception {
-        Authentication authentication= SecurityContextHolder.getContext().getAuthentication();
         try{
+            Authentication authentication= SecurityContextHolder.getContext().getAuthentication();
+            String checkState= redisService.getDataFromRedis(googleState);
+            String email= redisService.getDataFromRedis("email");
             if(authentication.isAuthenticated()){
                 UserDetails user= (UserDetails) authentication.getPrincipal();
-                Optional<User> findUserInfo= userRepository.findByUserName(user.getUsername());
+                Optional<User> findUserInfo;
+                if(checkState!=null && email!=null){
+                    findUserInfo= userRepository.findByEmail(email);
+                }else{
+                    findUserInfo= userRepository.findByUserName(user.getUsername());
+                }
                 if(findUserInfo.isPresent()){
                     Cart getCartByUserId= cartRepository.findByUser_Userid(findUserInfo.get().getUserid());
-
-                    List<CartResponse> products= findProduct_CartByCartId(getCartByUserId.getCartId());
-                    return products;
+                    return findProduct_CartByCartId(getCartByUserId.getCartId());
                 }else{
                     throw new LoginException("user is not found");
                 }
@@ -107,32 +129,33 @@ public class Product_CartServiceImpl implements Product_CartService{
                 throw new ProductException("không thể thêm sản phẩm vượt quá số lượng trong kho!");
             }
         }
-        ProductCartsDTO productCartsDTO = readProduct_Cart(productCart, new ProductCartsDTO());
-        return productCartsDTO;
+        assert productCart != null;
+        return readProduct_Cart(productCart, new ProductCartsDTO());
     }
 
     @Override
     public CartResponse incrementProductCart(Long productCartId, ProductCartRequest request) throws Exception {
         try{
             Product product= productRepository.findByProductId(request.getProductId());
-            if(product!=null && product.getQuantity()>request.getQuantity()){
+            if(product!=null && product.getQuantity()>=request.getQuantity()){
                     Product_Cart productCart=productCartRepository.findByProduct_cart_id(productCartId);
-                    int newQuantity= request.getQuantity()+1;
-                    productCart.setQuantity(newQuantity);
-                    productCartRepository.save(productCart);
-                    return CartResponse.builder()
-                            .productCartId(productCartId)
-                            .quantity(newQuantity)
-                            .size(request.getSize())
-                            .color(request.getColor())
-                            .image(request.getImage())
-                            .name(request.getName())
-                            .productId(request.getProductId())
-                            .price(request.getPrice())
-                            .build();
-            }else{
-                throw new Exception("không thể thêm vì vượt quá số lượng trong kho");
+                    if(!(request.getQuantity()==product.getQuantity())){
+                        int newQuantity=request.getQuantity()+1;
+                        productCart.setQuantity(newQuantity);
+                        productCartRepository.save(productCart);
+                        return CartResponse.builder()
+                                .productCartId(productCartId)
+                                .quantity(newQuantity)
+                                .size(request.getSize())
+                                .color(request.getColor())
+                                .image(request.getImage())
+                                .name(request.getName())
+                                .productId(request.getProductId())
+                                .price(request.getPrice())
+                                .build();
+                    }
             }
+            throw new Exception("không thể thêm vì vượt quá số lượng trong kho");
         }catch (Exception e){
             throw new Exception(e.getMessage());
         }

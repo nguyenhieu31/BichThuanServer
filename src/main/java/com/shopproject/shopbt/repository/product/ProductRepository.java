@@ -37,4 +37,6 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
 
     @Query("SELECT p.productId, p.image, p.name, p.price FROM Product p WHERE lower(p.name) LIKE lower(concat('%', :name, '%'))")
     Set<Object[]> findProductByNameLike(@Param("name") String name);
+    @Query("select p.productId, p.image, p.name, p.price FROM Product p where p.name=:categoryName")
+    Page<Object[]> findProductByCategoryName(Pageable pageable,@Param("categoryName") String categoryName);
 }

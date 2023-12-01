@@ -180,18 +180,6 @@ public class ProductServiceImpl implements ProductService{
     }
 
     @Override
-    public Set<ProductsDTO> findTop10ByCreatedAtBetween(LocalDateTime startDate, LocalDateTime endDate) {
-        Set<Product> products = productRepository.findTop10ByCreatedAtBetween(startDate,endDate);
-        Set<ProductsDTO> productsDTOS = new HashSet<>();
-        products.forEach(product -> {
-            ProductsDTO productsDTO = new ProductsDTO();
-            productsDTO = readProduct(product, productsDTO);
-            productsDTOS.add(productsDTO);
-        });
-        return productsDTOS;
-    }
-
-    @Override
     public Set<ProductsDTO> findProductFeature() {
         try{
             Set<Object[]> products = productRepository.findProductFeature();
@@ -231,6 +219,23 @@ public class ProductServiceImpl implements ProductService{
         } else {
             // Trường hợp có ít hơn hai từ, trả lại chuỗi ban đầu
             return productName;
+        }
+    }
+
+    @Override
+    public Set<ProductsDTO> findAllProductByCategoryName(Pageable pageable, String categoryName) {
+        try{
+            Page<Object[]> products = productRepository.findProductByCategoryName(pageable,categoryName);
+            if(!products.isEmpty()){
+                Set<ProductsDTO> productsDTOS = products.stream()
+                        .map(this::ConvertToDto)
+                        .collect(Collectors.toSet());
+                return productsDTOS;
+            }else{
+                return null;
+            }
+        } catch (IllegalArgumentException e){
+            throw new IllegalArgumentException(e.getMessage());
         }
     }
 

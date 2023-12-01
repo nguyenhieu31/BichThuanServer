@@ -23,11 +23,10 @@ public interface ProductService {
 
     Set<ProductsDTO> findByPriceBetweenPrice(BigDecimal startPrice,BigDecimal endPrice);
 
-    Set<ProductsDTO> findTop10ByCreatedAtBetween(LocalDateTime startDate, LocalDateTime endDate);
-
     Set<ProductsDTO> findProductFeature();
 
     Set<ProductsDTO> findByNameLikeIgnoreCase(String firstTwoCharacters);
 
     String getFirstTwoWordsFromProductName(String productName);
+    Set<ProductsDTO> findAllProductByCategoryName(Pageable pageable,String categoryName);
 }

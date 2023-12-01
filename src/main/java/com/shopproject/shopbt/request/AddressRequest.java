@@ -11,4 +11,10 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class AddressRequest {
     private String address;
+    private String wardName;
+    private String districtName;
+    private String provinceName;
+    private String namePayment;
+    private String phonePayment;
+    private Boolean status;
 }
