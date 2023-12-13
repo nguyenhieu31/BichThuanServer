@@ -79,4 +79,6 @@ public class Product {
     private Set<Color> colors = new HashSet<Color>(0);
     @OneToMany(fetch = FetchType.EAGER, mappedBy = "product")
     private Set<Gallery_Image> gallery_images = new HashSet<Gallery_Image>(0);
+    @OneToOne(fetch = FetchType.LAZY, mappedBy = "product")
+    private Comment comment;
 }

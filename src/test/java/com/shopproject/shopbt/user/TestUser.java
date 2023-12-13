@@ -65,4 +65,18 @@ public class TestUser {
 //            System.out.println(usersDTO.getPhoneNumber());
 //        });
     }
+
+    @Test
+    void findAllUserRegisterByToday(){
+        Set<UsersDTO> usersDTOS = userService.findAllUserRegisterByToday();
+
+        System.out.println(usersDTOS.size());
+    }
+
+    @Test
+    void findAllUserRegisterBy7Days(){
+        Set<UsersDTO> usersDTOS = userService.findAllUserRegisterBy7Days();
+
+        System.out.println(usersDTOS.size());
+    }
 }

@@ -20,9 +20,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
-    @Autowired
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
-    @Autowired
     private final AuthenticationProvider authenticationProvider;
     @Bean
     public SecurityFilterChain filterChain(@NotNull HttpSecurity http) throws Exception{
@@ -31,7 +29,13 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth ->
                         auth.requestMatchers("/**","/socket.io/**").permitAll()
-                                .requestMatchers("/web/cart/**","/web/auth/update-address", "/web/voucher/**", "/web/address/**").hasRole("USER")
+                                .requestMatchers("/web/cart/**",
+                                        "/web/auth/update-address",
+                                        "/web/voucher/**",
+                                        "/web/address/**",
+                                        "/web/order/**",
+                                        "/web/comment/**"
+                                ).hasRole("USER")
                                 .requestMatchers("/system/**").hasRole("ADMIN")
                                 .anyRequest().authenticated()
                 )

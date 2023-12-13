@@ -13,5 +13,10 @@ import java.util.Set;
 @AllArgsConstructor
 @NoArgsConstructor
 public class Product_MyOrder {
-    private Set<OrderItemsDTO> product_myorder;
+    private Set<Product_Detail_Order> product_w_confirm;
+    private Set<Product_Detail_Order> product_w_delivery;
+    private Set<Product_Detail_Order> product_delivering;
+    private Set<Product_Detail_Order> product_delivered;
+    private Set<Product_Detail_Order> product_cancel;
+    private Set<Product_Detail_Order> product_return;
 }

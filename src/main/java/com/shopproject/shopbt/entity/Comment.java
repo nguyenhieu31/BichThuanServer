@@ -1,10 +1,8 @@
 package com.shopproject.shopbt.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -12,6 +10,7 @@ import java.time.LocalDateTime;
 
 @Getter
 @Setter
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
@@ -19,21 +18,28 @@ import java.time.LocalDateTime;
 public class Comment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-
     private Long commentId;
-    @Column(nullable = false, length = 100)
-    private String description;
-    @ManyToOne(fetch = FetchType.EAGER)
+    @Column(nullable = false, columnDefinition = "text")
+    private String descriptionProductQuality;
+    @Column(nullable = false, columnDefinition = "text")
+    private String descriptionFeature;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JsonIgnore
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
+    @OneToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "product_id",nullable = false)
+    private Product product;
     @Column(nullable = false)
-    private Integer rating;
+    private Float rating;
     @Column(nullable = false, length = 10)
     private String size;
     @Column(nullable = false, length = 10)
     private String color;
-    @Column(nullable = false, length = 25)
-    private String productName;
+    @Column(name = "user_name", length = 100)
+    private String userName;
+    @Column(name = "is_active")
+    private boolean isActive;
     @CreationTimestamp
     @Column(nullable = false)
     private LocalDateTime createdAt;

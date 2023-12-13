@@ -27,7 +27,6 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.time.Instant;
 import java.time.ZoneId;
 import java.util.*;
@@ -177,7 +176,7 @@ public class AuthenticationService {
             redisService.deleteDataInRedis(refreshTokenKey);
             return deleteRecord;
         }else{
-            throw new Exception("không thể đăng xuất");
+            throw new Exception("không thể đăng xuất hoặc chưa đăng nhập!");
         }
 
     }
@@ -189,5 +188,4 @@ public class AuthenticationService {
         }
         throw new LogoutException("đăng xuất thất bại");
     }
-
 }

@@ -16,6 +16,7 @@ import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -37,77 +38,55 @@ public class Product_CartServiceImpl implements Product_CartService{
     @Override
     public String create_Product_Cart(Long id, AddToCartRequest request) throws LoginException, ProductException {
         Authentication authentication= SecurityContextHolder.getContext().getAuthentication();
-        String checkState= redisService.getDataFromRedis(googleState);
-        String email= redisService.getDataFromRedis("email");
-        if(authentication.isAuthenticated()){
-            UserDetails user= (UserDetails) authentication.getPrincipal();
-            Optional<User> findUser= null;
-            if(checkState!=null){
-                findUser= userRepository.findByEmail(email);
-            }else{
-                findUser= userRepository.findByUserName(user.getUsername());
-            }
-            if(findUser.isPresent()){
-                Product product= productRepository.findByProductId(id);
-                Cart findCartByUserId= cartRepository.findByUser_Userid(findUser.get().getUserid());
-                if (product.getProductId()!=null && findCartByUserId !=null){
-                        Optional<Product_Cart> isProductCart= productCartRepository.findByProduct_ProductIdAndSizeAndCart_CartId(id,request.getSize(),findCartByUserId.getCartId());
-                    try{
-                        if(isProductCart.isPresent()){
-                            if(!(isProductCart.get().getQuantity()==product.getQuantity())){
-                                Product_Cart existingProductCart = isProductCart.get();
-                                existingProductCart.setQuantity(existingProductCart.getQuantity() + request.getQuantity());
-                                productCartRepository.save(existingProductCart);
-                            }else{
-                                throw new ProductException("Không thể thêm sản phẩm quá số lượng trong kho đang có");
-                            }
+        if(!(authentication instanceof AnonymousAuthenticationToken)){
+            User user= (User) authentication.getPrincipal();
+            Product product= productRepository.findByProductId(id);
+            Cart findCartByUserId= cartRepository.findByUser_Userid(user.getUserid());
+            if (product.getProductId()!=null && findCartByUserId !=null){
+                Optional<Product_Cart> isProductCart= productCartRepository.findByProduct_ProductIdAndSizeAndCart_CartId(id,request.getSize(),findCartByUserId.getCartId());
+                try{
+                    if(isProductCart.isPresent()){
+                        if(!(isProductCart.get().getQuantity()==product.getQuantity())){
+                            Product_Cart existingProductCart = isProductCart.get();
+                            existingProductCart.setQuantity(existingProductCart.getQuantity() + request.getQuantity());
+                            productCartRepository.save(existingProductCart);
                         }else{
-                            var productCart= Product_Cart.builder()
-                                    .product(product)
-                                    .cart(findCartByUserId)
-                                    .color(request.getColor())
-                                    .size(request.getSize())
-                                    .quantity(request.getQuantity())
-                                    .status(0)
-                                    .build();
-                            productCartRepository.save(productCart);
+                            throw new ProductException("Không thể thêm sản phẩm quá số lượng trong kho đang có");
                         }
-                        return "thêm vào giỏ hàng thành công";
-                    }catch(Exception e){
-                        throw new ProductException(e.getMessage());
+                        Product_Cart existingProductCart = isProductCart.get();
+                        existingProductCart.setQuantity(existingProductCart.getQuantity() + request.getQuantity());
+                        productCartRepository.save(existingProductCart);
+                    }else{
+                        var productCart= Product_Cart.builder()
+                                .product(product)
+                                .cart(findCartByUserId)
+                                .color(request.getColor())
+                                .size(request.getSize())
+                                .quantity(request.getQuantity())
+                                .status(0)
+                                .build();
+                        productCartRepository.save(productCart);
                     }
-                }else{
-                    throw new ProductException("không tìm thấy sản phẩm");
+                    return "thêm vào giỏ hàng thành công";
+                }catch(Exception e){
+                    throw new ProductException("Không thể thêm sản phẩm vào giỏ hàng");
                 }
             }else{
-                throw new LoginException("không tìm thấy người dùng");
+                throw new ProductException("không tìm thấy sản phẩm");
             }
-
         }else{
             throw new LoginException("bạn chưa đăng nhập?");
         }
     }
 
     @Override
-    public List<CartResponse> getAllProductCartByUser() throws Exception {
+    public List<CartResponse> getAllProductCartByUser() throws LoginException,ClassCastException {
         try{
             Authentication authentication= SecurityContextHolder.getContext().getAuthentication();
-            String checkState= redisService.getDataFromRedis(googleState);
-            String email= redisService.getDataFromRedis("email");
-            if(authentication.isAuthenticated()){
-                UserDetails user= (UserDetails) authentication.getPrincipal();
-                Optional<User> findUserInfo;
-                if(checkState!=null && email!=null){
-                    findUserInfo= userRepository.findByEmail(email);
-                }else{
-                    findUserInfo= userRepository.findByUserName(user.getUsername());
-                }
-                if(findUserInfo.isPresent()){
-                    Cart getCartByUserId= cartRepository.findByUser_Userid(findUserInfo.get().getUserid());
-                    return findProduct_CartByCartId(getCartByUserId.getCartId());
-                }else{
-                    throw new LoginException("user is not found");
-                }
+            if(!(authentication instanceof AnonymousAuthenticationToken)){
+                User user= (User) authentication.getPrincipal();
+                Cart getCartByUserId= cartRepository.findByUser_Userid(user.getUserid());
+                return findProduct_CartByCartId(getCartByUserId.getCartId());
             }else{
                 throw new LoginException("bạn chưa đăng nhập?");
             }
@@ -137,25 +116,24 @@ public class Product_CartServiceImpl implements Product_CartService{
     public CartResponse incrementProductCart(Long productCartId, ProductCartRequest request) throws Exception {
         try{
             Product product= productRepository.findByProductId(request.getProductId());
-            if(product!=null && product.getQuantity()>=request.getQuantity()){
+            if(product!=null && product.getQuantity()>request.getQuantity()){
                     Product_Cart productCart=productCartRepository.findByProduct_cart_id(productCartId);
-                    if(!(request.getQuantity()==product.getQuantity())){
-                        int newQuantity=request.getQuantity()+1;
-                        productCart.setQuantity(newQuantity);
-                        productCartRepository.save(productCart);
-                        return CartResponse.builder()
-                                .productCartId(productCartId)
-                                .quantity(newQuantity)
-                                .size(request.getSize())
-                                .color(request.getColor())
-                                .image(request.getImage())
-                                .name(request.getName())
-                                .productId(request.getProductId())
-                                .price(request.getPrice())
-                                .build();
-                    }
+                    int newQuantity= request.getQuantity()+1;
+                    productCart.setQuantity(newQuantity);
+                    productCartRepository.save(productCart);
+                    return CartResponse.builder()
+                            .productCartId(productCartId)
+                            .quantity(newQuantity)
+                            .size(request.getSize())
+                            .color(request.getColor())
+                            .image(request.getImage())
+                            .name(request.getName())
+                            .productId(request.getProductId())
+                            .price(request.getPrice())
+                            .build();
+            }else{
+                throw new Exception("không thể thêm vì vượt quá số lượng trong kho");
             }
-            throw new Exception("không thể thêm vì vượt quá số lượng trong kho");
         }catch (Exception e){
             throw new Exception(e.getMessage());
         }
@@ -237,8 +215,7 @@ public class Product_CartServiceImpl implements Product_CartService{
                 Optional<User> findUserByUserName= userRepository.findByUserName(userName);
                 if(findUserByUserName.isPresent()){
                     Cart findCartByUserId= cartRepository.findByUser_Userid(findUserByUserName.get().getUserid());
-                    List<CartResponse> products= findProduct_CartByCartId(findCartByUserId.getCartId());
-                    return products;
+                    return findProduct_CartByCartId(findCartByUserId.getCartId());
                 }else{
                     throw new LoginException("người dùng chưa đăng nhập");
                 }
@@ -276,7 +253,6 @@ public class Product_CartServiceImpl implements Product_CartService{
         return productCart;
     }
     private List<CartResponse> findProduct_CartByCartId(Long id) {
-        List<CartResponse> product_carts = productCartRepository.findByCart_CartId(id);
-        return product_carts;
+        return productCartRepository.findByCart_CartId(id);
     }
 }

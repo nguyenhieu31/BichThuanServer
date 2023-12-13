@@ -2,10 +2,7 @@ package com.shopproject.shopbt.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -16,6 +13,7 @@ import java.time.LocalDateTime;
 @Table(name = "order_items")
 @Getter
 @Setter
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class OrderItem {
@@ -23,7 +21,7 @@ public class OrderItem {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long orderItemId;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "order_id", nullable = false)
     @JsonIgnore
     private Order order;
@@ -35,7 +33,11 @@ public class OrderItem {
 
     @Column(nullable = false)
     private int quantity;
+    @Column(nullable = false, length = 20)
+    private String color;
 
+    @Column(nullable = false, length = 15)
+    private String size;
     @Column(nullable = false)
     private BigDecimal pricePerUnit;
 

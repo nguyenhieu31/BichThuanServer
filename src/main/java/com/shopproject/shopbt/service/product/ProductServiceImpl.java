@@ -29,17 +29,25 @@ public class ProductServiceImpl implements ProductService{
     @Override
     public void create_Product(ProductsDTO productsDTO) {
         Product product = new Product();
-        product = readProductDTO(product, productsDTO);
+        readProductDTO(product, productsDTO);
         productRepository.save(product);
     }
 
+    public ProductsDTO getProductById(Long id) {
+        try {
+            Product product = productRepository.findByProductId(id);
 
-    public ProductsDTO
-    findProductById(Long id) {
+            return readProduct(product, new ProductsDTO());
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException(e.getMessage());
+        }
+    }
+
+
+    public ProductsDTO findProductById(Long id) {
         try{
             Product product = productRepository.findByProductId(id);
-            ProductsDTO productsDTO = readProduct(product, new ProductsDTO());
-            return productsDTO;
+            return readProduct(product, new ProductsDTO());
         } catch (IllegalArgumentException e){
             throw new IllegalArgumentException(e.getMessage());
         }
@@ -62,8 +70,9 @@ public class ProductServiceImpl implements ProductService{
     }
         @Override
         public void update_Product(ProductsDTO productsDTO) {
-            Product product = productRepository.findById(productsDTO.getProductId()).get();
-            product = readProductDTO(product,productsDTO);
+            Product product = productRepository.findById(productsDTO.getProductId()).orElse(null);
+            assert product != null;
+            readProductDTO(product, productsDTO);
 
             productRepository.save(product);
         }
@@ -125,15 +134,15 @@ public class ProductServiceImpl implements ProductService{
             productsDTO.setUpdatedBy(product.getUpdatedBy());
             return productsDTO;
     }
-
-    private ProductsDTO ConvertToDto(Object[] product){
+    private ProductsDTO ConvertToDto(Object[] product) {
         ProductsDTO productsDTO = new ProductsDTO();
+        System.out.println(product[0]);
         productsDTO.setProductId((Long) product[0]);
         productsDTO.setImage((String) product[1]);
         productsDTO.setName((String) product[2]);
         productsDTO.setPrice((BigDecimal) product[3]);
-        return  productsDTO;
-        }
+        return productsDTO;
+    }
     @Override
     public void delete_Product(Long id) {
         productRepository.deleteById(id);
@@ -143,10 +152,9 @@ public class ProductServiceImpl implements ProductService{
     public Set<ProductsDTO> findALLByLimitOffset(Pageable pageable) {
         try{
             Page<Object[]> products = productRepository.findDataByLimitOffset(pageable);
-            Set<ProductsDTO> productsDTOS = products.stream()
+            return products.stream()
                     .map(this::ConvertToDto)
                     .collect(Collectors.toSet());
-            return productsDTOS;
         } catch (IllegalArgumentException e){
             throw new IllegalArgumentException(e.getMessage());
         }
@@ -156,10 +164,9 @@ public class ProductServiceImpl implements ProductService{
     public Set<ProductsDTO> findProductsByCategoryId(Long id) {
         try{
             Set<Object[]> products = productRepository.findProductByCateId(id);
-            Set<ProductsDTO> productsDTOS = products.stream()
+            return products.stream()
                     .map(this::ConvertToDto)
                     .collect(Collectors.toSet());
-            return productsDTOS;
         } catch (IllegalArgumentException e){
             throw new IllegalArgumentException(e.getMessage());
         }
@@ -169,25 +176,35 @@ public class ProductServiceImpl implements ProductService{
     public Set<ProductsDTO> findByPriceBetweenPrice(BigDecimal startPrice, BigDecimal endPrice) {
         try{
             Set<Object[]> products = productRepository.findByPriceBetweenPrice(startPrice,endPrice);
-            Set<ProductsDTO> productsDTOS = products.stream()
-                    .limit(4)
+            return products.stream()
+                    .limit(Math.min(products.size(), 4)) // Limit to the smaller of 4 or the actual size
                     .map(this::ConvertToDto)
                     .collect(Collectors.toSet());
-            return productsDTOS;
         } catch (IllegalArgumentException e){
             throw new IllegalArgumentException(e.getMessage());
         }
     }
 
     @Override
+    public Set<ProductsDTO> findTop10ByCreatedAtBetween(LocalDateTime startDate, LocalDateTime endDate) {
+        Set<Product> products = productRepository.findTop10ByCreatedAtBetween(startDate,endDate);
+        Set<ProductsDTO> productsDTOS = new HashSet<>();
+        products.forEach(product -> {
+            ProductsDTO productsDTO = new ProductsDTO();
+            readProduct(product, productsDTO);
+            productsDTOS.add(productsDTO);
+        });
+        return productsDTOS;
+    }
+
+    @Override
     public Set<ProductsDTO> findProductFeature() {
         try{
             Set<Object[]> products = productRepository.findProductFeature();
-            Set<ProductsDTO> productsDTOS = products.stream()
+            return products.stream()
                     .limit(4)
                     .map(this::ConvertToDto)
                     .collect(Collectors.toSet());
-            return productsDTOS;
         } catch (IllegalArgumentException e){
             throw new IllegalArgumentException(e.getMessage());
         }
@@ -197,10 +214,9 @@ public class ProductServiceImpl implements ProductService{
     public Set<ProductsDTO> findByNameLikeIgnoreCase(String name) {
         try{
             Set<Object[]> products = productRepository.findProductByNameLike(name);
-            Set<ProductsDTO> productsDTOS = products.stream()
+            return products.stream()
                     .map(this::ConvertToDto)
                     .collect(Collectors.toSet());
-            return productsDTOS;
         } catch (IllegalArgumentException e){
             throw new IllegalArgumentException(e.getMessage());
         }
@@ -221,16 +237,14 @@ public class ProductServiceImpl implements ProductService{
             return productName;
         }
     }
-
     @Override
     public Set<ProductsDTO> findAllProductByCategoryName(Pageable pageable, String categoryName) {
         try{
             Page<Object[]> products = productRepository.findProductByCategoryName(pageable,categoryName);
             if(!products.isEmpty()){
-                Set<ProductsDTO> productsDTOS = products.stream()
+                return products.stream()
                         .map(this::ConvertToDto)
                         .collect(Collectors.toSet());
-                return productsDTOS;
             }else{
                 return null;
             }
@@ -238,5 +252,4 @@ public class ProductServiceImpl implements ProductService{
             throw new IllegalArgumentException(e.getMessage());
         }
     }
-
 }

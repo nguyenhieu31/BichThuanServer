@@ -2,6 +2,7 @@ package com.shopproject.shopbt.product;
 
 import com.shopproject.shopbt.dto.ProductsDTO;
 import com.shopproject.shopbt.entity.Product;
+import com.shopproject.shopbt.request.OffsetBasedPageRequest;
 import com.shopproject.shopbt.service.product.ProductService;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -10,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -147,5 +149,15 @@ public class TestProduct {
 //            System.out.println(productsDTO.getName());
 //            System.out.println(productsDTO.getPrice());
 //        });
+    }
+
+    @Test
+    void findProductByLimitUpdateAt(){
+        Pageable pageable= new OffsetBasedPageRequest(0,5, Sort.Direction.ASC,"updatedAt");
+        Set<ProductsDTO> productsDTOS = productService.findALLByLimitOffset(pageable);
+
+        productsDTOS.forEach(productsDTO -> {
+            System.out.println(productsDTO.getUpdatedAt());
+        });
     }
 }

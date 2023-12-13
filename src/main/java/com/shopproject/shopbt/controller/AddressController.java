@@ -12,6 +12,7 @@ import com.shopproject.shopbt.service.address.AddressService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
@@ -29,7 +30,7 @@ public class AddressController {
     public ResponseEntity<?> findAddressByUser(){
         try{
             Authentication userAuth= SecurityContextHolder.getContext().getAuthentication();
-            if(userAuth.isAuthenticated()){
+            if(!(userAuth instanceof AnonymousAuthenticationToken)){
                 User user= (User) userAuth.getPrincipal();
                 Set<Address> addresses= user.getAddresses();
                 if(addresses.size()!=0){
@@ -58,7 +59,7 @@ public class AddressController {
     public ResponseEntity<?> editAddressDefault(@RequestBody AddressRequest addressRequest){
         try{
             Authentication authentication= SecurityContextHolder.getContext().getAuthentication();
-            if(authentication.isAuthenticated()){
+            if(!(authentication instanceof AnonymousAuthenticationToken)){
                 User user= (User) authentication.getPrincipal();
                 Address address= addressService.update_Address_default(addressRequest,user);
                 return ResponseEntity.status(HttpStatus.OK).body(address);
@@ -73,7 +74,7 @@ public class AddressController {
     public ResponseEntity<?> updateAddress(@PathVariable("id") Long id, @RequestBody AddressRequest request){
         try{
             Authentication authentication= SecurityContextHolder.getContext().getAuthentication();
-            if(authentication.isAuthenticated()){
+            if(!(authentication instanceof AnonymousAuthenticationToken)){
                 User user= (User) authentication.getPrincipal();
                 Address address= addressService .updateAddress(id,request,user);
                 return ResponseEntity.status(HttpStatus.OK).body(address);

@@ -1,5 +1,6 @@
 package com.shopproject.shopbt.util;
 
+import com.google.api.Http;
 import com.shopproject.shopbt.response.AuthenticationResponse;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
@@ -12,6 +13,8 @@ public class CookieUtil {
     public Cookie addAttributeForCookie(Cookie cookie, int expires){
         cookie.setMaxAge(expires);
         cookie.setPath("/");
+//        cookie.setAttribute("SameSite","None");
+//        cookie.setSecure(true);
         return cookie;
     }
     public void generatorTokenCookie(HttpServletResponse response, AuthenticationResponse authenticationResponse) {
@@ -21,11 +24,16 @@ public class CookieUtil {
             accessTokenCookie=addAttributeForCookie(accessTokenCookie, 0);
             refreshTokenCookie= addAttributeForCookie(refreshTokenCookie,0);
         }else{
-            accessTokenCookie=addAttributeForCookie(accessTokenCookie, Integer.parseInt(expiresAccessToken));
-            refreshTokenCookie= addAttributeForCookie(refreshTokenCookie,Integer.parseInt(expiresRefreshToken));
+            accessTokenCookie=addAttributeForCookie(accessTokenCookie, Integer.parseInt(expiresAccessToken)/1000);
+            refreshTokenCookie= addAttributeForCookie(refreshTokenCookie,Integer.parseInt(expiresRefreshToken)/1000);
         }
         refreshTokenCookie.setHttpOnly(true);
         response.addCookie(accessTokenCookie);
         response.addCookie(refreshTokenCookie);
+    }
+    public void saveNewTokenCookie(HttpServletResponse response, AuthenticationResponse authenticationResponse){
+        Cookie accessTokenCookie= new Cookie("accessToken", authenticationResponse.getToken());
+        accessTokenCookie=addAttributeForCookie(accessTokenCookie,Integer.parseInt(expiresAccessToken)/1000);
+        response.addCookie(accessTokenCookie);
     }
 }

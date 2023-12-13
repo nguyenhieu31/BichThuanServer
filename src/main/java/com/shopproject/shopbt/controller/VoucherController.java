@@ -8,6 +8,7 @@ import com.shopproject.shopbt.service.FreeShippingMember.FreeShippingMemberServi
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -25,7 +26,7 @@ public class VoucherController {
     public ResponseEntity<?> getALlFreeShippingOfUser(){
         try{
             Authentication authentication= SecurityContextHolder.getContext().getAuthentication();
-            if(authentication.isAuthenticated()){
+            if(!(authentication instanceof AnonymousAuthenticationToken)){
                 User user= (User)authentication.getPrincipal();
                 List<FreeShippingResponse> freeShippingMember= freeShippingMemberService.getAllFreeShippingOfUser(user);
                 return ResponseEntity.status(HttpStatus.OK).body(freeShippingMember);

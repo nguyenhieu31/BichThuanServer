@@ -1,5 +1,4 @@
 package com.shopproject.shopbt.entity;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
@@ -31,7 +30,7 @@ public class User implements UserDetails {
     private String password;
     @Column(name = "email",unique = true)
     private String email; // for OAuth2
-    @Column(name = "phone_number", nullable = false,unique = true, length = 11)
+    @Column(name = "phone_number", nullable = true,unique = true, length = 11)
     private String phoneNumber;
     @Column(name = "role", nullable = false, length = 10)
     private String role;
@@ -50,13 +49,9 @@ public class User implements UserDetails {
     protected void onUpdate() {
         updatedAt = LocalDateTime.now();
     }
-    @OneToMany(fetch = FetchType.EAGER,mappedBy = "user", cascade = { CascadeType.MERGE, CascadeType.REMOVE,CascadeType.REFRESH, CascadeType.DETACH })
-    private Set<Address> addresses= new HashSet<Address>();
-    @OneToMany(fetch = FetchType.EAGER, mappedBy = "user")
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "user")
     private Set<Order> orders = new HashSet<Order>(0);
-    @OneToOne(fetch = FetchType.EAGER, mappedBy = "user")
-    private Cart cart;
-    @OneToMany(fetch = FetchType.EAGER, mappedBy = "user")
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "user")
     private Set<Comment> comments = new HashSet<Comment>(0);
     @OneToMany(mappedBy = "user",fetch = FetchType.LAZY)
     private Set<User_Voucher> userVouchers;
@@ -65,14 +60,18 @@ public class User implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority("ROLE_"+role));
+        return List.of(new SimpleGrantedAuthority("ROLE_" + role));
     }
-
+    @OneToMany(fetch = FetchType.EAGER,mappedBy = "user", cascade = { CascadeType.MERGE, CascadeType.REMOVE,CascadeType.REFRESH, CascadeType.DETACH })
+    private Set<Address> addresses= new HashSet<Address>();
+//    @OneToMany(fetch = FetchType.LAZY, mappedBy = "user")
+//    private Set<Order> orders = new HashSet<Order>(0);
+    @OneToOne(fetch = FetchType.LAZY, mappedBy = "user")
+    private Cart cart;
     @Override
     public String getUsername() {
         return email!=null?email:userName;
     }
-
     @Override
     public boolean isAccountNonExpired() {
         return true;

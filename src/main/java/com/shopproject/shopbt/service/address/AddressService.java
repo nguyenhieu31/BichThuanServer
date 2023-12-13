@@ -13,6 +13,7 @@ public interface AddressService {
 
     Address update_Address_default(AddressRequest request, User user);
     Address updateAddress(Long addressId, AddressRequest request, User user) throws AddressException;
+    void update_Address(AddressDTO addressDTO);
 
     void delete_AddressById(Long id);
 }

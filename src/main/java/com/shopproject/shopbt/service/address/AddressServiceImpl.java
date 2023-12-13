@@ -7,14 +7,16 @@ import com.shopproject.shopbt.entity.User;
 import com.shopproject.shopbt.repository.Address.AddressRepo;
 import com.shopproject.shopbt.repository.user.UserRepository;
 import com.shopproject.shopbt.request.AddressRequest;
+import com.shopproject.shopbt.dto.AddressDTO;
+import com.shopproject.shopbt.entity.Address;
+import com.shopproject.shopbt.repository.Address.AddressRepo;
+import com.shopproject.shopbt.repository.user.UserRepository;
 import lombok.AllArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
-
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-
 @Service
 @AllArgsConstructor
 public class AddressServiceImpl implements AddressService{
@@ -75,6 +77,12 @@ public class AddressServiceImpl implements AddressService{
     public AddressDTO findAddressById(Long id) {
             return modelMapper.map(addressRepo.findById(id).get(), AddressDTO.class);
         }
+    @Override
+    public void update_Address(AddressDTO addressDTO) {
+        Address address = addressRepo.findById(addressDTO.getId()).get();
+        address = modelMapper.map(addressDTO, Address.class);
+        addressRepo.save(address);
+    }
     @Override
     public Address update_Address_default(AddressRequest request, User user) {
         Optional<Address> isAddress=addressRepo.findAddressByAddressName(request.getAddress(),user.getUserid());

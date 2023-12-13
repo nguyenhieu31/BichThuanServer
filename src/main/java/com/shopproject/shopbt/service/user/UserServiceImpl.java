@@ -12,11 +12,9 @@ import lombok.AllArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -146,7 +144,15 @@ public class UserServiceImpl implements UserService{
         return users.stream().map(user -> modelMapper.map(user, UsersDTO.class)).collect(Collectors.toSet());
     }
 
+    @Override
+    public Set<UsersDTO> findAllUserRegisterBy7Days() {
+        return userRepository.findAllUserRegisterBy7Days();
+    }
 
+    @Override
+    public Set<UsersDTO> findAllUserRegisterByToday() {
+        return userRepository.findAllUserRegisterByToday();
+    }
     public Boolean userHasCart(Long userId) {
         User user = userRepository.findById(userId).orElse(null);
         if (user != null) {
@@ -157,22 +163,25 @@ public class UserServiceImpl implements UserService{
     }
 
     @Override
-    public CartsDTO createCartIfNotExists(Long userId) {
+    public void createCartIfNotExists(Long userId) {
         if (!userHasCart(userId)) {
             User user = userRepository.findById(userId).orElse(null);
             if (user != null) {
                 Cart cart = new Cart();
                 cart.setUser(user);
                 cart = cartRepository.save(cart);
-                return modelMapper.map(cart, CartsDTO.class);
+                modelMapper.map(cart, CartsDTO.class);
             }
         }
-        return null;
     }
 
     @Override
     public List<UsersDTO> getByUserName(String username) {
-
         return userRepository.getByUserName(username);
+    }
+
+    @Override
+    public UsersDTO findUserIdByUserName(String name) {
+        return userRepository.getUserIdByUserName(name).orElseThrow(() -> new RuntimeException("User not found"));
     }
 }

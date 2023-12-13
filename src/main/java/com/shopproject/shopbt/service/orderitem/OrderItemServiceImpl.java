@@ -6,12 +6,12 @@ import com.shopproject.shopbt.entity.OrderItem;
 import com.shopproject.shopbt.repository.order.OrderRepository;
 import com.shopproject.shopbt.repository.orderitem.OrderItemRepository;
 import com.shopproject.shopbt.repository.product.ProductRepository;
+import com.shopproject.shopbt.response.Product_Detail_Order;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -34,31 +34,24 @@ public class OrderItemServiceImpl implements OrderItemService{
     private OrderItem readOrderItemDTO(OrderItemsDTO orderItemsDTO){
         OrderItem orderItem = new OrderItem();
         orderItem.setOrder(orderRepository.findById(orderItemsDTO.getOrderId()).get());
+        Long id = orderItemsDTO.getOrderId();
+        orderItem.setOrder(orderRepository.findOrderByOrderId(id).orElseThrow(() -> new RuntimeException("Order not found by id : " + id)));
         orderItem.setProduct(productRepository.findByProductId(orderItemsDTO.getProductId()));
         orderItem.setPricePerUnit(orderItemsDTO.getPricePerUnit());
         orderItem.setQuantity(orderItemsDTO.getQuantity());
-
         return orderItem;
     }
     @Override
-    public Set<OrderItemsDTO> findAllByOrderId(Long orderId) {
+    public Set<Product_Detail_Order> findAllByOrderId(Long orderId) {
         try{
-            Set<Object[]> orderItems = orderItemRepository.findALlByOrderId(orderId);
-            Set<OrderItemsDTO> orderItemsDTOS = orderItems.stream()
-                    .map(this::ConvertToDto)
-                    .collect(Collectors.toSet());
-            return orderItemsDTOS;
+            return orderItemRepository.findALlByOrderId(orderId);
         } catch (IllegalArgumentException e){
             throw new IllegalArgumentException(e.getMessage());
         }
     }
 
-    private OrderItemsDTO ConvertToDto(Object[] orderItem){
-        OrderItemsDTO orderItemsDTO = new OrderItemsDTO();
-        orderItemsDTO.setPricePerUnit((BigDecimal) orderItem[0]);
-        orderItemsDTO.setQuantity((int) orderItem[1]);
-        orderItemsDTO.setProductId((Long) orderItem[2]);
-        orderItemsDTO.setOrderId((Long) orderItem[3]);
-        return orderItemsDTO;
+    private OrderItemsDTO ConvertToDto(Product_Detail_Order orderItem){
+
+        return null;
     }
 }

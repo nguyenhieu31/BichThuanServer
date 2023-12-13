@@ -66,14 +66,13 @@ public class GoogleOAuth2Service {
         redisService.deleteDataInRedis("name");
         redisService.deleteDataInRedis("email");
     }
-    private MultiValueMap<String,String> addRequestOAuthInfo(MultiValueMap<String,String> request, String code, String grantType){
+    private void addRequestOAuthInfo(MultiValueMap<String,String> request, String code, String grantType){
         if(code!=null){
             request.add("code",code);
         }
         request.add("client_id",googleClientId);
         request.add("client_secret",googleClientSecret);
         request.add("grant_type",grantType);
-        return request;
     }
     private ResponseEntity<String> revokeToken(String accessToken) throws Exception {
         try{
@@ -134,7 +133,7 @@ public class GoogleOAuth2Service {
                     var user= User.builder()
                             .userName(sub)
                             .password(passwordEncoder.encode("User"+sub))
-                            .phoneNumber("N/A")
+                            .phoneNumber(null)
                             .role("USER")
                             .fullName(fullName)
                             .email(email)
@@ -203,9 +202,9 @@ public class GoogleOAuth2Service {
                     JSONObject jsonResponse= new JSONObject(response);
                     String newToken= jsonResponse.getString("access_token");
                     redisService.saveDataInRedis(accessTokenKey,newToken,Long.parseLong(googleExpiresAccessToken));
-                    return false;
+                    return true;
                 }
-                return expiration<=currenTime;
+                return expiration > currenTime;
             }else if(refreshToken != null){
                 String response= refreshToken(refreshTokenKey);
                 JSONObject jsonResponse= new JSONObject(response);
@@ -213,7 +212,7 @@ public class GoogleOAuth2Service {
                 String newIdToken= jsonResponse.getString("id_token");
                 redisService.saveDataInRedis(accessTokenKey,newToken,Long.parseLong(googleExpiresAccessToken));
                 redisService.saveDataInRedis(googleIdTokenKey,newIdToken,Long.parseLong(googleExpiresAccessToken));
-                return false;
+                return true;
             }else{
                 throw new Exception("token is not found");
             }

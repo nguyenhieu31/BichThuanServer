@@ -21,5 +21,10 @@ public class TestAddress {
         addressRequest.setDistrictName("Điện Bàn");
         addressRequest.setWardName("Vĩnh Điện");
 //        String response= addressService.create_Address(addressRequest,null);
+//        AddressDTO addressDTO = new AddressDTO();
+//        addressDTO.setAddress("113 Ong Ich Khiem");
+//        addressDTO.setUserId(16L);
+//
+//        addressService.create_Address(addressDTO);
     }
 }

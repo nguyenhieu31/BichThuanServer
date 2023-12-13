@@ -91,29 +91,24 @@ public class JwtServices {
     }
     public boolean isTokenInBlackList(String token){
         Optional<BlackList> isToken= blackListRepo.findByToken(token);
-        if(isToken.isEmpty()){
-            return false;
-        }
-        return true;
+        return isToken.isPresent();
     }
     @Transactional
     public String GeneratorTokenByRefreshToken( UserDetails userDetails) throws RefreshTokenException {
         List<WhiteList> tokens= whiteListRepo.findAll();
         List<WhiteList> tokensToRemove = new ArrayList<>();
         final String[] newToken= new String[1];
-        Iterator<WhiteList> iterator= tokens.iterator();
-        while(iterator.hasNext()){
-            WhiteList item= iterator.next();
-            try{
-                if(!isTokenExpiration(item.getToken())){
-                    final String userName= ExtractUserName(item.getToken());
-                    if(userName.equals(userDetails.getUsername())){
-                        UserDetails user= this.userDetailsService.loadUserByUsername(userName);
-                        newToken[0]= this.GeneratorAccessToken(user);
+        for (WhiteList item : tokens) {
+            try {
+                if (!isTokenExpiration(item.getToken())) {
+                    final String userName = ExtractUserName(item.getToken());
+                    if (userName.equals(userDetails.getUsername())) {
+                        UserDetails user = this.userDetailsService.loadUserByUsername(userName);
+                        newToken[0] = this.GeneratorAccessToken(user);
                     }
                 }
-            }catch (ExpiredJwtException e){
-                var tokenBlackList= BlackList.builder()
+            } catch (ExpiredJwtException e) {
+                var tokenBlackList = BlackList.builder()
                         .token(item.getToken())
                         .build();
                 tokensToRemove.add(item);

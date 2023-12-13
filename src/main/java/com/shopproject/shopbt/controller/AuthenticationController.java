@@ -1,11 +1,14 @@
 package com.shopproject.shopbt.controller;
 
-
 import com.shopproject.shopbt.ExceptionCustom.*;
 import com.shopproject.shopbt.entity.Address;
 import com.shopproject.shopbt.entity.User;
 import com.shopproject.shopbt.request.AddressRequest;
 import com.shopproject.shopbt.request.LoginRequest;
+import com.shopproject.shopbt.ExceptionCustom.LoginException;
+import com.shopproject.shopbt.ExceptionCustom.LogoutException;
+import com.shopproject.shopbt.ExceptionCustom.RefreshTokenException;
+import com.shopproject.shopbt.ExceptionCustom.RegisterException;
 import com.shopproject.shopbt.request.RefreshTokenRequest;
 import com.shopproject.shopbt.request.RegisterUserRequest;
 import com.shopproject.shopbt.response.AuthenticationResponse;
@@ -93,7 +96,7 @@ public class AuthenticationController {
                     return ResponseEntity.status(403).body("session is expires");
                 }
             }else{
-                return ResponseEntity.status(401).body("session is expires");
+                return ResponseEntity.status(403).body("session is expires");
             }
         }catch (ExpiredJwtException e){
             return ResponseEntity.status(403).body("token is expires");
@@ -105,19 +108,16 @@ public class AuthenticationController {
     public ResponseEntity<?> refreshToken(HttpServletRequest servletRequest, HttpServletResponse response){
         try{
             Cookie[] cookies= servletRequest.getCookies();
-            String token = null;
             String refreshToken=null;
             for(Cookie cookie:cookies){
-                if(cookie.getName().equals("accessToken")) token=cookie.getValue();
                 if(cookie.getName().equals("refreshToken")) refreshToken=cookie.getValue();
             }
-            if((token!=null&& refreshToken!=null) && (token.length()>0 && refreshToken.length()>0)){
+            if((refreshToken!=null) && (refreshToken.length()>0)){
                 var refreshTokenRequest= RefreshTokenRequest.builder()
-                        .token(token)
                         .refreshToken(refreshToken)
                         .build();
                 AuthenticationResponse authenticationResponse= authenticationService.refreshToken(refreshTokenRequest);
-                cookieUtil.generatorTokenCookie(response, authenticationResponse);
+                cookieUtil.saveNewTokenCookie(response, authenticationResponse);
                 return ResponseEntity.status(HttpStatus.OK).body(authenticationResponse);
             }else{
                 return ResponseEntity.status(401).body("session expires");
