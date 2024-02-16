@@ -5,9 +5,11 @@ import com.shopproject.shopbt.dto.ProductsDTO;
 import com.shopproject.shopbt.entity.Product;
 import com.shopproject.shopbt.response.Product_findbyid;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.Query;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Set;
 
 public interface ProductService {
@@ -30,4 +32,6 @@ public interface ProductService {
     String getFirstTwoWordsFromProductName(String productName);
     Set<ProductsDTO> findAllProductByCategoryName(Pageable pageable,String categoryName);
     ProductsDTO getProductById(Long id);
+
+    List<ProductsDTO> findAllProduct();
 }

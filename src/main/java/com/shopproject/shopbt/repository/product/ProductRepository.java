@@ -1,5 +1,6 @@
 package com.shopproject.shopbt.repository.product;
 
+import com.shopproject.shopbt.dto.ProductsDTO;
 import com.shopproject.shopbt.entity.Product;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -32,4 +33,9 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     Set<Object[]> findProductByNameLike(@Param("name") String name);
     @Query("select p.productId, p.image, p.name, p.price FROM Product p where p.name=:categoryName")
     Page<Object[]> findProductByCategoryName(Pageable pageable,@Param("categoryName") String categoryName);
+
+    @Query("SELECT p.productId " +
+            "FROM Product p " +
+            "ORDER BY p.productId ASC")
+    Set<Long> findAllProductId();
 }

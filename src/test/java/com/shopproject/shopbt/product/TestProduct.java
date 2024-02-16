@@ -160,4 +160,13 @@ public class TestProduct {
             System.out.println(productsDTO.getUpdatedAt());
         });
     }
+
+    @Test
+    void findAllProducts(){
+        Set<ProductsDTO> productsDTOS = productService.findAllProduct();
+
+        productsDTOS.forEach(productsDTO -> {
+            System.out.println(productsDTO.getProductId());
+        });
+    }
 }

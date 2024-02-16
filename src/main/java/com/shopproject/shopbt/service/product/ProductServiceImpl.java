@@ -43,6 +43,21 @@ public class ProductServiceImpl implements ProductService{
         }
     }
 
+    @Override
+    public List<ProductsDTO> findAllProduct() {
+        try{
+            List<ProductsDTO> allProducts = new ArrayList<>();
+            Set<Long> productsId = productRepository.findAllProductId();
+            productsId.forEach(id -> {
+                Product p = productRepository.findByProductId(id);
+                allProducts.add(readProduct(p, new ProductsDTO()));
+            });
+            return allProducts;
+        } catch (IllegalArgumentException e){
+            throw new IllegalArgumentException(e.getMessage());
+        }
+    }
+
 
     public ProductsDTO findProductById(Long id) {
         try{
@@ -53,56 +68,45 @@ public class ProductServiceImpl implements ProductService{
         }
     }
 
-    private ProductsDTO ConvertOneDTO(Object[] product) {
-        ProductsDTO productsDTO = new ProductsDTO();
-        productsDTO.setProductId((Long) product[0]);
-        productsDTO.setName((String) product[1]);
-        productsDTO.setColorNames((Set<Color>) product[2]);
-        productsDTO.setDescription((String) product[3]);
-        productsDTO.setGalleryImages((Set<Gallery_Image>) product[4]);
-        productsDTO.setImage((String) product[5]);
-        productsDTO.setPrice((BigDecimal) product[6]);
-        productsDTO.setMaterial((String) product[7]);
-        productsDTO.setSizeNames((List<String>) product[8]);
-        productsDTO.setQuantity((Integer) product[9]);
-
-        return productsDTO;
-    }
         @Override
         public void update_Product(ProductsDTO productsDTO) {
-            Product product = productRepository.findById(productsDTO.getProductId()).orElse(null);
-            assert product != null;
-            readProductDTO(product, productsDTO);
+            try {
+                Product product = productRepository.findByProductId(productsDTO.getProductId());
+                readProductDTO(product, productsDTO);
 
-            productRepository.save(product);
+                productRepository.save(product);
+            } catch (IllegalArgumentException e){
+                throw new IllegalArgumentException(e.getMessage());
+            }
         }
         private Product readProductDTO(Product product,ProductsDTO productsDTO){
             product.setCreatedBy(productsDTO.getCreatedBy());
             product.setName(productsDTO.getName());
             product.setDescription(productsDTO.getDescription());
-//        product.setImage(productsDTO.getImage());
+            product.setImage(productsDTO.getImage());
             product.setPrice(productsDTO.getPrice());
             product.setMaterial(productsDTO.getMaterial());
             product.setQuantity(productsDTO.getQuantity());
             Categories category = categoryRepository.findCategoriesByCategoryId(productsDTO.getCategoryId());
             product.setCategory(category);
 
-//        // add set colors
-//        Set<Integer> colorIds = productsDTO.getColorId();
-//        Set<Color> colors = new HashSet<>();
-//        colorIds.forEach(colorId -> {
-//            colors.add(colorRepository.findByColorId(colorId));
-//        });
-//        product.setColors(colors);
-//
-//
-//        // add set sizes
-//        Set<Integer> sizeIds = productsDTO.getSizeId();
-//        Set<Size> sizes = new HashSet<>();
-//        sizeIds.forEach(sizeId -> {
-//            sizes.add(sizeRepository.findBySizeId(sizeId));
-//        });
-//        product.setSizes(sizes);
+            // add set colors
+            Set<Long> colorIds = productsDTO.getColorIds();
+            Set<Color> colors = new HashSet<>();
+            colorIds.forEach(colorId -> {
+                colors.add(colorRepository.findByColorId(colorId));
+            });
+            product.setColors(colors);
+
+
+            // add set sizes
+            Set<Long> sizeIds = productsDTO.getSizeIds();
+            Set<Size> sizes = new HashSet<>();
+            sizeIds.forEach(sizeId -> {
+                sizes.add(sizeRepository.findBySizeId(sizeId));
+            });
+            product.setSizes(sizes);
+
             product.setUpdatedBy(productsDTO.getUpdatedBy());
             return product;
         }
@@ -177,7 +181,7 @@ public class ProductServiceImpl implements ProductService{
         try{
             Set<Object[]> products = productRepository.findByPriceBetweenPrice(startPrice,endPrice);
             return products.stream()
-                    .limit(Math.min(products.size(), 4)) // Limit to the smaller of 4 or the actual size
+                    .limit(Math.min(products.size(), 4))
                     .map(this::ConvertToDto)
                     .collect(Collectors.toSet());
         } catch (IllegalArgumentException e){

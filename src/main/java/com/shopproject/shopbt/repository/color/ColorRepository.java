@@ -7,5 +7,5 @@ import java.util.Set;
 import java.util.stream.Stream;
 
 public interface ColorRepository extends JpaRepository<Color, Long> {
-    Color findByColorId(Integer id);
+    Color findByColorId(Long id);
 }

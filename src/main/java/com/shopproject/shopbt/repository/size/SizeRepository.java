@@ -9,5 +9,5 @@ import java.util.stream.Stream;
 
 
 public interface SizeRepository extends JpaRepository<Size, Long> {
-    Size findBySizeId(Integer id);
+    Size findBySizeId(Long id);
 }
