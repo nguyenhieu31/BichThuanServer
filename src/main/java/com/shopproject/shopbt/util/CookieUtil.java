@@ -1,6 +1,5 @@
 package com.shopproject.shopbt.util;
 
-import com.google.api.Http;
 import com.shopproject.shopbt.response.AuthenticationResponse;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
@@ -10,14 +9,14 @@ public class CookieUtil {
     private String expiresAccessToken;
     @Value("${JWT.EXPIRATION_REFRESH_TOKEN}")
     private String expiresRefreshToken;
-    public Cookie addAttributeForCookie(Cookie cookie, int expires){
-        cookie.setMaxAge(expires);
+    public Cookie addAttributeForCookie(Cookie cookie, int expiresInSeconds){
+        cookie.setMaxAge(Math.max(expiresInSeconds, 0));
         cookie.setPath("/");
-//        cookie.setAttribute("SameSite","None");
+//        cookie.setAttribute("SameSite","Lax");
 //        cookie.setSecure(true);
         return cookie;
     }
-    public void generatorTokenCookie(HttpServletResponse response, AuthenticationResponse authenticationResponse) {
+    private void generatorToken(HttpServletResponse response, AuthenticationResponse authenticationResponse, String expiresAccessToken, String expiresRefreshToken) {
         Cookie accessTokenCookie= new Cookie("accessToken",authenticationResponse.getToken());
         Cookie refreshTokenCookie= new Cookie("refreshToken",authenticationResponse.getRefreshToken());
         if(authenticationResponse.getToken()==null || authenticationResponse.getRefreshToken()==null){
@@ -31,9 +30,24 @@ public class CookieUtil {
         response.addCookie(accessTokenCookie);
         response.addCookie(refreshTokenCookie);
     }
-    public void saveNewTokenCookie(HttpServletResponse response, AuthenticationResponse authenticationResponse){
+    public void generatorTokenCookie(HttpServletResponse response, AuthenticationResponse authenticationResponse) {
+        generatorToken(response, authenticationResponse, expiresAccessToken, expiresRefreshToken);
+    }
+//    public void generatorTokenCookieOAuth2(HttpServletResponse response, AuthenticationResponse authenticationResponse){
+//        generatorToken(response, authenticationResponse, expiresAccessTokenGoogle, expiresRefreshTokenGoogle);
+//    }
+    public void saveAccessTokenCookie(HttpServletResponse response, AuthenticationResponse authenticationResponse){
         Cookie accessTokenCookie= new Cookie("accessToken", authenticationResponse.getToken());
-        accessTokenCookie=addAttributeForCookie(accessTokenCookie,Integer.parseInt(expiresAccessToken)/1000);
+        accessTokenCookie=addAttributeForCookie(accessTokenCookie, Integer.parseInt(expiresAccessToken)/1000);
         response.addCookie(accessTokenCookie);
+    }
+    public void removeCookieOAuth2(HttpServletResponse response, String userId, String accessToken){
+        Cookie accessTokenCookie= new Cookie("accessToken", accessToken);
+        Cookie userIdCookie= new Cookie("userId", userId);
+        accessTokenCookie=addAttributeForCookie(accessTokenCookie, 0);
+        userIdCookie=addAttributeForCookie(userIdCookie, 0);
+        userIdCookie.setHttpOnly(true);
+        response.addCookie(accessTokenCookie);
+        response.addCookie(userIdCookie);
     }
 }

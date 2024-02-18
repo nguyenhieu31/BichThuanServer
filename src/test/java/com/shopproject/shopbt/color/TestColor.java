@@ -8,22 +8,22 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
 public class TestColor {
-    @Autowired
-    private ColorService colorService;
-
-    @Test
-    void create(){
-//        ColorsDTO colorsDTO = new ColorsDTO();
-//        colorsDTO.setName("Green");
+//    @Autowired
+//    private ColorService colorService;
 //
-//        colorService.create_Color(colorsDTO);
-    }
-
-    @Test
-    void findById(){
-//        Long id = 1L;
-//        ColorsDTO colorsDTO = colorService.findColorById(id);
+//    @Test
+//    void create(){
+////        ColorsDTO colorsDTO = new ColorsDTO();
+////        colorsDTO.setName("Green");
+////
+////        colorService.create_Color(colorsDTO);
+//    }
 //
-//        System.out.println(colorsDTO.getName());
-    }
+//    @Test
+//    void findById(){
+////        Long id = 1L;
+////        ColorsDTO colorsDTO = colorService.findColorById(id);
+////
+////        System.out.println(colorsDTO.getName());
+//    }
 }

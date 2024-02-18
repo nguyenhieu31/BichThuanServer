@@ -10,21 +10,21 @@ import org.springframework.boot.test.context.SpringBootTest;
 @SpringBootTest
 public class TestAddress {
 
-    @Autowired
-    private AddressService addressService;
-
-    @Test
-    void create(){
-        AddressRequest addressRequest= new AddressRequest();
-        addressRequest.setAddress("175 trần nhân tông");
-        addressRequest.setProvinceName("Quảng Nam");
-        addressRequest.setDistrictName("Điện Bàn");
-        addressRequest.setWardName("Vĩnh Điện");
-//        String response= addressService.create_Address(addressRequest,null);
-//        AddressDTO addressDTO = new AddressDTO();
-//        addressDTO.setAddress("113 Ong Ich Khiem");
-//        addressDTO.setUserId(16L);
+//    @Autowired
+//    private AddressService addressService;
 //
-//        addressService.create_Address(addressDTO);
-    }
+//    @Test
+//    void create(){
+//        AddressRequest addressRequest= new AddressRequest();
+//        addressRequest.setAddress("175 trần nhân tông");
+//        addressRequest.setProvinceName("Quảng Nam");
+//        addressRequest.setDistrictName("Điện Bàn");
+//        addressRequest.setWardName("Vĩnh Điện");
+////        String response= addressService.create_Address(addressRequest,null);
+////        AddressDTO addressDTO = new AddressDTO();
+////        addressDTO.setAddress("113 Ong Ich Khiem");
+////        addressDTO.setUserId(16L);
+////
+////        addressService.create_Address(addressDTO);
+//    }
 }

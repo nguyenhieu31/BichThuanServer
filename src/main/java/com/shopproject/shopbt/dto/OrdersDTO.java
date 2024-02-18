@@ -1,15 +1,17 @@
 package com.shopproject.shopbt.dto;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Data
+@AllArgsConstructor
 public class OrdersDTO {
     private Long orderId;
-    private LocalDateTime createAt;
+    private UUID orderCode;
     private int status;
-    private LocalDateTime updateAt;
     private Long userId;
     private String fullName;
     private String address;
@@ -19,6 +21,8 @@ public class OrdersDTO {
     private int quantity;
     private String size;
     private String color;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 
     public OrdersDTO() {
 
@@ -27,7 +31,7 @@ public class OrdersDTO {
     // List đơn hàng mới nhất
     public OrdersDTO(Long orderId, LocalDateTime createAt, int status, String fullName) {
         this.orderId  = orderId;
-        this.createAt = createAt;
+        this.createdAt = createAt;
         this.status   = status;
         this.fullName  = fullName;
     }
@@ -44,7 +48,7 @@ public class OrdersDTO {
     }
 
     public OrdersDTO(Long orderId, int status, String fullName, String address, String productImage,
-                     String productName, BigDecimal priceUnit, int quantity, String size, String color) {
+                     String productName, BigDecimal priceUnit, int quantity, String size, String color, UUID orderCode,LocalDateTime createdAt) {
         this.orderId = orderId;
         this.status = status;
         this.fullName = fullName;
@@ -55,6 +59,8 @@ public class OrdersDTO {
         this.quantity = quantity;
         this.size     = size;
         this.color    = color;
+        this.orderCode=orderCode;
+        this.createdAt=createdAt;
     }
 
     public OrdersDTO(int status) {

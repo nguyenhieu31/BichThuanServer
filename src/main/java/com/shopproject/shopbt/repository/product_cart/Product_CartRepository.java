@@ -15,7 +15,7 @@ public interface Product_CartRepository extends JpaRepository<Product_Cart, Long
     @Query("select new com.shopproject.shopbt.response.CartResponse(pc.product_cart_id,p.productId,p.name,pc.color,pc.size,p.price,p.image,pc.quantity)  from Product_Cart pc " +
             "inner join Cart c on pc.cart.cartId=c.cartId " +
             "inner join Product p on pc.product.productId=p.productId " +
-            "where pc.cart.cartId=:cartId")
+            "where pc.cart.cartId=:cartId and pc.status=0")
     List<CartResponse> findByCart_CartId(@Param("cartId") Long cartId);
 //    @Query("select pc from Product_Cart pc where pc.product.productId=:productId and pc.size=:size and pc.cart.cartId=:cartId")
 //    Optional<Product_Cart> findByProduct_ProductIdAndSizeAndCart_CartId(@Param("productId") Long productId,@Param("size") String size,@Param("cartId") Long cartId);

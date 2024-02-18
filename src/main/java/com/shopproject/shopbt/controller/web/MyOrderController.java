@@ -1,25 +1,26 @@
-package com.shopproject.shopbt.controller;
+package com.shopproject.shopbt.controller.web;
 
 import com.google.api.Http;
 import com.shopproject.shopbt.ExceptionCustom.LoginException;
 import com.shopproject.shopbt.ExceptionCustom.RegisterException;
-import com.shopproject.shopbt.dto.OrderItemsDTO;
-import com.shopproject.shopbt.dto.UsersDTO;
-import com.shopproject.shopbt.entity.Order;
-import com.shopproject.shopbt.entity.OrderItem;
-import com.shopproject.shopbt.entity.User;
+import com.shopproject.shopbt.dto.*;
+import com.shopproject.shopbt.entity.*;
+import com.shopproject.shopbt.request.AddToCartRequest;
 import com.shopproject.shopbt.request.CreateOrderRequest;
+import com.shopproject.shopbt.response.CartResponse;
 import com.shopproject.shopbt.response.Product_Detail_Order;
 import com.shopproject.shopbt.response.Product_MyOrder;
-import com.shopproject.shopbt.dto.OrdersDTO;
 import com.shopproject.shopbt.dto.UsersDTO;
 import com.shopproject.shopbt.entity.OrderItem;
 import com.shopproject.shopbt.response.Product_MyOrder;
 import com.shopproject.shopbt.service.Redis.RedisService;
+import com.shopproject.shopbt.service.carts.CartService;
 import com.shopproject.shopbt.service.order.OrderService;
 import com.shopproject.shopbt.service.orderitem.OrderItemService;
+import com.shopproject.shopbt.service.product_cart.Product_CartService;
 import com.shopproject.shopbt.service.user.UserService;
 import lombok.AllArgsConstructor;
+import lombok.extern.java.Log;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
@@ -31,6 +32,7 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 @RestController
@@ -39,10 +41,11 @@ import java.util.Set;
 public class MyOrderController {
     private OrderItemService orderItemService;
     private final OrderService orderService;
+    private final Product_CartService productCartService;
     private Set<Product_Detail_Order> findOrderByType(int type, List<Order> orderList) throws Exception {
         Set<Product_Detail_Order> response= new HashSet<>();
         orderList.forEach(order->{
-            if(order.getDeletedAt()!=null && !order.getDeletedAt().isBefore(LocalDateTime.now())){
+            if(order.getDeletedAt()!=null && order.getDeletedAt().isBefore(LocalDateTime.now())){
                 orderService.delete_OrderById(order.getOrderId());
             }else if(order.getStatus()==type){
                 Set<Product_Detail_Order> findOrderItem= orderItemService.findAllByOrderId(order.getOrderId());
@@ -50,6 +53,55 @@ public class MyOrderController {
             }
         });
         return response;
+    }
+    private void updateStatusProductCart(Set<CartResponse> result, Set<CartResponse> response) {
+        result.forEach(product->{
+            try {
+                Product_Cart isUpdate= productCartService.updateStatusCart(product.getProductCartId(),0);
+                if(isUpdate!=null){
+                    response.add(CartResponse.builder()
+                            .productCartId(product.getProductCartId())
+                            .name(product.getName())
+                            .price(product.getPrice())
+                            .productId(product.getProductId())
+                            .image(product.getImage())
+                            .quantity(product.getQuantity())
+                            .color(product.getColor())
+                            .size(product.getSize())
+                            .build());
+                }
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        });
+    }
+
+    private void createNewProductCart(Set<Product_Detail_Order> productDetailOrders) {
+        productDetailOrders.forEach(productOrder->{
+            var addToCart= AddToCartRequest.builder()
+                    .id(productOrder.getProductId())
+                    .color(productOrder.getColor())
+                    .size(productOrder.getSize())
+                    .quantity(productOrder.getQuantity())
+                    .build();
+            try {
+                String message= productCartService.create_Product_Cart(productOrder.getProductId(),addToCart);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        });
+    }
+
+    private static void findProductCartId(Set<Product_Detail_Order> productDetailOrders, List<CartResponse> listProductCart, Set<CartResponse> result) {
+        productDetailOrders.forEach(productOrder->{
+            if(!listProductCart.isEmpty()){
+                listProductCart.forEach(productCart->{
+                    if(productOrder.getProductId().equals(productCart.getProductId()) && productOrder.getSize().equals(productCart.getSize())){
+                        result.add(productCart);
+                    }
+                });
+            }
+        });
     }
     @PostMapping("/create")
     public ResponseEntity<?> CreateOrder(@RequestBody CreateOrderRequest createOrderRequest){
@@ -59,6 +111,13 @@ public class MyOrderController {
                 User user= (User) authentication.getPrincipal();
                 if(user.getPhoneNumber()!=null){
                     OrdersDTO ordersDTO= orderService.create_Order(createOrderRequest,user);
+                    createOrderRequest.getProductsPayment().forEach(product->{
+                        try {
+                            Product_Cart productCart= productCartService.updateStatusCart(product.getProductCartId(),1);
+                        } catch (Exception e) {
+                            throw new RuntimeException(e);
+                        }
+                    });
                     if(ordersDTO!=null){
                         return ResponseEntity.status(HttpStatus.OK).body("Bạn đã đặt hàng thành công!!!");
                     }else{
@@ -129,6 +188,35 @@ public class MyOrderController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
     }
+    @GetMapping("/re-order")
+    public ResponseEntity<?> reOrder(@RequestParam("orderId") Long orderId){
+        try{
+            Authentication authentication= SecurityContextHolder.getContext().getAuthentication();
+            if(!(authentication instanceof AnonymousAuthenticationToken)){
+                Set<Product_Detail_Order> productDetailOrders= orderItemService.findAllByOrderId(orderId);
+                List<CartResponse> listProductCart= productCartService.getAllProductCartByUser();
+                Set<CartResponse> result= new HashSet<>();
+                Set<CartResponse> response= new HashSet<>();
+                findProductCartId(productDetailOrders, listProductCart, result);
+                if(result.isEmpty()){
+                    createNewProductCart(productDetailOrders);
+                }else{
+                    updateStatusProductCart(result, response);
+                }
+                if(response.isEmpty()){
+                    return ResponseEntity.status(HttpStatus.OK).body("Tạo mới sản phẩm trong giỏ thành công");
+                }
+                return ResponseEntity.status(HttpStatus.OK).body(response);
+            }else{
+                throw new LoginException("Phiên đăng nhập hết hạn");
+            }
+        }catch (LoginException e){
+            return ResponseEntity.status(403).body(e.getMessage());
+        }catch (Exception e){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+    }
+
     @DeleteMapping("/cancel-order")
     public ResponseEntity<?> cancelOrder(@RequestParam("orderId") Long orderId,@RequestParam("reasonCancel") String reasonCancel){
         try{     

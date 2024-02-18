@@ -1,4 +1,4 @@
-package com.shopproject.shopbt.controller;
+package com.shopproject.shopbt.controller.web;
 
 import com.google.api.Http;
 import com.shopproject.shopbt.ExceptionCustom.AddressException;

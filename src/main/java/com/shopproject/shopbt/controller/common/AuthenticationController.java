@@ -1,20 +1,11 @@
-package com.shopproject.shopbt.controller;
+package com.shopproject.shopbt.controller.common;
 
 import com.shopproject.shopbt.ExceptionCustom.*;
 import com.shopproject.shopbt.entity.Address;
 import com.shopproject.shopbt.entity.User;
-import com.shopproject.shopbt.request.AddressRequest;
-import com.shopproject.shopbt.request.LoginRequest;
-import com.shopproject.shopbt.ExceptionCustom.LoginException;
-import com.shopproject.shopbt.ExceptionCustom.LogoutException;
-import com.shopproject.shopbt.ExceptionCustom.RefreshTokenException;
-import com.shopproject.shopbt.ExceptionCustom.RegisterException;
-import com.shopproject.shopbt.request.RefreshTokenRequest;
-import com.shopproject.shopbt.request.RegisterUserRequest;
+import com.shopproject.shopbt.request.*;
 import com.shopproject.shopbt.response.AuthenticationResponse;
 import com.shopproject.shopbt.service.JwtServices.JwtServices;
-import com.shopproject.shopbt.service.OAuth2.GoogleOAuth2Service;
-import com.shopproject.shopbt.service.Redis.RedisService;
 import com.shopproject.shopbt.service.address.AddressService;
 import com.shopproject.shopbt.service.authentication.AuthenticationService;
 import com.shopproject.shopbt.util.CookieUtil;
@@ -23,30 +14,25 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 import java.util.Map;
-
 @RestController
-@RequestMapping("/web")
+@RequestMapping("/auth")
 @CrossOrigin
 @RequiredArgsConstructor
 public class AuthenticationController {
     private final AuthenticationService authenticationService;
     private final JwtServices jwtServices;
-    private final RedisService redisService;
     private final CookieUtil cookieUtil;
-    private final GoogleOAuth2Service googleOAuth2Service;
     private final AddressService addressService;
-    @Value("${GOOGLE.STATE_KEY}")
-    private String googleOAuth2State;
-    @PostMapping("/auth/register")
+    @PostMapping("/register")
     public ResponseEntity<String> registerUser(@RequestBody RegisterUserRequest request) {
         try{
             String message= authenticationService.registerUser(request);
@@ -55,11 +41,15 @@ public class AuthenticationController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
     }
-//    @PostMapping("/register")
-//    public ResponseEntity<String> register(@RequestBody RegisterRequest request){
-//        return ResponseEntity.status(HttpStatus.OK).body(authenticationService.register(request));
-//    }
-    @PostMapping("/auth/login")
+    @PostMapping("/register-admin")
+    public ResponseEntity<String> registerAdmin(@RequestBody RegisterRequest request){
+        try{
+            return ResponseEntity.status(HttpStatus.OK).body(authenticationService.register(request));
+        } catch (Exception e){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+    }
+    @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest request, HttpServletResponse response){
         try{
             AuthenticationResponse authenticationResponse= authenticationService.authenticate(request);
@@ -74,26 +64,27 @@ public class AuthenticationController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
     }
-
-    @GetMapping("/auth/checkStateLogin")
+    @GetMapping("/checkStateLogin")
     public ResponseEntity<?> checkStateLogin(HttpServletRequest request){
         try{
             Cookie[] cookies= request.getCookies();
             String token = null;
-            String keyToken=null;
+            String userId= null;
             for(Cookie cookie:cookies){
-                if(cookie.getName().equals("accessToken")) keyToken=cookie.getValue();
+                if(cookie.getName().equals("accessToken")) token=cookie.getValue();
+                if(cookie.getName().equals("userId")) userId=cookie.getValue();
             }
-            if(keyToken!=null){
-                token= redisService.getDataFromRedis(keyToken);
-                String checkOAuth2= redisService.getDataFromRedis(googleOAuth2State);
-                if(checkOAuth2!=null && !googleOAuth2Service.checkExpiresAccessToken()){
-                    return ResponseEntity.status(HttpStatus.OK).body(redisService.getDataFromRedis("name"));
-                }
-                if(token!=null && !jwtServices.isTokenExpiration(token)){
-                    return ResponseEntity.status(HttpStatus.OK).body(jwtServices.ExtractUserName(token));
+            if(token!=null){
+                if(userId!=null){
+                    Authentication authentication= SecurityContextHolder.getContext().getAuthentication();
+                    if(!(authentication instanceof AnonymousAuthenticationToken)){
+                        User user= (User) authentication.getPrincipal();
+                        return ResponseEntity.status(HttpStatus.OK).body(user.getFullName());
+                    }else{
+                        return ResponseEntity.status(403).body("session is expires");
+                    }
                 }else{
-                    return ResponseEntity.status(403).body("session is expires");
+                    return ResponseEntity.status(HttpStatus.OK).body(jwtServices.ExtractUserName(token));
                 }
             }else{
                 return ResponseEntity.status(403).body("session is expires");
@@ -104,7 +95,7 @@ public class AuthenticationController {
             throw new RuntimeException(e);
         }
     }
-    @GetMapping("/auth/refreshToken")
+    @GetMapping("/refreshToken")
     public ResponseEntity<?> refreshToken(HttpServletRequest servletRequest, HttpServletResponse response){
         try{
             Cookie[] cookies= servletRequest.getCookies();
@@ -117,7 +108,7 @@ public class AuthenticationController {
                         .refreshToken(refreshToken)
                         .build();
                 AuthenticationResponse authenticationResponse= authenticationService.refreshToken(refreshTokenRequest);
-                cookieUtil.saveNewTokenCookie(response, authenticationResponse);
+                cookieUtil.saveAccessTokenCookie(response, authenticationResponse);
                 return ResponseEntity.status(HttpStatus.OK).body(authenticationResponse);
             }else{
                 return ResponseEntity.status(401).body("session expires");
@@ -131,26 +122,51 @@ public class AuthenticationController {
             return ResponseEntity.status(401).body(e.getMessage());
         }
     }
-    @GetMapping("/auth/logout")
-    public ResponseEntity<String> logout( HttpServletResponse response){
+    @GetMapping("/logout")
+    public ResponseEntity<String> logout(HttpServletRequest request, HttpServletResponse response){
         try{
             var authenticationRes= AuthenticationResponse.builder()
                     .token(null)
                     .refreshToken(null)
                     .build();
-            cookieUtil.generatorTokenCookie(response,authenticationRes);
-            String oauth2State= redisService.getDataFromRedis(googleOAuth2State);
-            if(oauth2State!=null){
-                return ResponseEntity.status(200).body(googleOAuth2Service.logout());
+            String userId=null;
+            String accessToken=null;
+            String refreshToken=null;
+            Cookie[] cookies= request.getCookies();
+            if(cookies!=null){
+                for(Cookie cookie:cookies){
+                    if(cookie.getName().equals("userId")){
+                        userId=cookie.getValue();
+                    }else if(cookie.getName().equals("accessToken")){
+                        accessToken=cookie.getValue();
+                    }else if(cookie.getName().equals("refreshToken")){
+                        refreshToken=cookie.getValue();
+                    }
+                }
             }
-            return ResponseEntity.status(200).body(authenticationService.logout());
+            SecurityContextHolder.getContext().setAuthentication(null);
+            if(userId!=null){
+                if(accessToken!=null){
+                    Long result= authenticationService.logoutOAuth2(userId,accessToken);
+                    if(result>0){
+                        cookieUtil.removeCookieOAuth2(response,userId,accessToken);
+                        return ResponseEntity.status(200).body("Đăng xuất thành công");
+                    }else{
+                        throw new LogoutException("Không thể đăng xuất");
+                    }
+                }else{
+                    return ResponseEntity.status(200).body("Đăng xuất thành công");
+                }
+            }
+            cookieUtil.generatorTokenCookie(response,authenticationRes);
+            return ResponseEntity.status(200).body(authenticationService.logout(refreshToken));
         }catch (LogoutException e){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }catch (Exception e){
             return ResponseEntity.status(401).body(e.getMessage());
         }
     }
-    @PostMapping("/auth/update-address")
+    @PostMapping("/update-address")
     public ResponseEntity<?> SaveAddress(@RequestBody AddressRequest request){
         try{
             Authentication authentication= SecurityContextHolder.getContext().getAuthentication();

@@ -24,6 +24,19 @@ services:
       SERVER_SERVLET_CONTEXT-PATH: /api/v1
       SPRING_DATA_REDIS_HOST: redis
       SPRING_DATA_REDIS_PORT: 6379
+      GOOGLE.CLIENT_ID: 113414924296-lofvl5t2be4ivhr84i5o3o709sp19jof.apps.googleusercontent.com
+      GOOGLE.CLIENT_SECRET: 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
+      GOOGLE.REDIRECT_URI: http://localhost:3000
+      GOOGLE.GRANT_TYPE: authorization_code
+      GOOGLE.SCOPE[0]: email
+      GOOGLE.SCOPE[1]: profile
+      GOOGLE.ID-TOKEN: 3
+      GOOGLE.STATE_KEY: state
+      GOOGLE.EXPIRES_ACCESS-TOKEN: 3600000
+      GOOGLE.EXPIRES_REFRESH-TOKEN: 172800000
+      GOOGLE.TOKEN.URL: https://oauth2.googleapis.com/token
+      GOOGLE.REVOKE.URL: https://oauth2.googleapis.com/revoke
+      GOOGLE.USERINFO.URL: https://www.googleapis.com/oauth2/v3/userinfo
   db:
     image: postgres:15-alpine
     environment:

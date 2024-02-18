@@ -35,7 +35,7 @@ public class Address {
     private String wards;
     @Column(name = "name_payment", nullable = true)
     private String namePayment;
-    @Column(name = "phone_payment", nullable = true, unique = true, length = 12)
+    @Column(name = "phone_payment", nullable = true, length = 12)
     private String phonePayment;
     @JsonIgnore
     @ManyToOne(fetch = FetchType.EAGER, cascade = { CascadeType.MERGE, CascadeType.REMOVE,CascadeType.REFRESH, CascadeType.DETACH })

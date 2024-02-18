@@ -24,6 +24,8 @@ public class WhiteList {
     private String token;
     @Column(name = "expiration_token", columnDefinition = "timestamp")
     private LocalDateTime expirationToken;
+    @Column(name = "user_id", length = 100, unique = true)
+    private String userId;
     @CreationTimestamp
     @Column(nullable = false)
     private LocalDateTime createdAt;

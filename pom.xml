@@ -116,10 +116,10 @@
 			<artifactId>google-api-services-analyticsreporting</artifactId>
 			<version>v4-rev20211020-2.0.0</version>
 		</dependency>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-docker-compose</artifactId>
-		</dependency>
+<!--		<dependency>-->
+<!--			<groupId>org.springframework.boot</groupId>-->
+<!--			<artifactId>spring-boot-docker-compose</artifactId>-->
+<!--		</dependency>-->
 		<!-- com.twilio-->
 <!--		<dependency>-->
 <!--			<groupId>com.twilio.sdk</groupId>-->
@@ -146,6 +146,21 @@
 			<artifactId>java-jwt</artifactId>
 			<version>4.4.0</version>
 		</dependency>
+		<!-- https://mvnrepository.com/artifact/ch.qos.logback/logback-classic -->
+<!--		<dependency>-->
+<!--			<groupId>org.springframework.boot</groupId>-->
+<!--			<artifactId>spring-boot-starter-log4j2</artifactId>-->
+<!--		</dependency>-->
+
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-api</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>ch.qos.logback</groupId>
+			<artifactId>logback-classic</artifactId>
+		</dependency>
+
 	</dependencies>
 
 	<build>

@@ -9,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Getter
@@ -79,6 +80,6 @@ public class Product {
     private Set<Color> colors = new HashSet<Color>(0);
     @OneToMany(fetch = FetchType.EAGER, mappedBy = "product")
     private Set<Gallery_Image> gallery_images = new HashSet<Gallery_Image>(0);
-    @OneToOne(fetch = FetchType.LAZY, mappedBy = "product")
-    private Comment comment;
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "product")
+    private List<Comment> comment;
 }

@@ -5,7 +5,6 @@ import com.shopproject.shopbt.ExceptionCustom.LogoutException;
 import com.shopproject.shopbt.ExceptionCustom.RefreshTokenException;
 import com.shopproject.shopbt.ExceptionCustom.RegisterException;
 import com.shopproject.shopbt.entity.*;
-import com.shopproject.shopbt.repository.BlackList.BlackListRepo;
 import com.shopproject.shopbt.repository.Manager.ManagerRepo;
 import com.shopproject.shopbt.repository.Role.RoleRepo;
 import com.shopproject.shopbt.repository.WhiteList.WhiteListRepo;
@@ -14,16 +13,14 @@ import com.shopproject.shopbt.repository.user.UserRepository;
 import com.shopproject.shopbt.request.*;
 import com.shopproject.shopbt.response.AuthenticationResponse;
 import com.shopproject.shopbt.service.JwtServices.JwtServices;
-import com.shopproject.shopbt.service.Redis.RedisService;
 import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -42,19 +39,9 @@ public class AuthenticationService {
     private final WhiteListRepo whiteListRepo;
     private final UserDetailsService userDetailsService;
     private final UserRepository userRepository;
-    private final BlackListRepo blackListRepo;
     private final CartRepository cartRepository;
-    private final RedisService redisService;
-    @Value("${ACCESS_TOKEN_KEY}")
-    private String accessTokenKey;
-    @Value("${REFRESH_TOKEN_KEY}")
-    private String refreshTokenKey;
-    @Value("${JWT.EXPIRATION_ACCESS_TOKEN}")
-    private String expirationToken;
-    @Value("${JWT.EXPIRATION_REFRESH_TOKEN}")
-    private String expirationRefreshToken;
     //admin
-    public String register(RegisterRequest request){
+    public String register(RegisterRequest request) throws Exception {
         List<String> nameRole= new ArrayList<>();
         request.getRoles().forEach(role->nameRole.add(role.getName()));
         List<Roles> roles= new ArrayList<>();
@@ -70,14 +57,15 @@ public class AuthenticationService {
         try {
             managerRepo.save(manager);
         }catch (Exception e){
-            return "register is failed";
+            e.printStackTrace();
+            throw new Exception("Đăng kí thất bại");
         }
-        return "register is successful";
+        return "Đăng kí thành công";
     }
     //user
     public String registerUser(RegisterUserRequest request) throws RegisterException {
         if(request.getUserName()!=null){
-            var user= userRepository.findByUserName(request.getUserName());
+            var user= userRepository.findByUserNameAndActiveTrue(request.getUserName());
             if(user.isPresent()){
                 throw new RegisterException("Tài khoản đã tồn tại");
             }
@@ -94,6 +82,7 @@ public class AuthenticationService {
                 .password(passwordEncoder.encode(request.getPassword()))
                 .phoneNumber(request.getPhoneNumber())
                 .role("USER")
+                .active(true)
                 .build();
         var cart= Cart.builder()
                 .user(user)
@@ -110,48 +99,40 @@ public class AuthenticationService {
         }
     }
     public AuthenticationResponse authenticate(LoginRequest request) throws Exception {
+        String token = null;
+        String refreshToken = null;
         Authentication authentication= authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(request.getUserName(),request.getPassword())
         );
-        var manager= managerRepo.findByManagerName(request.getUserName());
-        String token=null;
-        String refreshToken= null;
-        if(manager.isPresent()){
-            token= jwtServices.GeneratorAccessToken(manager.get());
-            refreshToken= jwtServices.GeneratorRefreshToken(manager.get());
-        }else{
-            var user= userRepository.findByUserName(request.getUserName())
-                    .orElseThrow(()-> new UsernameNotFoundException("user is not found"));
+        if(!(authentication instanceof AnonymousAuthenticationToken)){
+            UserDetails user= (UserDetails) authentication.getPrincipal();
             token= jwtServices.GeneratorAccessToken(user);
             refreshToken= jwtServices.GeneratorRefreshToken(user);
+            Date expiration= jwtServices.decodedToken(refreshToken).getExpiration();
+            Instant instant= expiration.toInstant();
+            ZoneId zoneId= ZoneId.of("UTC");
+            var saveTokenOnWhiteList= WhiteList.builder()
+                    .token(refreshToken)
+                    .expirationToken(instant.atZone(zoneId).toLocalDateTime())
+                    .build();
+            whiteListRepo.save(saveTokenOnWhiteList);
         }
-        Date expiration= jwtServices.decodedToken(refreshToken).getExpiration();
-        Instant instant= expiration.toInstant();
-        ZoneId zoneId= ZoneId.of("UTC");
-        var saveTokenOnWhiteList= WhiteList.builder()
-                .token(refreshToken)
-                .expirationToken(instant.atZone(zoneId).toLocalDateTime())
-                .build();
-        whiteListRepo.save(saveTokenOnWhiteList);
         if(token==null && refreshToken==null){
             throw new LoginException("Tài khoản hoặc mật khẩu không đúng!");
         }
-        redisService.saveDataInRedis(accessTokenKey, token,Long.parseLong(expirationToken));
-        redisService.saveDataInRedis(refreshTokenKey,refreshToken,Long.parseLong(expirationRefreshToken));
         return AuthenticationResponse.builder()
-                .token(accessTokenKey)
-                .refreshToken(refreshTokenKey)
+                .token(token)
+                .refreshToken(refreshToken)
                 .build();
     }
     public AuthenticationResponse refreshToken(RefreshTokenRequest request) throws RefreshTokenException {
         String newToken=null;
+        String refreshToken= request.getRefreshToken();
         if(request.getRefreshToken() !=null){
-            String refreshToken= redisService.getDataFromRedis(request.getRefreshToken());
-            if(refreshToken!=null && !jwtServices.isTokenExpiration(refreshToken)){
+            if(!jwtServices.isTokenExpiration(refreshToken)){
                 Claims claims= jwtServices.decodedToken(refreshToken);
                 UserDetails user= this.userDetailsService.loadUserByUsername(claims.getSubject());
                 newToken= jwtServices.GeneratorTokenByRefreshToken(user);
-                redisService.saveDataInRedis(accessTokenKey,newToken, Long.parseLong(expirationToken));
             }else{
                 throw new RefreshTokenException("refreshToken expired");
             }
@@ -160,29 +141,35 @@ public class AuthenticationService {
         }
         if(newToken!=null){
             return AuthenticationResponse.builder()
-                    .token(accessTokenKey)
-                    .refreshToken(refreshTokenKey)
+                    .token(newToken)
+                    .refreshToken(refreshToken)
                     .build();
         }else{
             throw new RefreshTokenException("refreshToken expired");
         }
     }
     @Transactional
-    public Long clearToken() throws Exception {
-        String refreshToken= redisService.getDataFromRedis(refreshTokenKey);
+    public Long logoutOAuth2(String userId, String accessToken) throws Exception {
+        User isUser= userRepository.findByUserNameAndActiveTrue(userId).orElse(null);
+        WhiteList isToken=whiteListRepo.findByToken(accessToken).orElse(null);
+        if(isUser!=null && isToken!=null){
+            return whiteListRepo.deleteByToken(accessToken);
+        }else{
+            throw new Exception("Không thể đăng xuất hoặc chưa đăng nhập");
+        }
+    }
+    @Transactional
+    public Long clearToken(String refreshToken) throws Exception {
         if(refreshToken!=null){
-            Long deleteRecord= whiteListRepo.deleteByToken(refreshToken);
-            redisService.deleteDataInRedis(accessTokenKey);
-            redisService.deleteDataInRedis(refreshTokenKey);
-            return deleteRecord;
+            return whiteListRepo.deleteByToken(refreshToken);
         }else{
             throw new Exception("không thể đăng xuất hoặc chưa đăng nhập!");
         }
 
     }
     @Transactional
-    public String logout() throws Exception {
-        Long deleteRecord=clearToken();
+    public String logout(String refreshToken) throws Exception {
+        Long deleteRecord=clearToken(refreshToken);
         if(deleteRecord>0){
             return "đăng xuất thành công";
         }

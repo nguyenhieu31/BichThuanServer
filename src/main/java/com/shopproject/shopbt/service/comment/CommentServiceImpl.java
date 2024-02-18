@@ -11,10 +11,13 @@ import com.shopproject.shopbt.repository.product.ProductRepository;
 import com.shopproject.shopbt.repository.size.SizeRepository;
 import com.shopproject.shopbt.repository.user.UserRepository;
 import com.shopproject.shopbt.request.CommentRequest;
+import com.shopproject.shopbt.response.RatingCommentResponse;
 import lombok.AllArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 @Service
@@ -60,6 +63,24 @@ public class CommentServiceImpl implements CommentService{
     public Set<Comment> getAllReviewedProduct(User user) throws Exception {
         try{
             return commentRepository.findCommentByUser(user.getUserid());
+        }catch (Exception e){
+            throw new Exception(e.getMessage());
+        }
+    }
+
+    @Override
+    public List<Comment> findCommentByProduct(Long productId) throws Exception {
+        try{
+            return commentRepository.findCommentByProduct(productId);
+        }catch(Exception e){
+            throw new Exception(e.getMessage());
+        }
+    }
+
+    @Override
+    public Set<RatingCommentResponse> getAllRatingByProduct(Long productId) throws Exception {
+        try{
+            return commentRepository.findRatingCommentByProduct(productId);
         }catch (Exception e){
             throw new Exception(e.getMessage());
         }

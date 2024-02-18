@@ -8,13 +8,17 @@ import com.shopproject.shopbt.repository.carts.CartRepository;
 import com.shopproject.shopbt.repository.comment.CommentRepository;
 import com.shopproject.shopbt.repository.order.OrderRepository;
 import com.shopproject.shopbt.repository.user.UserRepository;
+import com.shopproject.shopbt.response.UserResponse;
 import lombok.AllArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -27,6 +31,7 @@ public class UserServiceImpl implements UserService{
     private CommentRepository commentRepository;
     private CartRepository cartRepository;
     private ModelMapper modelMapper;
+//    private static final Logger logger = LoggerFactory.getLogger(User.class);
 
     @Override
     public void create_User(UsersDTO usersDTO) {
@@ -183,5 +188,26 @@ public class UserServiceImpl implements UserService{
     @Override
     public UsersDTO findUserIdByUserName(String name) {
         return userRepository.getUserIdByUserName(name).orElseThrow(() -> new RuntimeException("User not found"));
+    }
+    @Override
+    public Set<UserResponse> getAllUser() {
+//        logger.debug("Calling getAllUser method");
+        return userRepository.findAllUser();
+    }
+
+    @Override
+    public void updateStatusOfUser(boolean status,Long userid,String userName) throws Exception {
+        try{
+            User findUser=userRepository.findById(userid).orElse(null);
+            if(findUser!=null){
+                findUser.setActive(status);
+                findUser.setUpdatedBy(userName);
+                userRepository.save(findUser);
+            }else{
+                throw new Exception("Không tìm thấy người dùng");
+            }
+        }catch(Exception e){
+            throw new Exception(e.getMessage());
+        }
     }
 }

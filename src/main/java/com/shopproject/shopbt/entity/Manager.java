@@ -25,7 +25,7 @@ public class Manager implements UserDetails {
     @Column(name = "manager_name")
     private String managerName;
     private String password;
-    @ManyToMany(fetch = FetchType.EAGER, cascade = {CascadeType.ALL})
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "manager_role",
             joinColumns = {
@@ -39,10 +39,9 @@ public class Manager implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        Collection<? extends GrantedAuthority> authorities= roles.stream()
+        return roles.stream()
                 .map(role->new SimpleGrantedAuthority("ROLE_"+role.getName()))
                 .collect(Collectors.toList());
-        return authorities;
     }
 
     @Override

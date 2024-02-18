@@ -1,16 +1,15 @@
 package com.shopproject.shopbt.service.OAuth2;
 
 
-import com.auth0.jwt.JWT;
-import com.auth0.jwt.interfaces.DecodedJWT;
 import com.shopproject.shopbt.Enum.GrantTypeOAuthGoogle;
-import com.shopproject.shopbt.ExceptionCustom.LogoutException;
 import com.shopproject.shopbt.entity.Address;
 import com.shopproject.shopbt.entity.Cart;
 import com.shopproject.shopbt.entity.User;
+import com.shopproject.shopbt.entity.WhiteList;
+import com.shopproject.shopbt.repository.WhiteList.WhiteListRepo;
 import com.shopproject.shopbt.repository.carts.CartRepository;
 import com.shopproject.shopbt.repository.user.UserRepository;
-import com.shopproject.shopbt.response.OAuth2Response;
+import com.shopproject.shopbt.response.GoogleResponse;
 import com.shopproject.shopbt.service.Redis.RedisService;
 import lombok.RequiredArgsConstructor;
 import org.json.JSONObject;
@@ -21,6 +20,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
+
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Optional;
 
@@ -58,6 +60,7 @@ public class GoogleOAuth2Service {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final CartRepository cartRepository;
+    private final WhiteListRepo whiteListRepo;
     private void clearDataInRedis(){
         redisService.deleteDataInRedis(googleStateKey);
         redisService.deleteDataInRedis(googleIdTokenKey);
@@ -87,7 +90,7 @@ public class GoogleOAuth2Service {
             throw new Exception(e.getMessage());
         }
     }
-    public OAuth2Response authenticateCodeOAuth2(String code) throws Exception {
+    public GoogleResponse authenticateCodeOAuth2(String code) throws Exception {
         try{
             MultiValueMap<String,String> request= new LinkedMultiValueMap<>();
             addRequestOAuthInfo(request, code, GrantTypeOAuthGoogle.authorization_code.toString());
@@ -100,16 +103,8 @@ public class GoogleOAuth2Service {
             ResponseEntity<String> response= restTemplate.postForEntity(googleTokenEndpoint,entity,String.class);
             JSONObject jsonResponse= new JSONObject(response.getBody());
             String accessToken= jsonResponse.getString("access_token");
-            String refreshToken= jsonResponse.getString("refresh_token");
-            String idToken= jsonResponse.getString("id_token");
-            if(accessToken!=null && refreshToken!=null && idToken!=null){
-                redisService.saveDataInRedis(accessTokenKey,accessToken,Long.parseLong(googleExpiresAccessToken));
-                redisService.saveDataInRedis(refreshTokenKey,refreshToken,Long.parseLong(googleExpiresRefreshToken));
-                redisService.saveDataInRedis(googleIdTokenKey,idToken,Long.parseLong(googleExpiresAccessToken));
-                OAuth2Response userInfo= extractUserInfo(accessToken);
-                userInfo.setAccessToken(accessTokenKey);
-                userInfo.setRefreshToken(refreshTokenKey);
-                return userInfo;
+            if(accessToken!=null){
+                return extractUserInfo(accessToken);
             }else{
                 throw new Exception("login failed");
             }
@@ -117,7 +112,7 @@ public class GoogleOAuth2Service {
             throw new Exception(e.getMessage());
         }
     }
-    private OAuth2Response extractUserInfo(String accessToken) throws Exception {
+    private GoogleResponse extractUserInfo(String accessToken) throws Exception {
         try{
             HttpHeaders headers= new HttpHeaders();
             headers.set("Authorization","Bearer "+accessToken);
@@ -128,7 +123,7 @@ public class GoogleOAuth2Service {
             String sub= jsonRes.getString("sub");
             String email= jsonRes.getString("email");
             if(fullName!=null&& sub!=null && email!=null){
-                Optional<User> isUser= userRepository.findByEmail(email);
+                Optional<User> isUser= userRepository.findByUserNameAndActiveTrue(sub);
                 if(isUser.isEmpty()){
                     var user= User.builder()
                             .userName(sub)
@@ -152,13 +147,27 @@ public class GoogleOAuth2Service {
                     userRepository.save(user);
                     cartRepository.save(cart);
                 }
-                redisService.saveDataInRedis("name",fullName,Long.parseLong(googleExpiresRefreshToken));
-                redisService.saveDataInRedis("email",email,Long.parseLong(googleExpiresRefreshToken));
-                redisService.saveDataInRedis(googleStateKey,"OAuth2Google",Long.parseLong(googleExpiresRefreshToken));
-                return OAuth2Response.builder()
-                        .accessToken(null)
-                        .refreshToken(null)
+                LocalDateTime now = LocalDateTime.now();
+                LocalDateTime expires= now.plusDays(2);
+                Duration duration= Duration.between(now,expires);
+                Long seconds= duration.getSeconds();
+                WhiteList isToken= whiteListRepo.findByUserId(sub).orElse(null);
+                if (isToken!=null){
+                    isToken.setToken(accessToken);
+                    whiteListRepo.save(isToken);
+                }else{
+                    var saveToken= WhiteList.builder()
+                            .token(accessToken)
+                            .expirationToken(expires)
+                            .userId(sub)
+                            .build();
+                    whiteListRepo.save(saveToken);
+                }
+                return GoogleResponse.builder()
+                        .accessToken(accessToken)
                         .fullName(fullName)
+                        .userId(sub)
+                        .expiresIn(seconds)
                         .build();
             }else{
                 throw new Exception("Can't get user info to accessToken");
@@ -167,71 +176,75 @@ public class GoogleOAuth2Service {
             throw new Exception(e.getMessage());
         }
     }
-    private String refreshToken(String refreshTokenKey) {
-        try{
-            String refreshToken= redisService.getDataFromRedis(refreshTokenKey);
-            if(refreshToken!=null){
-                HttpHeaders headers= new HttpHeaders();
-                headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
-                MultiValueMap<String,String> request= new LinkedMultiValueMap<>();
-                addRequestOAuthInfo(request, null, GrantTypeOAuthGoogle.refresh_token.toString());
-                request.set("refresh_token",refreshToken);
-                HttpEntity<MultiValueMap<String,String>> entity= new HttpEntity<>(request,headers);
-                ResponseEntity<String> response= restTemplate.exchange(googleTokenEndpoint,HttpMethod.POST,entity, String.class);
-                if(response.getStatusCode()==HttpStatus.OK){
-                    return response.getBody();
-                }else{
-                    throw new RuntimeException("Token refresh failed");
-                }
-            }else{
-                throw new Exception("refreshToken expires");
-            }
-        }catch (Exception e){
-            return null;
-        }
-    }
-    public boolean checkExpiresAccessToken() throws Exception {
-            String refreshToken= redisService.getDataFromRedis(refreshTokenKey);
-            String idToken= redisService.getDataFromRedis(googleIdTokenKey);
-            if(refreshToken!=null && idToken != null){
-                DecodedJWT jwt= JWT.decode(idToken);
-                long expiration= jwt.getClaim("exp").asLong()*1000;
-                long currenTime= System.currentTimeMillis();
-                if(Math.abs(currenTime-expiration)<=50000){
-                    String response= refreshToken(refreshTokenKey);
-                    JSONObject jsonResponse= new JSONObject(response);
-                    String newToken= jsonResponse.getString("access_token");
-                    redisService.saveDataInRedis(accessTokenKey,newToken,Long.parseLong(googleExpiresAccessToken));
-                    return true;
-                }
-                return expiration > currenTime;
-            }else if(refreshToken != null){
-                String response= refreshToken(refreshTokenKey);
-                JSONObject jsonResponse= new JSONObject(response);
-                String newToken= jsonResponse.getString("access_token");
-                String newIdToken= jsonResponse.getString("id_token");
-                redisService.saveDataInRedis(accessTokenKey,newToken,Long.parseLong(googleExpiresAccessToken));
-                redisService.saveDataInRedis(googleIdTokenKey,newIdToken,Long.parseLong(googleExpiresAccessToken));
-                return true;
-            }else{
-                throw new Exception("token is not found");
-            }
-    }
-    public String logout() throws Exception {
-        try{
-            String accessToken= redisService.getDataFromRedis(accessTokenKey);
-            if(accessToken!=null){
-                ResponseEntity<String> response= revokeToken(accessToken);
-                return response.getBody();
-            }
-            String refreshToken= redisService.getDataFromRedis(refreshTokenKey);
-            if(refreshToken!=null){
-                ResponseEntity<String> response= revokeToken(refreshToken);
-                return response.getBody();
-            }
-            throw new LogoutException("Đăng xuất thất bại!");
-        }catch (Exception e){
-            throw new LogoutException(e.getMessage());
-        }
-    }
+//    private String refreshToken(String refreshTokenKey) {
+//        try{
+//            String refreshToken= redisService.getDataFromRedis(refreshTokenKey);
+//            if(refreshToken!=null){
+//                HttpHeaders headers= new HttpHeaders();
+//                headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+//                MultiValueMap<String,String> request= new LinkedMultiValueMap<>();
+//                addRequestOAuthInfo(request, null, GrantTypeOAuthGoogle.refresh_token.toString());
+//                request.set("refresh_token",refreshToken);
+//                HttpEntity<MultiValueMap<String,String>> entity= new HttpEntity<>(request,headers);
+//                ResponseEntity<String> response= restTemplate.exchange(googleTokenEndpoint,HttpMethod.POST,entity, String.class);
+//                if(response.getStatusCode()==HttpStatus.OK){
+//                    return response.getBody();
+//                }else{
+//                    throw new RuntimeException("Token refresh failed");
+//                }
+//            }else{
+//                throw new Exception("refreshToken expires");
+//            }
+//        }catch (Exception e){
+//            return null;
+//        }
+//    }
+//    public String generatorTokenFromRefreshToken(String refreshTokenKey){
+//        String response = refreshToken(refreshTokenKey);
+//        JSONObject jsonResponse = new JSONObject(response);
+//        String newToken = jsonResponse.getString("access_token");
+//        String newIdToken = jsonResponse.getString("id_token");
+//        redisService.saveDataInRedis(accessTokenKey, newToken, Long.parseLong(googleExpiresAccessToken));
+//        redisService.saveDataInRedis(googleIdTokenKey, newIdToken, Long.parseLong(googleExpiresAccessToken));
+//        return newToken!=null?accessTokenKey:null;
+//    }
+//    public boolean isAccessTokenNotExpired() throws Exception {
+//        boolean result = true;
+//        String refreshToken = redisService.getDataFromRedis(refreshTokenKey);
+//        String idToken = redisService.getDataFromRedis(googleIdTokenKey);
+//        if (refreshToken != null && idToken != null) {
+//            DecodedJWT jwt = JWT.decode(idToken);
+//            long expiration = jwt.getClaim("exp").asLong() * 1000;
+//            long currenTime = System.currentTimeMillis();
+//            if (Math.abs(currenTime - expiration) <= 50000) {
+//                String newToken= generatorTokenFromRefreshToken(refreshTokenKey);
+//                result= newToken != null;
+//            } else {
+//                result = expiration <= currenTime;
+//            }
+//        } else if (refreshToken != null) {
+//            String newToken= generatorTokenFromRefreshToken(refreshTokenKey);
+//            result= newToken != null;
+//        } else {
+//            throw new Exception("token is not found");
+//        }
+//        return !result;
+//    }
+//    public String logout() throws Exception {
+//        try{
+//            String accessToken= redisService.getDataFromRedis(accessTokenKey);
+//            if(accessToken!=null){
+//                ResponseEntity<String> response= revokeToken(accessToken);
+//                return response.getBody();
+//            }
+//            String refreshToken= redisService.getDataFromRedis(refreshTokenKey);
+//            if(refreshToken!=null){
+//                ResponseEntity<String> response= revokeToken(refreshToken);
+//                return response.getBody();
+//            }
+//            throw new LogoutException("Đăng xuất thất bại!");
+//        }catch (Exception e){
+//            throw new LogoutException(e.getMessage());
+//        }
+//    }
 }

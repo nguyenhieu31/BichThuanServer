@@ -1,4 +1,4 @@
-package com.shopproject.shopbt.controller;
+package com.shopproject.shopbt.controller.web;
 
 import com.shopproject.shopbt.ExceptionCustom.LoginException;
 import com.shopproject.shopbt.entity.FreeShippingMember;

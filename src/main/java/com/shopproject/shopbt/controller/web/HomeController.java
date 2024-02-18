@@ -1,4 +1,4 @@
-package com.shopproject.shopbt.controller;
+package com.shopproject.shopbt.controller.web;
 
 import com.shopproject.shopbt.dto.ProductsDTO;
 import com.shopproject.shopbt.request.OffsetBasedPageRequest;

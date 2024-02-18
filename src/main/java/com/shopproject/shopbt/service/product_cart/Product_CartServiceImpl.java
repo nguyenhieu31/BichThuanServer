@@ -8,19 +8,14 @@ import com.shopproject.shopbt.repository.product.ProductRepository;
 import com.shopproject.shopbt.repository.product_cart.Product_CartRepository;
 import com.shopproject.shopbt.repository.user.UserRepository;
 import com.shopproject.shopbt.request.AddToCartRequest;
-import com.shopproject.shopbt.request.CartRequest;
 import com.shopproject.shopbt.request.ProductCartRequest;
 import com.shopproject.shopbt.response.CartResponse;
-import com.shopproject.shopbt.service.Redis.RedisService;
-import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
-import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.security.auth.login.LoginException;
 import java.util.*;
@@ -32,9 +27,6 @@ public class Product_CartServiceImpl implements Product_CartService{
     private final CartRepository cartRepository;
     private final ProductRepository productRepository;
     private final UserRepository userRepository;
-    private final RedisService redisService;
-    @Value("${GOOGLE.STATE_KEY}")
-    private String googleState;
     @Override
     public String create_Product_Cart(Long id, AddToCartRequest request) throws LoginException, ProductException {
         Authentication authentication= SecurityContextHolder.getContext().getAuthentication();
@@ -46,16 +38,18 @@ public class Product_CartServiceImpl implements Product_CartService{
                 Optional<Product_Cart> isProductCart= productCartRepository.findByProduct_ProductIdAndSizeAndCart_CartId(id,request.getSize(),findCartByUserId.getCartId());
                 try{
                     if(isProductCart.isPresent()){
-                        if(!(isProductCart.get().getQuantity()==product.getQuantity())){
+                        if((isProductCart.get().getQuantity()<product.getQuantity()) && (isProductCart.get().getQuantity()+request.getQuantity()<=product.getQuantity()) ){
                             Product_Cart existingProductCart = isProductCart.get();
-                            existingProductCart.setQuantity(existingProductCart.getQuantity() + request.getQuantity());
+                            if(existingProductCart.getStatus()==1){
+                                existingProductCart.setStatus(0);
+                                existingProductCart.setQuantity(request.getQuantity());
+                            }else{
+                                existingProductCart.setQuantity(existingProductCart.getQuantity() + request.getQuantity());
+                            }
                             productCartRepository.save(existingProductCart);
                         }else{
                             throw new ProductException("Không thể thêm sản phẩm quá số lượng trong kho đang có");
                         }
-                        Product_Cart existingProductCart = isProductCart.get();
-                        existingProductCart.setQuantity(existingProductCart.getQuantity() + request.getQuantity());
-                        productCartRepository.save(existingProductCart);
                     }else{
                         var productCart= Product_Cart.builder()
                                 .product(product)
@@ -166,11 +160,16 @@ public class Product_CartServiceImpl implements Product_CartService{
     }
 
     @Override
-    public void update_Product_Cart(ProductCartsDTO productCartsDTO) {
-        Product_Cart update_product_cart = productCartRepository.findById(productCartsDTO.getProductCartId()).get();
-        update_product_cart = readProduct_CartDTO(update_product_cart, productCartsDTO);
-
-        productCartRepository.save(update_product_cart);
+    public Product_Cart updateStatusCart(Long productCartId, int status) throws Exception {
+        Product_Cart isProductCart= productCartRepository.findByProduct_cart_id(productCartId);
+        if(isProductCart!=null){
+            if(isProductCart.getStatus()!=status){
+                isProductCart.setStatus(status==0?0:1);
+            }
+            return productCartRepository.save(isProductCart);
+        }else{
+            throw new Exception("không tìm thấy product cart");
+        }
     }
 
 //    @Override
@@ -204,15 +203,20 @@ public class Product_CartServiceImpl implements Product_CartService{
 //    }
 
     @Override
-    public void delete_Product_CartById(Long productCartId) {
-        productCartRepository.deleteById(productCartId);
+    @Transactional
+    public void delete_Product_CartById(Long productCartId) throws Exception {
+        try{
+            productCartRepository.deleteById(productCartId);
+        }catch(Exception e){
+            throw new Exception(e.getMessage());
+        }
     }
 
     @Override
     public List<CartResponse> updateCart(String userName) throws Exception {
         try{
             if(userName!=null){
-                Optional<User> findUserByUserName= userRepository.findByUserName(userName);
+                Optional<User> findUserByUserName= userRepository.findByUserNameAndActiveTrue(userName);
                 if(findUserByUserName.isPresent()){
                     Cart findCartByUserId= cartRepository.findByUser_Userid(findUserByUserName.get().getUserid());
                     return findProduct_CartByCartId(findCartByUserId.getCartId());

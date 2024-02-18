@@ -1,5 +1,4 @@
 package com.shopproject.shopbt.entity;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -29,17 +28,33 @@ public class User implements UserDetails {
     @Column(name="password", nullable = false, length = 150)
     private String password;
     @Column(name = "email",unique = true)
-    private String email; // for OAuth2
-    @Column(name = "phone_number", nullable = true,unique = true, length = 11)
+    private String email;
+    @Column(name = "phone_number",unique = true, length = 11)
     private String phoneNumber;
     @Column(name = "role", nullable = false, length = 10)
     private String role;
+    @Column(name = "active")
+    private boolean active;
+    @Column(name = "updatedBy")
+    private String updatedBy;
     @CreationTimestamp
     @Column(nullable = false)
     private LocalDateTime createdAt;
     @UpdateTimestamp
     @Column(nullable = false)
     private LocalDateTime updatedAt;
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "user")
+    private Set<Order> orders = new HashSet<Order>(0);
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "user")
+    private Set<Comment> comments = new HashSet<Comment>(0);
+    @OneToMany(mappedBy = "user",fetch = FetchType.LAZY)
+    private Set<User_Voucher> userVouchers;
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+    private Set<FreeShippingMember> freeShippingMembers;
+    @OneToMany(fetch = FetchType.EAGER,mappedBy = "user", cascade = { CascadeType.MERGE, CascadeType.REMOVE,CascadeType.REFRESH, CascadeType.DETACH })
+    private Set<Address> addresses= new HashSet<Address>();
+    @OneToOne(fetch = FetchType.LAZY, mappedBy = "user")
+    private Cart cart;
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();
@@ -49,28 +64,14 @@ public class User implements UserDetails {
     protected void onUpdate() {
         updatedAt = LocalDateTime.now();
     }
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "user")
-    private Set<Order> orders = new HashSet<Order>(0);
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "user")
-    private Set<Comment> comments = new HashSet<Comment>(0);
-    @OneToMany(mappedBy = "user",fetch = FetchType.LAZY)
-    private Set<User_Voucher> userVouchers;
-    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
-    private Set<FreeShippingMember> freeShippingMembers;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority("ROLE_" + role));
     }
-    @OneToMany(fetch = FetchType.EAGER,mappedBy = "user", cascade = { CascadeType.MERGE, CascadeType.REMOVE,CascadeType.REFRESH, CascadeType.DETACH })
-    private Set<Address> addresses= new HashSet<Address>();
-//    @OneToMany(fetch = FetchType.LAZY, mappedBy = "user")
-//    private Set<Order> orders = new HashSet<Order>(0);
-    @OneToOne(fetch = FetchType.LAZY, mappedBy = "user")
-    private Cart cart;
     @Override
     public String getUsername() {
-        return email!=null?email:userName;
+        return userName;
     }
     @Override
     public boolean isAccountNonExpired() {

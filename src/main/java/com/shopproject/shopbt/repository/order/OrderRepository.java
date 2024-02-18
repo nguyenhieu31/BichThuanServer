@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -17,7 +18,8 @@ import java.util.Set;
 public interface OrderRepository extends JpaRepository<Order, Long>{
     @Query("SELECT new com.shopproject.shopbt.dto.OrdersDTO(o.orderId, o.createdAt, o.status, o.user.userName) FROM Order o")
     Page<OrdersDTO> findByOrderDate(Pageable pageable);
-
+    @Query("SELECT o from Order o")
+    Set<OrdersDTO> findAllOrder();
     @Query("select o from Order o where o.user.userid = :orderId")
     List<Order> findOrdersByUser_Userid(@Param("orderId") Long orderId);
 
@@ -25,7 +27,7 @@ public interface OrderRepository extends JpaRepository<Order, Long>{
     Page<OrdersDTO> findLatestOrders(Pageable pageable);
 
     @Query("""
-    SELECT new com.shopproject.shopbt.dto.OrdersDTO(o.orderId, o.status, u.fullName, o.address, p.image, p.name, ot.pricePerUnit, ot.quantity, ot.size, ot.color)
+    SELECT new com.shopproject.shopbt.dto.OrdersDTO(o.orderId, o.status, u.fullName, o.address, p.image, p.name, ot.pricePerUnit, ot.quantity, ot.size, ot.color,o.orderCode,o.createdAt)
     FROM Order o
     JOIN OrderItem ot ON o.orderId = ot.order.orderId
     JOIN Product p ON ot.product.productId = p.productId
@@ -36,7 +38,7 @@ public interface OrderRepository extends JpaRepository<Order, Long>{
     Optional<Order> findOrderByOrderId(@Param("id") Long id);
 
     @Query("""
-            SELECT new com.shopproject.shopbt.dto.OrdersDTO(o.orderId, o.status, u.fullName, o.address, p.image, p.name, ot.pricePerUnit, ot.quantity, ot.size, ot.color)
+            SELECT new com.shopproject.shopbt.dto.OrdersDTO(o.orderId, o.status, u.fullName, o.address, p.image, p.name, ot.pricePerUnit, ot.quantity, ot.size, ot.color,o.orderCode,o.createdAt)
             FROM Order o
             JOIN OrderItem ot ON o.orderId = ot.order.orderId
             JOIN Product p ON ot.product.productId = p.productId

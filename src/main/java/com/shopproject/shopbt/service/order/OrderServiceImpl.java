@@ -20,6 +20,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -79,7 +80,9 @@ public class OrderServiceImpl implements OrderService{
     public OrdersDTO create_Order(CreateOrderRequest request, User user) throws Exception {
         try{
             Set<ProductPayment> orderItems= request.getProductsPayment();
+            UUID randomCode= UUID.randomUUID();
             Order orderGenerator= Order.builder()
+                    .orderCode(randomCode)
                     .user(user)
                     .isOrdered(request.isOrdered())
                     .phonePersonOrder(request.getPhonePersonOrder())
@@ -113,21 +116,17 @@ public class OrderServiceImpl implements OrderService{
         OrdersDTO ordersDTO = new OrdersDTO();
         ordersDTO.setStatus(order.getStatus());
         ordersDTO.setUserId(order.getUser().getUserid());
-        ordersDTO.setCreateAt(order.getCreatedAt());
+        ordersDTO.setCreatedAt(order.getCreatedAt());
         ordersDTO.setOrderId(order.getOrderId());
-        ordersDTO.setUpdateAt(order.getUpdatedAt());
+        ordersDTO.setUpdatedAt(order.getUpdatedAt());
         ordersDTO.setAddress(order.getAddress());
         return ordersDTO;
     }
 
     private Order readOrderDTO(OrdersDTO ordersDTO){
         Order order = new Order();
-        order.setOrderId(ordersDTO.getOrderId());
-        User user = userRepository.findById(ordersDTO.getUserId()).orElse(null);
-        order.setUser(user);
+        order = orderRepository.findOrderByOrderId(ordersDTO.getOrderId()).orElseThrow();
         order.setStatus(ordersDTO.getStatus());
-        order.setCreatedAt(ordersDTO.getCreateAt());
-        order.setAddress(ordersDTO.getAddress());
         return order;
     }
 
@@ -163,7 +162,6 @@ public class OrderServiceImpl implements OrderService{
     @Override
     public List<OrdersDTO> findLatestOrders(Pageable pageable) {
         Page<OrdersDTO> ordersPage = orderRepository.findLatestOrders(pageable);
-
         return ordersPage.getContent();
     }
 

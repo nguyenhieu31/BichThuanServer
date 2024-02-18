@@ -9,22 +9,22 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
 public class TestSize {
-    @Autowired
-    private SizeService sizeService;
-
-    @Test
-    void create(){
-//        SizesDTO sizesDTO = new SizesDTO();
-//        sizesDTO.setName("M");
+//    @Autowired
+//    private SizeService sizeService;
 //
-//        sizeService.create_Size(sizesDTO);
-    }
-
-    @Test
-    void findById(){
-//        Long id = 1L;
-//        SizesDTO sizesDTO = sizeService.findSizeById(id);
+//    @Test
+//    void create(){
+////        SizesDTO sizesDTO = new SizesDTO();
+////        sizesDTO.setName("M");
+////
+////        sizeService.create_Size(sizesDTO);
+//    }
 //
-//        System.out.println(sizesDTO.getName());
-    }
+//    @Test
+//    void findById(){
+////        Long id = 1L;
+////        SizesDTO sizesDTO = sizeService.findSizeById(id);
+////
+////        System.out.println(sizesDTO.getName());
+//    }
 }

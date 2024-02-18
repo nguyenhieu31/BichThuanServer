@@ -5,6 +5,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
 @Data
 @Builder
 @NoArgsConstructor
@@ -15,8 +17,10 @@ public class CommentResponse {
     private String nameProduct;
     private String color;
     private String size;
+    private Float rating;
     private String descriptionProductQuality;
     private String descriptionFeature;
     private String userName;
     private boolean isActive;
+    private LocalDateTime createdAt;
 }

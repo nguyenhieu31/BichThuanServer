@@ -1,4 +1,4 @@
-package com.shopproject.shopbt.controller;
+package com.shopproject.shopbt.controller.web;
 
 import com.shopproject.shopbt.dto.OrderItemsDTO;
 import com.shopproject.shopbt.dto.OrdersDTO;

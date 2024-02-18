@@ -100,7 +100,7 @@ public class JwtServices {
         final String[] newToken= new String[1];
         for (WhiteList item : tokens) {
             try {
-                if (!isTokenExpiration(item.getToken())) {
+                if (item.getUserId()==null && !isTokenExpiration(item.getToken())) {
                     final String userName = ExtractUserName(item.getToken());
                     if (userName.equals(userDetails.getUsername())) {
                         UserDetails user = this.userDetailsService.loadUserByUsername(userName);

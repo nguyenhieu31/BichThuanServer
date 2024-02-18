@@ -1,6 +1,8 @@
 package com.shopproject.shopbt.service.user;
 
 import com.shopproject.shopbt.dto.UsersDTO;
+import com.shopproject.shopbt.entity.User;
+import com.shopproject.shopbt.response.UserResponse;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -26,4 +28,6 @@ public interface UserService {
     Set<UsersDTO> findAllUserRegisterBy7Days();
 
     UsersDTO findUserIdByUserName(String name);
+    Set<UserResponse> getAllUser();
+    void updateStatusOfUser(boolean status, Long userId,String userName) throws Exception;
 }

@@ -1,4 +1,4 @@
-package com.shopproject.shopbt.controller;
+package com.shopproject.shopbt.controller.web;
 
 import com.shopproject.shopbt.dto.CategoriesDTO;
 import com.shopproject.shopbt.dto.ProductsDTO;
@@ -7,6 +7,8 @@ import com.shopproject.shopbt.request.OffsetBasedPageRequest;
 import com.shopproject.shopbt.service.catrgory.CategoryService;
 import com.shopproject.shopbt.service.product.ProductService;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
@@ -76,22 +78,12 @@ public class ShopController {
     @GetMapping("/shop/products/sort")
     public ResponseEntity<?> findALlProductBySortPrice(@RequestParam("sortName") String sortName,@RequestParam int offset, @RequestParam int limit){
         try{
-            Pageable pageable=null;
-            if(sortName.equals("increase")){
-                pageable=new OffsetBasedPageRequest(offset,limit,Sort.Direction.ASC,"price");
-            }else{
-                pageable= new OffsetBasedPageRequest(offset,limit,Sort.Direction.DESC,"price");
-            }
+            Pageable pageable= new OffsetBasedPageRequest(offset,limit,sortName.equals("increase")? Sort.by("price").and(Sort.by("name")):Sort.by("price").descending().and(Sort.by("name")));
             Set<ProductsDTO> products= productService.findALLByLimitOffset(pageable);
-            products=sortName.equals("increase")?products.stream().sorted(Comparator.comparing(ProductsDTO::getPrice)).collect(Collectors.toCollection(LinkedHashSet::new)):
-                    products.stream().sorted(Comparator.comparing(ProductsDTO::getPrice).reversed()).collect(Collectors.toCollection(LinkedHashSet::new));
-            List<ProductsDTO> productsDTOS= new ArrayList<>();
-            for(ProductsDTO product:products){
-                productsDTOS.add(product);
-            }
+            List<ProductsDTO> productsDTOS = new ArrayList<>(products);
             return ResponseEntity.status(HttpStatus.OK).body(productsDTOS);
         }catch(Exception e){
-            return ResponseEntity.status(HttpStatus.OK).body(e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         }
     }
     @GetMapping("/shop/products/category")

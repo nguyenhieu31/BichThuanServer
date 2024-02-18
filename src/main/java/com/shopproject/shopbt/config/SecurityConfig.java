@@ -1,6 +1,8 @@
 package com.shopproject.shopbt.config;
 
 import com.shopproject.shopbt.filter.JwtAuthenticationFilter;
+import com.shopproject.shopbt.filter.JwtAuthorizationFilter;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +24,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfig {
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final AuthenticationProvider authenticationProvider;
+    private final JwtAuthorizationFilter jwtAuthorizationFilter;
     @Bean
     public SecurityFilterChain filterChain(@NotNull HttpSecurity http) throws Exception{
         http
@@ -30,12 +33,12 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth ->
                         auth.requestMatchers("/**","/socket.io/**").permitAll()
                                 .requestMatchers("/web/cart/**",
-                                        "/web/auth/update-address",
                                         "/web/voucher/**",
                                         "/web/address/**",
                                         "/web/order/**",
                                         "/web/comment/**"
                                 ).hasRole("USER")
+                                .requestMatchers("/auth/update-address","/auth/checkStateLogin").hasAnyRole("ADMIN","USER")
                                 .requestMatchers("/system/**").hasRole("ADMIN")
                                 .anyRequest().authenticated()
                 )
@@ -44,12 +47,15 @@ public class SecurityConfig {
                 )
                 .authenticationProvider(authenticationProvider)
                 .logout((logout)->logout
-                        .logoutUrl("/auth/logout")
                         .clearAuthentication(true)
                         .invalidateHttpSession(true)
                         .permitAll()
+                        .logoutSuccessHandler((request, response, authentication) -> {
+                            response.setStatus(HttpServletResponse.SC_ACCEPTED);
+                        })
                 )
-                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(jwtAuthorizationFilter, JwtAuthenticationFilter.class);
         return http.build();
     }
 }

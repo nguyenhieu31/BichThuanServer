@@ -22,13 +22,13 @@ public class Roles {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String name;
-    @ManyToMany(mappedBy = "roles", fetch = FetchType.EAGER, cascade = {CascadeType.ALL})
+    @ManyToMany(mappedBy = "roles", fetch = FetchType.EAGER)
     private List<Manager> managers;
-    @Override
-    public String toString() {
-        return "RoleEntity{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-                '}';
-    }
+//    @Override
+//    public String toString() {
+//        return "RoleEntity{" +
+//                "id=" + id +
+//                ", name='" + name + '\'' +
+//                '}';
+//    }
 }

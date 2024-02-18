@@ -1,4 +1,4 @@
-package com.shopproject.shopbt.controller;
+package com.shopproject.shopbt.controller.admin;
 
 import com.shopproject.shopbt.dto.ProductsDTO;
 import com.shopproject.shopbt.entity.Product;

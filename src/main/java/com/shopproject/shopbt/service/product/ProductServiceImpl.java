@@ -129,14 +129,12 @@ public class ProductServiceImpl implements ProductService{
             }
             productsDTO.setSizeNames(sizeNames);
             productsDTO.setGalleryImages(product.getGallery_images());
-
             productsDTO.setUpdatedAt(product.getUpdatedAt());
             productsDTO.setUpdatedBy(product.getUpdatedBy());
             return productsDTO;
     }
     private ProductsDTO ConvertToDto(Object[] product) {
         ProductsDTO productsDTO = new ProductsDTO();
-        System.out.println(product[0]);
         productsDTO.setProductId((Long) product[0]);
         productsDTO.setImage((String) product[1]);
         productsDTO.setName((String) product[2]);

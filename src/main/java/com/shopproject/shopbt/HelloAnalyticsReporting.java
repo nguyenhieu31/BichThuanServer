@@ -33,7 +33,7 @@ public class HelloAnalyticsReporting {
     private static final String APPLICATION_NAME = "Hello Analytics Reporting";
     private static final JsonFactory JSON_FACTORY = getDefaultInstance();
 
-    private static final String KEY_FILE_LOCATION = "D:/Desktop/project/project_shopbt-v2/src/main/resources/bichthuan-google-analytics.json";
+    private static final String KEY_FILE_LOCATION = "D:/Desktop/project/project_shopbt-v2/src/main/resources/bichthuanshop-1001.json";
     private static final String VIEW_ID = "415621232";
     public static JsonFactory getDefaultInstance(){
         return new GsonFactory();

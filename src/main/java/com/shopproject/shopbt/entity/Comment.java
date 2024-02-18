@@ -7,6 +7,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 @Setter
@@ -27,7 +28,8 @@ public class Comment {
     @JsonIgnore
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
-    @OneToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JsonIgnore
     @JoinColumn(name = "product_id",nullable = false)
     private Product product;
     @Column(nullable = false)

@@ -1,5 +1,6 @@
-package com.shopproject.shopbt.controller;
+package com.shopproject.shopbt.controller.admin;
 
+import com.google.api.Http;
 import com.shopproject.shopbt.dto.OrdersDTO;
 import com.shopproject.shopbt.service.order.OrderService;
 import lombok.AllArgsConstructor;
@@ -30,6 +31,14 @@ public class AdminOrderController {
             orderService.delete_OrderById(orderId);
             return ResponseEntity.status(HttpStatus.OK).body("Successfully");
         } catch (Exception e){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+    }
+    @GetMapping("/orders")
+    public ResponseEntity<?> getAllOrderOfUser(){
+        try{
+            return ResponseEntity.status(HttpStatus.OK).body(null);
+        }catch(Exception e){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
     }

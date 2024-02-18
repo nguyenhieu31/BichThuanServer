@@ -7,10 +7,11 @@ import lombok.NoArgsConstructor;
 
 @Data
 @Builder
-@AllArgsConstructor
 @NoArgsConstructor
-public class OAuth2Response {
+@AllArgsConstructor
+public class FaceBookResponse {
     private String accessToken;
-    private String refreshToken;
+    private String userId;
     private String fullName;
+    private Long expiresIn;
 }

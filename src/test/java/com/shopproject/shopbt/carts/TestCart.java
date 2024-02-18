@@ -10,33 +10,33 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
 public class TestCart {
-    @Autowired
-    private CartService cartService;
-    @Autowired
-    private UserService userService;
-
-    @Test
-    void create(){
-//        CartsDTO cartsDTO = new CartsDTO();
+//    @Autowired
+//    private CartService cartService;
+//    @Autowired
+//    private UserService userService;
+//
+//    @Test
+//    void create(){
+////        CartsDTO cartsDTO = new CartsDTO();
+////        Long id = 13L;
+////        cartsDTO.setUserId(id);
+////
+////        cartService.create_Cart(cartsDTO);
+//    }
+//
+//    @Test
+//    void findById(){
+//        Long id = 2L;
+////        CartsDTO cartsDTO = cartService.findCartById(id);
+////        UsersDTO usersDTO = userService.findByUserId(cartsDTO.getUserId());
+////
+////        System.out.println(usersDTO.getFullName());
+////        System.out.println(usersDTO.getPhoneNumber());
+//    }
+//
+//    @Test
+//    void findByUserid(){
 //        Long id = 13L;
-//        cartsDTO.setUserId(id);
-//
-//        cartService.create_Cart(cartsDTO);
-    }
-
-    @Test
-    void findById(){
-        Long id = 2L;
-//        CartsDTO cartsDTO = cartService.findCartById(id);
-//        UsersDTO usersDTO = userService.findByUserId(cartsDTO.getUserId());
-//
-//        System.out.println(usersDTO.getFullName());
-//        System.out.println(usersDTO.getPhoneNumber());
-    }
-
-    @Test
-    void findByUserid(){
-        Long id = 13L;
-//        CartsDTO cartsDTO = cartService.findByUserId(id);
-    }
+////        CartsDTO cartsDTO = cartService.findByUserId(id);
+//    }
 }
