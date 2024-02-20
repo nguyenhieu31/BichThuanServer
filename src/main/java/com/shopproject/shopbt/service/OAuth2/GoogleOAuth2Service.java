@@ -9,11 +9,6 @@ import com.shopproject.shopbt.repository.WhiteList.WhiteListRepo;
 import com.shopproject.shopbt.repository.carts.CartRepository;
 import com.shopproject.shopbt.repository.user.UserRepository;
 import com.shopproject.shopbt.response.GoogleResponse;
-import com.auth0.jwt.JWT;
-import com.auth0.jwt.interfaces.DecodedJWT;
-import com.shopproject.shopbt.ExceptionCustom.LogoutException;
-import com.shopproject.shopbt.response.OAuth2Response;
-import com.shopproject.shopbt.service.Redis.RedisService;
 import lombok.RequiredArgsConstructor;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Value;
@@ -45,32 +40,19 @@ public class GoogleOAuth2Service {
     private String googleGrantType;
     @Value("${GOOGLE.REDIRECT_URI}")
     private String googleRedirectUri;
-    @Value("${GOOGLE.STATE_KEY}")
-    private String googleStateKey;
-    @Value("${ACCESS_TOKEN_KEY}")
-    private String  accessTokenKey;
-    @Value("${REFRESH_TOKEN_KEY}")
-    private String refreshTokenKey;
-    @Value("${GOOGLE.EXPIRES_ACCESS-TOKEN}")
-    private String googleExpiresAccessToken;
-    @Value("${GOOGLE.EXPIRES_REFRESH-TOKEN}")
-    private String googleExpiresRefreshToken;
-    @Value("${GOOGLE.ID-TOKEN}")
-    private String googleIdTokenKey;
-    private final RedisService redisService;
     private final RestTemplate restTemplate;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final CartRepository cartRepository;
     private final WhiteListRepo whiteListRepo;
-    private void clearDataInRedis(){
-        redisService.deleteDataInRedis(googleStateKey);
-        redisService.deleteDataInRedis(googleIdTokenKey);
-        redisService.deleteDataInRedis(accessTokenKey);
-        redisService.deleteDataInRedis(refreshTokenKey);
-        redisService.deleteDataInRedis("name");
-        redisService.deleteDataInRedis("email");
-    }
+//    private void clearDataInRedis(){
+//        redisService.deleteDataInRedis(googleStateKey);
+//        redisService.deleteDataInRedis(googleIdTokenKey);
+//        redisService.deleteDataInRedis(accessTokenKey);
+//        redisService.deleteDataInRedis(refreshTokenKey);
+//        redisService.deleteDataInRedis("name");
+//        redisService.deleteDataInRedis("email");
+//    }
     private void addRequestOAuthInfo(MultiValueMap<String,String> request, String code, String grantType){
         if(code!=null){
             request.add("code",code);
@@ -79,19 +61,19 @@ public class GoogleOAuth2Service {
         request.add("client_secret",googleClientSecret);
         request.add("grant_type",grantType);
     }
-    private ResponseEntity<String> revokeToken(String accessToken) throws Exception {
-        try{
-            String uri = googleRevokeTokenEndpoint +
-                    "?token=" + accessToken;
-            MultiValueMap<String,String> request= new LinkedMultiValueMap<>();
-            request.set("Content-Type","application/json");
-            ResponseEntity<String> response= restTemplate.postForEntity(uri,request,String.class);
-            clearDataInRedis();
-            return response;
-        }catch (Exception e){
-            throw new Exception(e.getMessage());
-        }
-    }
+//    private ResponseEntity<String> revokeToken(String accessToken) throws Exception {
+//        try{
+//            String uri = googleRevokeTokenEndpoint +
+//                    "?token=" + accessToken;
+//            MultiValueMap<String,String> request= new LinkedMultiValueMap<>();
+//            request.set("Content-Type","application/json");
+//            ResponseEntity<String> response= restTemplate.postForEntity(uri,request,String.class);
+//            clearDataInRedis();
+//            return response;
+//        }catch (Exception e){
+//            throw new Exception(e.getMessage());
+//        }
+//    }
     public GoogleResponse authenticateCodeOAuth2(String code) throws Exception {
         try{
             MultiValueMap<String,String> request= new LinkedMultiValueMap<>();

@@ -32,6 +32,7 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowCredentials(true);//cho phép sử dụng cookie khi gửi request
+        configuration.addAllowedOrigin("http://localhost:3000");//url của react js
         configuration.addAllowedOrigin("http://localhost:3030");//url của react js
 //        configuration.addAllowedOrigin("http://ip172-18-0-41-clrvv3ufml8g00cob46g-3000.direct.labs.play-with-docker.com");
         configuration.setAllowedMethods(Arrays.asList("GET","POST","PUT","PATCH","DELETE","OPTIONS"));
