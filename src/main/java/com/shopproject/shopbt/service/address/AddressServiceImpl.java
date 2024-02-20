@@ -38,6 +38,12 @@ public class AddressServiceImpl implements AddressService{
     }
     @Override
     public Address create_Address(AddressRequest request, User user) throws AddressException {
+        if(request.getPhonePayment()!=null){
+            Optional<Address> isPhoneAddress=addressRepo.findAddressByPhonePayment(request.getPhonePayment());
+            if(isPhoneAddress.isPresent()){
+                throw new AddressException("số điện thoại đã tồn tại");
+            }
+        }
         Optional<Address> isAddress= addressRepo.findAddressByAddressName(request.getAddress(),user.getUserid());
         if(isAddress.isPresent()
                 && isAddress.get().getProvince().equals(request.getProvinceName())

@@ -1,5 +1,6 @@
 package com.shopproject.shopbt.util;
 
+import com.google.api.Http;
 import com.shopproject.shopbt.response.AuthenticationResponse;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
@@ -16,7 +17,16 @@ public class CookieUtil {
 //        cookie.setSecure(true);
         return cookie;
     }
-    private void generatorToken(HttpServletResponse response, AuthenticationResponse authenticationResponse, String expiresAccessToken, String expiresRefreshToken) {
+//    private void generatorToken(HttpServletResponse response, AuthenticationResponse authenticationResponse, String expiresAccessToken, String expiresRefreshToken) {
+//
+//    public Cookie addAttributeForCookie(Cookie cookie, int expires){
+//        cookie.setMaxAge(expires);
+//        cookie.setPath("/");
+////        cookie.setAttribute("SameSite","None");
+////        cookie.setSecure(true);
+//        return cookie;
+//    }
+    public void generatorTokenCookie(HttpServletResponse response, AuthenticationResponse authenticationResponse) {
         Cookie accessTokenCookie= new Cookie("accessToken",authenticationResponse.getToken());
         Cookie refreshTokenCookie= new Cookie("refreshToken",authenticationResponse.getRefreshToken());
         if(authenticationResponse.getToken()==null || authenticationResponse.getRefreshToken()==null){
@@ -30,9 +40,9 @@ public class CookieUtil {
         response.addCookie(accessTokenCookie);
         response.addCookie(refreshTokenCookie);
     }
-    public void generatorTokenCookie(HttpServletResponse response, AuthenticationResponse authenticationResponse) {
-        generatorToken(response, authenticationResponse, expiresAccessToken, expiresRefreshToken);
-    }
+//    public void generatorTokenCookie(HttpServletResponse response, AuthenticationResponse authenticationResponse) {
+//        generatorToken(response, authenticationResponse, expiresAccessToken, expiresRefreshToken);
+//    }
 //    public void generatorTokenCookieOAuth2(HttpServletResponse response, AuthenticationResponse authenticationResponse){
 //        generatorToken(response, authenticationResponse, expiresAccessTokenGoogle, expiresRefreshTokenGoogle);
 //    }
@@ -49,5 +59,10 @@ public class CookieUtil {
         userIdCookie.setHttpOnly(true);
         response.addCookie(accessTokenCookie);
         response.addCookie(userIdCookie);
+    }
+    public void saveNewTokenCookie(HttpServletResponse response, AuthenticationResponse authenticationResponse){
+        Cookie accessTokenCookie= new Cookie("accessToken", authenticationResponse.getToken());
+        accessTokenCookie=addAttributeForCookie(accessTokenCookie,Integer.parseInt(expiresAccessToken)/1000);
+        response.addCookie(accessTokenCookie);
     }
 }

@@ -1,23 +1,17 @@
 package com.shopproject.shopbt.service.comment;
 
 import com.shopproject.shopbt.dto.CommentsDTO;
-import com.shopproject.shopbt.entity.Color;
 import com.shopproject.shopbt.entity.Comment;
 import com.shopproject.shopbt.entity.Product;
 import com.shopproject.shopbt.entity.User;
-import com.shopproject.shopbt.repository.color.ColorRepository;
 import com.shopproject.shopbt.repository.comment.CommentRepository;
 import com.shopproject.shopbt.repository.product.ProductRepository;
-import com.shopproject.shopbt.repository.size.SizeRepository;
-import com.shopproject.shopbt.repository.user.UserRepository;
 import com.shopproject.shopbt.request.CommentRequest;
 import com.shopproject.shopbt.response.RatingCommentResponse;
 import lombok.AllArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
-
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 
 @Service

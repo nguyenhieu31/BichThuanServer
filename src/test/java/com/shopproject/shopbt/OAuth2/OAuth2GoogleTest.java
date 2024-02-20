@@ -1,5 +1,4 @@
 package com.shopproject.shopbt.OAuth2;
-
 import com.shopproject.shopbt.response.GoogleResponse;
 import com.shopproject.shopbt.service.OAuth2.GoogleOAuth2Service;
 import org.springframework.beans.factory.annotation.Autowired;

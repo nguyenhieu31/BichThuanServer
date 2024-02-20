@@ -1,4 +1,5 @@
 package com.shopproject.shopbt.entity;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -43,6 +44,13 @@ public class User implements UserDetails {
     @UpdateTimestamp
     @Column(nullable = false)
     private LocalDateTime updatedAt;
+    protected void onCreate() {
+        createdAt = LocalDateTime.now();
+    }
+    @PreUpdate
+    protected void onUpdate() {
+        updatedAt = LocalDateTime.now();
+    }
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "user")
     private Set<Order> orders = new HashSet<Order>(0);
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "user")
@@ -51,27 +59,17 @@ public class User implements UserDetails {
     private Set<User_Voucher> userVouchers;
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     private Set<FreeShippingMember> freeShippingMembers;
-    @OneToMany(fetch = FetchType.EAGER,mappedBy = "user", cascade = { CascadeType.MERGE, CascadeType.REMOVE,CascadeType.REFRESH, CascadeType.DETACH })
-    private Set<Address> addresses= new HashSet<Address>();
-    @OneToOne(fetch = FetchType.LAZY, mappedBy = "user")
-    private Cart cart;
-    @PrePersist
-    protected void onCreate() {
-        createdAt = LocalDateTime.now();
-    }
-
-    @PreUpdate
-    protected void onUpdate() {
-        updatedAt = LocalDateTime.now();
-    }
-
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority("ROLE_" + role));
     }
+    @OneToMany(fetch = FetchType.EAGER,mappedBy = "user", cascade = { CascadeType.MERGE, CascadeType.REMOVE,CascadeType.REFRESH, CascadeType.DETACH })
+    private Set<Address> addresses= new HashSet<Address>();
+    @OneToOne(fetch = FetchType.LAZY, mappedBy = "user")
+    private Cart cart;
     @Override
     public String getUsername() {
-        return userName;
+        return email!=null?email:userName;
     }
     @Override
     public boolean isAccountNonExpired() {

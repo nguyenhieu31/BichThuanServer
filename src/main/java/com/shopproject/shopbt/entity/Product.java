@@ -8,6 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -81,5 +82,5 @@ public class Product {
     @OneToMany(fetch = FetchType.EAGER, mappedBy = "product")
     private Set<Gallery_Image> gallery_images = new HashSet<Gallery_Image>(0);
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "product")
-    private List<Comment> comment;
+    private List<Comment> comments = new ArrayList<>();
 }

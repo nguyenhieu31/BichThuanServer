@@ -11,14 +11,11 @@ import com.shopproject.shopbt.repository.user.UserRepository;
 import com.shopproject.shopbt.response.UserResponse;
 import lombok.AllArgsConstructor;
 import org.modelmapper.ModelMapper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 

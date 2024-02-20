@@ -4,13 +4,9 @@ import com.shopproject.shopbt.ExceptionCustom.ProductException;
 import com.shopproject.shopbt.dto.ProductCartsDTO;
 import com.shopproject.shopbt.entity.Product_Cart;
 import com.shopproject.shopbt.request.AddToCartRequest;
-import com.shopproject.shopbt.request.CartRequest;
 import com.shopproject.shopbt.request.ProductCartRequest;
 import com.shopproject.shopbt.response.CartResponse;
-
-import javax.security.auth.login.LoginException;
 import java.util.List;
-import java.util.Set;
 
 public interface Product_CartService {
     String create_Product_Cart(Long id, AddToCartRequest request) throws Exception;

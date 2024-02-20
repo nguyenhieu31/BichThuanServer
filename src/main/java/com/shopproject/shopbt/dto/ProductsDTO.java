@@ -29,6 +29,8 @@ public class ProductsDTO {
     private Set<Color> colorNames;
     private List<String> sizeNames;
     private Set<Gallery_Image> galleryImages;
+    private Set<Long> colorIds;
+    private Set<Long> sizeIds;
     private String color;
     private String size;
     public ProductsDTO() {
@@ -40,5 +42,15 @@ public class ProductsDTO {
         this.quantity = quantity;
         this.color = color;
         this.size = size;
+    }
+    public ProductsDTO(Long productId, String description, String image, String name, BigDecimal price, BigDecimal priceDiscount, int quantity, Long categoryId) {
+        this.productId = productId;
+        this.description = description;
+        this.image = image;
+        this.name = name;
+        this.price = price;
+        this.priceDiscount = priceDiscount;
+        this.quantity = quantity;
+        this.categoryId = categoryId;
     }
 }

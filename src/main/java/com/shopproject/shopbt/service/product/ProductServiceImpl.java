@@ -22,9 +22,6 @@ import java.util.stream.Collectors;
 public class ProductServiceImpl implements ProductService{
     private ProductRepository productRepository;
     private CategoryRepository categoryRepository;
-    private ColorRepository colorRepository;
-    private SizeRepository sizeRepository;
-    private ModelMapper modelMapper;
 
     @Override
     public void create_Product(ProductsDTO productsDTO) {
@@ -43,6 +40,20 @@ public class ProductServiceImpl implements ProductService{
         }
     }
 
+    @Override
+    public List<ProductsDTO> findAllProduct() {
+        try{
+            List<ProductsDTO> allProducts = new ArrayList<>();
+            Set<Long> productsId = productRepository.findAllProductId();
+            productsId.forEach(id -> {
+                Product p = productRepository.findByProductId(id);
+                allProducts.add(readProduct(p, new ProductsDTO()));
+            });
+            return allProducts;
+        } catch (IllegalArgumentException e){
+            throw new IllegalArgumentException(e.getMessage());
+        }
+    }
 
     public ProductsDTO findProductById(Long id) {
         try{
@@ -52,7 +63,6 @@ public class ProductServiceImpl implements ProductService{
             throw new IllegalArgumentException(e.getMessage());
         }
     }
-
     private ProductsDTO ConvertOneDTO(Object[] product) {
         ProductsDTO productsDTO = new ProductsDTO();
         productsDTO.setProductId((Long) product[0]);
@@ -73,7 +83,6 @@ public class ProductServiceImpl implements ProductService{
             Product product = productRepository.findById(productsDTO.getProductId()).orElse(null);
             assert product != null;
             readProductDTO(product, productsDTO);
-
             productRepository.save(product);
         }
         private Product readProductDTO(Product product,ProductsDTO productsDTO){
@@ -86,7 +95,6 @@ public class ProductServiceImpl implements ProductService{
             product.setQuantity(productsDTO.getQuantity());
             Categories category = categoryRepository.findCategoriesByCategoryId(productsDTO.getCategoryId());
             product.setCategory(category);
-
 //        // add set colors
 //        Set<Integer> colorIds = productsDTO.getColorId();
 //        Set<Color> colors = new HashSet<>();

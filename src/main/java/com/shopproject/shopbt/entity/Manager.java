@@ -25,7 +25,7 @@ public class Manager implements UserDetails {
     @Column(name = "manager_name")
     private String managerName;
     private String password;
-    @ManyToMany(fetch = FetchType.EAGER)
+    @ManyToMany(fetch = FetchType.EAGER, cascade = {CascadeType.ALL})
     @JoinTable(
             name = "manager_role",
             joinColumns = {

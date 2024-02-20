@@ -1,6 +1,5 @@
 package com.shopproject.shopbt.service.OAuth2;
 
-
 import com.shopproject.shopbt.Enum.GrantTypeOAuthGoogle;
 import com.shopproject.shopbt.entity.Address;
 import com.shopproject.shopbt.entity.Cart;
@@ -10,6 +9,10 @@ import com.shopproject.shopbt.repository.WhiteList.WhiteListRepo;
 import com.shopproject.shopbt.repository.carts.CartRepository;
 import com.shopproject.shopbt.repository.user.UserRepository;
 import com.shopproject.shopbt.response.GoogleResponse;
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.interfaces.DecodedJWT;
+import com.shopproject.shopbt.ExceptionCustom.LogoutException;
+import com.shopproject.shopbt.response.OAuth2Response;
 import com.shopproject.shopbt.service.Redis.RedisService;
 import lombok.RequiredArgsConstructor;
 import org.json.JSONObject;
@@ -20,7 +23,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
-
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.HashSet;

@@ -26,7 +26,6 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class OrderServiceImpl implements OrderService{
     private final OrderRepository orderRepository;
-    private final UserRepository userRepository;
     private final OrderItemRepository orderItemRepository;
     private final ProductRepository productRepository;
 
@@ -119,6 +118,9 @@ public class OrderServiceImpl implements OrderService{
         ordersDTO.setCreatedAt(order.getCreatedAt());
         ordersDTO.setOrderId(order.getOrderId());
         ordersDTO.setUpdatedAt(order.getUpdatedAt());
+        ordersDTO.setCreateAt(order.getCreatedAt());
+        ordersDTO.setOrderId(order.getOrderId());
+        ordersDTO.setUpdateAt(order.getUpdatedAt());
         ordersDTO.setAddress(order.getAddress());
         return ordersDTO;
     }
@@ -129,8 +131,6 @@ public class OrderServiceImpl implements OrderService{
         order.setStatus(ordersDTO.getStatus());
         return order;
     }
-
-
 //    private OrdersDTO ConvertDTO(Object[] order){
 //        OrdersDTO ordersDTO = new OrdersDTO();
 //        ordersDTO.setOrderId((Long) order[0]);

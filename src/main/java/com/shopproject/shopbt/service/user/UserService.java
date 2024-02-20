@@ -1,7 +1,6 @@
 package com.shopproject.shopbt.service.user;
 
 import com.shopproject.shopbt.dto.UsersDTO;
-import com.shopproject.shopbt.entity.User;
 import com.shopproject.shopbt.response.UserResponse;
 
 import java.time.LocalDateTime;

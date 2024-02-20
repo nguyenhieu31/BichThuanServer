@@ -116,6 +116,7 @@
 			<artifactId>google-api-services-analyticsreporting</artifactId>
 			<version>v4-rev20211020-2.0.0</version>
 		</dependency>
+
 <!--		<dependency>-->
 <!--			<groupId>org.springframework.boot</groupId>-->
 <!--			<artifactId>spring-boot-docker-compose</artifactId>-->
@@ -160,7 +161,6 @@
 			<groupId>ch.qos.logback</groupId>
 			<artifactId>logback-classic</artifactId>
 		</dependency>
-
 	</dependencies>
 
 	<build>

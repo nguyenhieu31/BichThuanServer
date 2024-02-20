@@ -14,6 +14,7 @@ import java.util.Set;
 @AllArgsConstructor
 @NoArgsConstructor
 public class RegisterRequest {
+    private Long id;
     private String userName;
     private String password;
     private List<Roles> roles;

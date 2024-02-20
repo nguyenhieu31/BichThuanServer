@@ -4,8 +4,6 @@ import com.shopproject.shopbt.ExceptionCustom.LoginException;
 import com.shopproject.shopbt.entity.WhiteList;
 import com.shopproject.shopbt.repository.WhiteList.WhiteListRepo;
 import com.shopproject.shopbt.service.JwtServices.JwtServices;
-import com.shopproject.shopbt.service.OAuth2.GoogleOAuth2Service;
-import com.shopproject.shopbt.service.Redis.RedisService;
 import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -13,10 +11,7 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.java.Log;
 import org.jetbrains.annotations.NotNull;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -24,8 +19,6 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
-
-import java.io.EOFException;
 import java.io.IOException;
 import java.time.LocalDateTime;
 
@@ -34,7 +27,6 @@ import java.time.LocalDateTime;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtServices jwtServices;
-
     private final UserDetailsService userDetailsService;
     private final WhiteListRepo whiteListRepo;
     @Override
@@ -55,15 +47,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             filterChain.doFilter(request,response);
             return;
         }
-
         if(request.getServletPath().startsWith("/web")
             && !request.getServletPath().startsWith("/web/cart")
             && !request.getServletPath().startsWith("/web/address")
             && !request.getServletPath().startsWith("/web/voucher")
             && !request.getServletPath().startsWith("/web/order")
             && !request.getServletPath().startsWith("/web/comment")
-            && request.getServletPath().startsWith("/web/comment/product")
-        ){
+            && request.getServletPath().startsWith("/web/comment/product")){
             filterChain.doFilter(request,response);
             return;
         }
@@ -101,27 +91,26 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 }else{
                     throw new Exception("Token không hợp lệ");
                 }
-            }else if(!jwtServices.isTokenInBlackList(token)){
-                    boolean checkExpirationToken= jwtServices.isTokenExpiration(token);
-                    if(!checkExpirationToken){
-                        userName= jwtServices.ExtractUserName(token);
-                        if(userName !=null){
-                            UserDetails userDetails= this.userDetailsService.loadUserByUsername(userName);
-                            if(userName.equals(userDetails.getUsername()) && !jwtServices.isTokenExpiration(token)) {
-                                UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-                                authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                                SecurityContextHolder.getContext().setAuthentication(authenticationToken);
-                            }
+            }else if(!jwtServices.isTokenInBlackList(token)) {
+                boolean checkExpirationToken = jwtServices.isTokenExpiration(token);
+                if (!checkExpirationToken) {
+                    userName = jwtServices.ExtractUserName(token);
+                    if (userName != null) {
+                        UserDetails userDetails = this.userDetailsService.loadUserByUsername(userName);
+                        if (userName.equals(userDetails.getUsername()) && !jwtServices.isTokenExpiration(token)) {
+                            UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+                            authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                            SecurityContextHolder.getContext().setAuthentication(authenticationToken);
                         }
                     }
-            }else{
-                throw new ExpiredJwtException(null,null,"token is not found");
+                }
             }
         }catch (ExpiredJwtException | LoginException e){
             response.setStatus(403);
             response.getWriter().write("Login session expired");
             return;
         }catch (Exception e){
+                System.out.println(e.getMessage());
                 response.setStatus(401);
                 response.getWriter().write("token isn't valid");
                 return;

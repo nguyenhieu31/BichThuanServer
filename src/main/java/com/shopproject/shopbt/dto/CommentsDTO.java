@@ -18,4 +18,6 @@ public class CommentsDTO {
     private boolean isActive;
     private LocalDateTime createAt;
     private LocalDateTime updateAt;
+    private String description;
+    private String productName;
 }
