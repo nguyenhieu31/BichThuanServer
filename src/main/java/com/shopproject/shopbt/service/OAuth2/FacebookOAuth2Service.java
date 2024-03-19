@@ -21,9 +21,9 @@ import java.util.HashSet;
 @Service
 @RequiredArgsConstructor
 public class FacebookOAuth2Service {
-    @Value("${FACEBOOK.APP-ID}")
+    @Value("${FACEBOOK.APP_ID}")
     private String appId;
-    @Value("${FACEBOOK.APP-SECRET}")
+    @Value("${FACEBOOK.APP_SECRET}")
     private String appSecret;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;

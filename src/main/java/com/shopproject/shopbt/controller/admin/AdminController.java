@@ -22,7 +22,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -35,33 +34,6 @@ import java.util.Set;
         private ProductService productService;
         private OrderService orderService;
         private UserService userService;
-        private Set<OrderResponse> extractToOrderResponse(Set<OrdersDTO> orders){
-            Set<OrderResponse> response= new HashSet<>();
-            orders.forEach(order->{
-                String code=null;
-                if(order.getOrderCode()!=null){
-                    int findLastStringIndex= order.getOrderCode().toString().lastIndexOf("-");
-                    code= order.getOrderCode().toString().substring(findLastStringIndex+1);
-                }
-                var result= OrderResponse.builder()
-                        .orderId(order.getOrderId())
-                        .orderCode(code==null?"":code)
-                        .productImage(order.getProductImage())
-                        .priceUnit(order.getPriceUnit())
-                        .productName(order.getProductName())
-                        .fullName(order.getFullName())
-                        .size(order.getSize())
-                        .userId(order.getUserId())
-                        .quantity(order.getQuantity())
-                        .color(order.getColor())
-                        .address(order.getAddress())
-                        .status(order.getStatus())
-                        .createdAt(order.getCreatedAt())
-                        .build();
-                response.add(result);
-            });
-            return response;
-        }
         @GetMapping("/permission-page")
         public ResponseEntity<?> checkPermissionAccessPage(){
             try{
@@ -96,27 +68,6 @@ import java.util.Set;
             }
         }
 
-        @GetMapping("/order-today")
-        public ResponseEntity<?> AllOrderToday(){
-            try {
-                Set<OrdersDTO> all_order_today = orderService.findALLByOrderToday();
-                Set<OrderResponse> response= extractToOrderResponse(all_order_today);
-                return ResponseEntity.status(HttpStatus.OK).body(response);
-            } catch (Exception ex){
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
-            }
-        }
-
-        @GetMapping("/order-7-days")
-        public ResponseEntity<?> AllOrder7Days(){
-            try {
-                Set<OrdersDTO> all_order_7days = orderService.findAllOrderBy7Day();
-                Set<OrderResponse> response= extractToOrderResponse(all_order_7days);
-                return ResponseEntity.status(HttpStatus.OK).body(response);
-            } catch (Exception ex){
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
-            }
-        }
 
         @GetMapping("/user-today")
         public ResponseEntity<?> AllUserToday(){

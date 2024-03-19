@@ -42,7 +42,7 @@ public class MyOrderController {
     private OrderItemService orderItemService;
     private final OrderService orderService;
     private final Product_CartService productCartService;
-    private Set<Product_Detail_Order> findOrderByType(int type, List<Order> orderList) throws Exception {
+    private Set<Product_Detail_Order> findOrderByType(int type, List<Order> orderList) {
         Set<Product_Detail_Order> response= new HashSet<>();
         orderList.forEach(order->{
             if(order.getDeletedAt()!=null && order.getDeletedAt().isBefore(LocalDateTime.now())){

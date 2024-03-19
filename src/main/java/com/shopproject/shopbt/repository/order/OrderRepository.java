@@ -17,8 +17,12 @@ import java.util.Set;
 public interface OrderRepository extends JpaRepository<Order, Long>{
     @Query("SELECT new com.shopproject.shopbt.dto.OrdersDTO(o.orderId, o.createdAt, o.status, o.user.userName) FROM Order o")
     Page<OrdersDTO> findByOrderDate(Pageable pageable);
-    @Query("SELECT o from Order o")
-    Set<OrdersDTO> findAllOrder();
+    @Query("SELECT new com.shopproject.shopbt.dto.OrdersDTO(o.orderId, o.status, u.fullName, o.address, p.image, p.name, ot.pricePerUnit, ot.quantity, ot.size, ot.color,o.orderCode,o.createdAt) " +
+            "from Order o " +
+            "JOIN OrderItem ot ON o.orderId = ot.order.orderId\n" +
+            "JOIN Product p ON ot.product.productId = p.productId " +
+            "JOIN User u ON o.user.userid = u.userid")
+    List<OrdersDTO> findAllOrder();
     @Query("select o from Order o where o.user.userid = :orderId")
     List<Order> findOrdersByUser_Userid(@Param("orderId") Long orderId);
 
@@ -54,4 +58,16 @@ public interface OrderRepository extends JpaRepository<Order, Long>{
     OrdersDTO findStatusByOrderId(@Param("id") Long id);
     @Query("select o from Order o where o.status=:status and o.user.userid=:userId")
     Set<Order> findByStatusAndUserId(@Param("status") int status, @Param("userId") Long userId);
+    @Query("SELECT new com.shopproject.shopbt.dto.OrdersDTO(o.orderId, o.status, u.fullName, o.address, p.image, p.name, ot.pricePerUnit, ot.quantity, ot.size, ot.color,o.orderCode,o.createdAt)\n" +
+            "FROM Order o " +
+            "JOIN OrderItem ot ON o.orderId = ot.order.orderId " +
+            "JOIN Product p ON ot.product.productId = p.productId " +
+            "JOIN User u ON o.user.userid = u.userid where o.status=:status")
+    List<OrdersDTO> findOrderByStatus(@Param("status") Long status);
+    @Query("select new com.shopproject.shopbt.dto.OrdersDTO(o.orderId, o.status, u.fullName, o.address, p.image, p.name, ot.pricePerUnit, ot.quantity, ot.size, ot.color,o.orderCode,o.createdAt)" +
+            "FROM Order o " +
+            "JOIN OrderItem ot ON o.orderId = ot.order.orderId " +
+            "JOIN Product p ON ot.product.productId = p.productId " +
+            "JOIN User u ON o.user.userid = u.userid where cast(o.orderCode AS string) like concat('%',:orderCode,'%') and o.status=:status")
+    Optional<OrdersDTO> findOrderByOrderCode(@Param("orderCode") String orderCode, @Param("status") int status);
 }

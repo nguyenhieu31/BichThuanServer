@@ -1,6 +1,7 @@
 package com.shopproject.shopbt.filter;
 
 import com.shopproject.shopbt.ExceptionCustom.LoginException;
+import com.shopproject.shopbt.entity.User;
 import com.shopproject.shopbt.entity.WhiteList;
 import com.shopproject.shopbt.repository.WhiteList.WhiteListRepo;
 import com.shopproject.shopbt.service.JwtServices.JwtServices;
@@ -72,7 +73,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         try{
             token= authorization.substring(7);
             if(userId != null){
-                UserDetails userDetails= this.userDetailsService.loadUserByUsername(userId);
+                User userDetails= (User) this.userDetailsService.loadUserByUsername(userId);
                 WhiteList isToken= whiteListRepo.findByToken(token).orElse(null);
                 if(isToken!=null){
                     LocalDateTime now= LocalDateTime.now();

@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
@@ -59,6 +60,50 @@ public class OrderServiceImpl implements OrderService{
     public Set<Order> findOrderByStatusAndUserId(int type, Long userId) throws Exception {
         try{
             return orderRepository.findByStatusAndUserId(type,userId);
+        }catch (Exception e){
+            throw new Exception(e.getMessage());
+        }
+    }
+
+    @Override
+    public List<OrdersDTO> getAllOrderByStatus(Long status) throws Exception {
+        try{
+            if(status==6){
+                return orderRepository.findAllOrder();
+            }
+            return orderRepository.findOrderByStatus(status);
+        }catch (Exception e){
+            throw new Exception(e.getMessage());
+        }
+    }
+
+    @Override
+    public String handleOrder(Set<String> request) throws Exception {
+        try{
+            request.forEach(orderCode->{
+                Optional<OrdersDTO> isOrder= orderRepository.findOrderByOrderCode(orderCode,0);
+                if(isOrder.isPresent()){
+                    OrdersDTO ordersDTO=isOrder.get();
+                    ordersDTO.setStatus(1);
+                    orderRepository.save(readOrderDTO(ordersDTO));
+                }
+            });
+            return "Xử lý đơn hàng thành công";
+        }catch (Exception e){
+            throw new Exception(e.getMessage());
+        }
+    }
+
+    @Override
+    public String updateStatusOrder(int status, Set<String> request) throws Exception {
+        try{
+            request.forEach(orderCode->{
+                Optional<OrdersDTO> findOrder= orderRepository.findOrderByOrderCode(orderCode,status);
+                if(findOrder.isPresent()){
+                    
+                }
+            });
+            return null;
         }catch (Exception e){
             throw new Exception(e.getMessage());
         }
@@ -131,13 +176,6 @@ public class OrderServiceImpl implements OrderService{
         order.setStatus(ordersDTO.getStatus());
         return order;
     }
-//    private OrdersDTO ConvertDTO(Object[] order){
-//        OrdersDTO ordersDTO = new OrdersDTO();
-//        ordersDTO.setOrderId((Long) order[0]);
-//        ordersDTO.setStatus((Integer) order[1]);
-//        ordersDTO.setCreateAt((LocalDateTime) order[2]);
-//        return ordersDTO;
-//    }
     @Override
     public OrdersDTO findOrderById(Long id) {
         return readOrder(orderRepository.findOrderByOrderId(id).orElseThrow(() -> new RuntimeException("Order not found by id : " + id)));
@@ -164,7 +202,14 @@ public class OrderServiceImpl implements OrderService{
         Page<OrdersDTO> ordersPage = orderRepository.findLatestOrders(pageable);
         return ordersPage.getContent();
     }
-
+    @Override
+    public List<OrdersDTO> findAllOrder() throws Exception {
+        try{
+            return orderRepository.findAllOrder();
+        }catch (Exception e){
+            throw new Exception(e.getMessage());
+        }
+    }
     @Override
     public Set<OrdersDTO> findALLByOrderToday() {
         return orderRepository.findALLByOrderToday();

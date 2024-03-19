@@ -18,7 +18,7 @@ import java.util.*;
 @AllArgsConstructor
 @Entity
 @Table(name = "Users")
-public class User implements UserDetails {
+public class  User implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long userid;
@@ -69,7 +69,7 @@ public class User implements UserDetails {
     private Cart cart;
     @Override
     public String getUsername() {
-        return email!=null?email:userName;
+        return userName;
     }
     @Override
     public boolean isAccountNonExpired() {

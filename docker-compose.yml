@@ -7,8 +7,8 @@ services:
     ports:
       - 8087:8087
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://db.wwskgqabljuehiwkhqhj.supabase.co:5432/postgres
-      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_URL: jdbc:postgresql://aws-0-ap-southeast-1.pooler.supabase.com:5432/postgres
+      SPRING_DATASOURCE_USERNAME: postgres.wwskgqabljuehiwkhqhj
       SPRING_DATASOURCE_PASSWORD: BichThuanShop20122023@
       SPRING_DATASOURCE_DRIVER-CLASS-NAME: org.postgresql.Driver
       SPRING_JPA_HIBERNATE_DDL-AUTO: none
@@ -17,26 +17,28 @@ services:
       SERVER_PORT: "8087"
       JWT_SECRET_KEY: tHjPU5EeOEZtEgxIHgBxXqZ1uij0PlAErQXNocKDuxzvzbFSZ6DHshSch1/Um7lF
       JWT_EXPIRATION_ACCESS_TOKEN: "900000"
-      JWT_EXPIRATION_REFRESH_TOKEN: "86400000"
+      JWT_EXPIRATION_REFRESH_TOKEN: "172800000"
       ACCESS_TOKEN_KEY: "1"
       REFRESH_TOKEN_KEY: "2"
       SPRING_APPLICATION_NAME: bichthuan-app
       SERVER_SERVLET_CONTEXT-PATH: /api/v1
-      SPRING_DATA_REDIS_HOST: redis
-      SPRING_DATA_REDIS_PORT: 6379
+#      SPRING_DATA_REDIS_HOST: redis
+#      SPRING_DATA_REDIS_PORT: 6379
       GOOGLE.CLIENT_ID: 113414924296-lofvl5t2be4ivhr84i5o3o709sp19jof.apps.googleusercontent.com
       GOOGLE.CLIENT_SECRET: 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
       GOOGLE.REDIRECT_URI: http://localhost:3000
       GOOGLE.GRANT_TYPE: authorization_code
-      GOOGLE.SCOPE[0]: email
-      GOOGLE.SCOPE[1]: profile
-      GOOGLE.ID-TOKEN: 3
-      GOOGLE.STATE_KEY: state
-      GOOGLE.EXPIRES_ACCESS-TOKEN: 3600000
-      GOOGLE.EXPIRES_REFRESH-TOKEN: 172800000
+#      GOOGLE.SCOPE[0]: email
+#      GOOGLE.SCOPE[1]: profile
+#      GOOGLE.ID-TOKEN: 3
+#      GOOGLE.STATE_KEY: state
+#      GOOGLE.EXPIRES_ACCESS-TOKEN: 3600000
+#      GOOGLE.EXPIRES_REFRESH-TOKEN: 172800000
       GOOGLE.TOKEN.URL: https://oauth2.googleapis.com/token
       GOOGLE.REVOKE.URL: https://oauth2.googleapis.com/revoke
       GOOGLE.USERINFO.URL: https://www.googleapis.com/oauth2/v3/userinfo
+      FACEBOOK.APP_ID: 3206477762992762
+      FACEBOOK.APP_SECRE: c4918ad547924f6fb37e2ac30a6fe715
   db:
     image: postgres:15-alpine
     environment:

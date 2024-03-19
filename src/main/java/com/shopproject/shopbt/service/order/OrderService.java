@@ -22,6 +22,7 @@ public interface OrderService {
     List<Order> findOrdersByUserId(Long id);
 
     List<OrdersDTO> findLatestOrders(Pageable pageable);
+    List<OrdersDTO> findAllOrder() throws Exception;
 
     Set<OrdersDTO> findALLByOrderToday();
 
@@ -30,4 +31,7 @@ public interface OrderService {
     OrdersDTO findStatusByOrderId(Long id);
     Order cancelOrder(Order order, String reasonCancel) throws Exception;
     Set<Order> findOrderByStatusAndUserId(int type, Long userId) throws Exception;
+    List<OrdersDTO> getAllOrderByStatus(Long status) throws Exception;
+    String handleOrder(Set<String> request) throws Exception;
+    String updateStatusOrder(int status, Set<String> request) throws Exception;
 }
