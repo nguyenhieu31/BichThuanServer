@@ -1,0 +1,13 @@
+{
+  "type": "service_account",
+  "project_id": "bichthuanshop",
+  "private_key_id": "6ad812e6163615d9e54b6e9fc3395535f5371aa6",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvwIBADANBgkqhkiG9w0BAQEFAASCBKkwggSlAgEAAoIBAQDariyvgFnq9eh8\nEnVkXvAA/+mgEZCYW+zUz0sqzwS4+WyCqmSpAdhkou+UoLt/VWbepT6Ce5vloPbb\ntHTL2R8D/F9mESQCU9Y47V96fzEXQhYaQ/0xymQUyF+js3QuntI14BWO0USNz3j+\nOya0lZqResR4cskqPRNlp54YMocH2553FfTojrqqdFsotW7BNVsigwfETNVF2irz\naOXr+I2A8StKqIHc1T5dkkio3TBcU9bsnlg1GM2aQvJrRhYDlILL+bV5vqn6pdAF\nNyuTS+3XgiKwrUaxws0UhOFrPKguA6SB1wBG70qBlORsZyerBVsqC6dJ5c+lFIth\nf4SI4LZnAgMBAAECggEAOCR2aXpY23dVwCDXDbVIBeGt38ASsOMM2xf7MtriWgED\nSEqpvDAyl6ezPaPEb20EE442Dbbhb+NS7VYXlExCZ7oP3frxlT1j5sqedCsadd+s\nIAMrinBtIF7PGw6T+fIhgt5senWklYnaBN830S4FeGsd7NR/a/4xMCyH7KtwOmZA\nxikZXftzd/JctDjm5OVQBnweCc65VbalmHt5qPcKQuESYju0Y3rH22AkuYh16H8s\nnt5vPUVSo4lLkCLQTXxpmPGpK185LW1mW8UHniv+EViRd1v4acRt33vctoHx4+x+\nFC6zKhPyem9Zz8FdUE+X4whb6qcHi30Q3GpDLQ9E1QKBgQD65spYBb7wgSi3c3Vx\nFo1BGsRbD8KA19YnRdgM9Z+rnUXDkSlBVWeox8T8TpaEonOzTCtIM2KY+vo+IL1g\nG9jo1zk+R2bcC5gvUxMwMANH1x4nOMIXbGJHdMhzPxU8yT+qp/teRtJ3Tz1QeraM\nhON3r+f1x92iR14hXMZ80SyAvQKBgQDfH8Rjm52oMgQoOMZA/v9zw4inRk290zQN\nEE1vbpSonw1sf1oC8YjvjoOSi1tZUI5ZYXVhlCufAAG7fSf9X4RqUfCU0dvTAXZT\nTVurrGHwkpy8szZnSf1VT1/b+yq5A9Mu7vjc+DTqxiqB3+qDZz0gxsQbHXYryoF3\n3Uia6QQ/8wKBgQCXZ8YbL/x1LbvgWHA6eh1reDedq/j3v0egE2m5CE/+Q73hsitv\nHZacJ1Eb4GC8UTv4qrJDs56AKpPwAdnFsYhHmfkVOAk+KFEB3ePqZE7Wf13W1U1q\nzSDRdguwYBT0xY0B8rShw6MmFE8vzZ1zVo3dn+0eSCnaz65h+5Zbo+5zEQKBgQCL\nxF2EO+3Vd4dNHstp2ZJxlNHcXtjCCTQ43rZzECUFP6TsCxZ6c4zg6zgWKz+Mwj55\nVOhvuJ5emmV7adoMCLJs22lF//OgyPCzG+lJr9EmHuEZ/3Ub3KhZsUAOD9biULgQ\nVVgFK2ISkxH7iyVfLOOIzZn4lkr5AYB6cl5R05d66wKBgQDNqcCo1Kd9yrcwl1Rf\npjA2sKQO6+fPREDgbf4gksI11DQ5metFg4h7U6UqpovT8XDbQJ2VHNLKsn7koG1F\n/xAt/jJMyO1wuGHxzuDgpWQz+oj5k0ud8+ysoRhnULTrfIqwPoZgPAmOY2SE6nK7\niOHMw9l8RJbiNucB8klQ9fLTXQ==\n-----END PRIVATE KEY-----\n",
+  "client_email": "bichthuanshop@bichthuanshop.iam.gserviceaccount.com",
+  "client_id": "107976690999779115603",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/bichthuanshop%40bichthuanshop.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}
